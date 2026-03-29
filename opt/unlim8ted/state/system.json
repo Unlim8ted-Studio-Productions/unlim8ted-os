@@ -6,11 +6,11 @@
     "last_error": "libcamera tools not installed",
     "preview_active": false
   },
-  "display_awake": false,
+  "display_awake": true,
   "idle_timeout_sec": 45,
-  "last_interaction": 1774791827.9075286,
-  "last_sleep_reason": "idle",
-  "sleeping": true,
+  "last_interaction": 1774827896.002229,
+  "last_sleep_reason": "",
+  "sleeping": false,
   "toggles": {
     "airplane": false,
     "bluetooth": true,

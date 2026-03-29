@@ -480,12 +480,80 @@ function renderStructuredApp(payload) {
 
 const appTemplateCache = new Map();
 const appClientLoaderCache = new Map();
+window.__unlim8tedLogs = window.__unlim8tedLogs || [];
+
+function shellLog(level, scope, message, extra = null) {
+    const entry = {
+        at: new Date().toISOString(),
+        level,
+        scope,
+        message,
+        extra
+    };
+    window.__unlim8tedLogs.push(entry);
+    if (window.__unlim8tedLogs.length > 200) window.__unlim8tedLogs.shift();
+    const logger = typeof console[level] === 'function' ? console[level] : console.log;
+    if (extra === null || typeof extra === 'undefined') {
+        logger(`[UNLIM8TED/${scope}] ${message}`);
+        const panel = document.getElementById('debugConsole');
+        if (panel) {
+            const row = document.createElement('div');
+            row.textContent = `[${scope}] ${message}`;
+            panel.prepend(row);
+            while (panel.childElementCount > 24) panel.removeChild(panel.lastElementChild);
+        }
+        return;
+    }
+    logger(`[UNLIM8TED/${scope}] ${message}`, extra);
+    const panel = document.getElementById('debugConsole');
+    if (panel) {
+        const row = document.createElement('div');
+        const detail = typeof extra === 'string' ? extra : (extra?.message || JSON.stringify(extra));
+        row.textContent = `[${scope}] ${message}${detail ? ` :: ${detail}` : ''}`;
+        panel.prepend(row);
+        while (panel.childElementCount > 24) panel.removeChild(panel.lastElementChild);
+    }
+}
+
+window.addEventListener('error', (event) => {
+    shellLog('error', 'window', event?.message || 'Unhandled error', {
+        source: event?.filename || '',
+        line: event?.lineno || 0,
+        column: event?.colno || 0
+    });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    shellLog('error', 'promise', 'Unhandled rejection', event?.reason || null);
+});
+
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+});
+
+document.addEventListener('auxclick', (event) => {
+    if (event.button === 2) event.preventDefault();
+});
+
+function renderAppFailure(appId, title, error) {
+    const appName = escapeHtml(title || appTitles[appId] || appId || 'App');
+    const detail = escapeHtml(error?.message || String(error || 'Unknown error'));
+    shellLog('error', appId || 'app', 'App failure rendered in shell', error);
+    appBody.innerHTML = `
+        <div class="content-card">
+            <div class="content-title">${appName}</div>
+            <div class="content-text">This app failed to load. The shell is still running.</div>
+            <div class="content-text" style="margin-top:12px;color:rgba(255,200,200,.82);">${detail}</div>
+        </div>
+    `;
+}
 
 async function ensureAppClient(appId, scriptUrl) {
     if (!appId || !scriptUrl) return null;
     if (window.Unlim8tedAppClients?.[appId]) return window.Unlim8tedAppClients[appId];
     if (!appClientLoaderCache.has(appId)) {
         appClientLoaderCache.set(appId, (async () => {
+            shellLog('log', appId, 'Loading app client', { scriptUrl });
             const response = await fetch(scriptUrl, { cache: 'no-store' });
             if (!response.ok) throw new Error(`Failed to load app client: ${appId}`);
             const code = await response.text();
@@ -494,12 +562,17 @@ async function ensureAppClient(appId, scriptUrl) {
             script.text = code + `\n//# sourceURL=${scriptUrl}`;
             document.head.appendChild(script);
             script.remove();
+            if (!window.Unlim8tedAppClients?.[appId]) {
+                throw new Error('App client did not register itself: ' + appId);
+            }
+            shellLog('log', appId, 'App client loaded');
             return window.Unlim8tedAppClients?.[appId] || null;
         })());
     }
     try {
         return await appClientLoaderCache.get(appId);
-    } catch (_error) {
+    } catch (error) {
+        shellLog('error', appId, 'App client load failed', error);
         appClientLoaderCache.delete(appId);
         return null;
     }
@@ -532,7 +605,9 @@ function buildAppClientContext(appId, payload) {
 async function renderAppClient(payload, appId) {
     const client = await ensureAppClient(appId, payload?.client_script_url || '');
     if (!client || typeof client.render !== 'function') return false;
+    shellLog('log', appId, 'Rendering app client');
     await client.render(payload || {}, buildAppClientContext(appId, payload || {}));
+    shellLog('log', appId, 'Rendered app client');
     return true;
 }
 
@@ -543,8 +618,10 @@ async function fetchAppTemplate(url) {
         const response = await fetch(url, { cache: 'no-store' });
         const html = response.ok ? await response.text() : '';
         appTemplateCache.set(url, html);
+        shellLog('log', 'template', 'Fetched app template', { url, ok: response.ok });
         return html;
-    } catch (_error) {
+    } catch (error) {
+        shellLog('error', 'template', 'Failed to fetch app template', { url, error });
         return '';
     }
 }
@@ -554,9 +631,51 @@ function renderStructuredSectionsMarkup(payload) {
 }
 
 async function renderTemplateApp(payload, appId) {
-    const templateHtml = await fetchAppTemplate(payload?.template_url || '');
-    if (!templateHtml) {
+    try {
+        shellLog('log', appId, 'Rendering template app');
+        const templateHtml = await fetchAppTemplate(payload?.template_url || '');
+        if (!templateHtml) {
+            if (await renderAppClient(payload || {}, appId)) {
+                return;
+            }
+            if (payload?.view === 'structured') {
+                renderStructuredApp(payload || {});
+                return;
+            }
+            renderHtmlApp(payload, appId);
+            return;
+        }
+        appBody.innerHTML = templateHtml;
         if (await renderAppClient(payload || {}, appId)) {
+            return;
+        }
+        const slot = appBody.querySelector('[data-app-slot="content"]');
+        if (!slot) return;
+        if (payload?.view === 'structured') {
+            slot.innerHTML = renderStructuredSectionsMarkup(payload || {});
+            return;
+        }
+        slot.innerHTML = payload?.html || '';
+    } catch (error) {
+        renderAppFailure(appId, payload?.title, error);
+    }
+}
+
+async function renderAppPayload(payload, appId) {
+    try {
+        appTitle.textContent = payload?.title || appTitles[appId] || 'App';
+        if (appTop) appTop.style.display = '';
+        appView.classList.remove('browser-chrome-only');
+        appBody.style.padding = '';
+        appBody.style.gap = '';
+        appBody.style.alignContent = '';
+        if (payload?.view === 'camera' || appId === 'camera') {
+            renderCameraApp();
+            startCameraPreview();
+            return;
+        }
+        if (payload?.template_url || payload?.client_script_url) {
+            await renderTemplateApp(payload || {}, appId);
             return;
         }
         if (payload?.view === 'structured') {
@@ -564,54 +683,140 @@ async function renderTemplateApp(payload, appId) {
             return;
         }
         renderHtmlApp(payload, appId);
-        return;
+    } catch (error) {
+        renderAppFailure(appId, payload?.title, error);
     }
-    appBody.innerHTML = templateHtml;
-    if (await renderAppClient(payload || {}, appId)) {
-        return;
-    }
-    const slot = appBody.querySelector('[data-app-slot="content"]');
-    if (!slot) return;
-    if (payload?.view === 'structured') {
-        slot.innerHTML = renderStructuredSectionsMarkup(payload || {});
-        return;
-    }
-    slot.innerHTML = payload?.html || '';
-}
-
-async function renderAppPayload(payload, appId) {
-    appTitle.textContent = payload?.title || appTitles[appId] || 'App';
-    if (appTop) appTop.style.display = '';
-    appView.classList.remove('browser-chrome-only');
-    appBody.style.padding = '';
-    appBody.style.gap = '';
-    appBody.style.alignContent = '';
-    if (payload?.view === 'camera' || appId === 'camera') {
-        renderCameraApp();
-        startCameraPreview();
-        return;
-    }
-    if (payload?.template_url || payload?.client_script_url) {
-        await renderTemplateApp(payload || {}, appId);
-        return;
-    }
-    if (payload?.view === 'structured') {
-        renderStructuredApp(payload || {});
-        return;
-    }
-    renderHtmlApp(payload, appId);
 }
 
 async function openApp(appId) {
     if (state.sleeping) return;
     noteActivity(true);
-    const response = await requestJson(`/api/apps/${encodeURIComponent(appId)}`);
-    const payload = response?.app || null;
-    if (response?.system) applySystemState(response.system);
-    rememberRecentApp(appId, payload || {});
-    state.appOpen = true;
-    state.appId = appId;
-    await renderAppPayload(payload || {}, appId);
-    appView.classList.add('open');
+    try {
+        shellLog('log', appId, 'Opening app');
+        const response = await requestJson(`/api/apps/${encodeURIComponent(appId)}`);
+        const payload = response?.app || null;
+        if (response?.system) applySystemState(response.system);
+        rememberRecentApp(appId, payload || {});
+        state.appOpen = true;
+        state.appId = appId;
+        await renderAppPayload(payload || {}, appId);
+        appView.classList.add('open');
+        shellLog('log', appId, 'App open complete');
+    } catch (error) {
+        state.appOpen = true;
+        state.appId = appId;
+        appTitle.textContent = appTitles[appId] || 'App';
+        appView.classList.add('open');
+        renderAppFailure(appId, appTitles[appId], error);
+    }
 }
 
+
+
+function renderCameraApp() {
+    appBody.innerHTML = `
+        <div class="content-card">
+            <div class="content-title">Camera</div>
+            <div class="content-text">Camera preview is unavailable in this shell build.</div>
+        </div>
+    `;
+}
+
+function startCameraPreview() {
+    if (state.cameraPoll) {
+        clearInterval(state.cameraPoll);
+        state.cameraPoll = null;
+    }
+}
+
+function stopCameraPreview(clearOnly = false) {
+    if (state.cameraPoll) {
+        clearInterval(state.cameraPoll);
+        state.cameraPoll = null;
+    }
+    return clearOnly;
+}
+
+async function closeApp() {
+    stopCameraPreview(true);
+    closeAppSwitcher();
+    state.appOpen = false;
+    state.appId = '';
+    appView.classList.remove('open');
+    appBody.innerHTML = '';
+    if (appTop) appTop.style.display = '';
+}
+
+function bindShellUi() {
+    document.querySelectorAll('.app').forEach((button) => {
+        button.addEventListener('click', async () => {
+            if (state.sleeping) return;
+            if (!state.unlocked) unlock();
+            await openApp(button.dataset.app || '');
+        });
+    });
+
+    toggles.forEach((toggle) => {
+        toggle.addEventListener('click', async () => {
+            const action = toggle.dataset.action || '';
+            if (!action) return;
+            const payload = await sendSystemCommand(action);
+            if (payload?.system) applySystemState(payload.system);
+        });
+    });
+
+    brightnessRange?.addEventListener('input', () => {
+        brightnessValue.textContent = `${brightnessRange.value}%`;
+    });
+    brightnessRange?.addEventListener('change', () => {
+        setBrightness(Number(brightnessRange.value || 68));
+    });
+
+    sleepButton?.addEventListener('click', () => sleepSystem('button'));
+    closeAppBtn?.addEventListener('click', () => closeApp());
+    ccBackdrop?.addEventListener('click', () => closeControlCenter());
+
+    pages?.addEventListener('scroll', () => {
+        const width = pages.clientWidth || 1;
+        setActivePage(Math.round(pages.scrollLeft / width));
+    }, { passive: true });
+
+    document.addEventListener('pointerdown', (event) => {
+        if (state.sleeping) {
+            wakeSystem('tap');
+            return;
+        }
+        noteActivity();
+        if (!state.unlocked && !event.target.closest('#controlCenter')) {
+            unlock();
+        }
+    }, { passive: true });
+
+    document.addEventListener('keydown', (event) => {
+        if (state.sleeping) {
+            wakeSystem('key');
+            return;
+        }
+        noteActivity(true);
+        if (event.key === 'Escape') {
+            if (state.appOpen) {
+                closeApp();
+                return;
+            }
+            if (state.controlOpen) {
+                closeControlCenter();
+            }
+        }
+        if (event.key.toLowerCase() === 'p') {
+            sleepSystem('power-key');
+        }
+    });
+}
+
+restoreHomeLayout();
+updateTime();
+setInterval(updateTime, 1000);
+syncSystemState();
+scheduleIdleSleep();
+bindShellUi();
+shellLog('log', 'shell', 'Shell bootstrap restored');

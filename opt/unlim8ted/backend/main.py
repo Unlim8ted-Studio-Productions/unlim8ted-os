@@ -45,6 +45,7 @@ CAPTURES_DIR = os.path.join(STATE_DIR, "captures")
 PREVIEW_PATH = os.path.join(STATE_DIR, "camera-preview.jpg")
 REGISTRY_PATH = os.path.join(BASE_DIR, "commands", "registry.json")
 MEDIA_PREFIX = "/media/captures/"
+CHROMIUM_PROFILE_DIR = os.path.join(STATE_DIR, "chromium-profile")
 
 server_instance = None
 
@@ -929,6 +930,7 @@ def stop_backend():
 def start_ui():
     system = platform.system()
     config = device_service.config
+    os.makedirs(CHROMIUM_PROFILE_DIR, exist_ok=True)
 
     if system == "Windows":
         user = os.environ.get("USERNAME")
@@ -945,6 +947,11 @@ def start_ui():
                 "--window-size=360,780",
                 "--window-position=0,0",
                 "--force-device-scale-factor=1",
+                f"--user-data-dir={CHROMIUM_PROFILE_DIR}",
+                "--no-first-run",
+                "--no-default-browser-check",
+                "--disable-session-crashed-bubble",
+                "--disable-component-update",
                 "--user-agent=Mozilla/5.0 (Linux; Android 10; Mobile)",
                 f"--app=http://localhost:{PORT}",
             ]
@@ -972,8 +979,12 @@ def start_ui():
         browser,
         "--window-size=720,1560",
         "--no-sandbox",
+        f"--user-data-dir={CHROMIUM_PROFILE_DIR}",
+        "--no-first-run",
+        "--no-default-browser-check",
         "--disable-session-crashed-bubble",
         "--disable-infobars",
+        "--disable-component-update",
         "--check-for-update-interval=31536000",
         f"--app=http://localhost:{PORT}",
     ]
