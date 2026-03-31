@@ -54,6 +54,21 @@ def log(msg):
     print(msg, flush=True)
 
 
+def log_client_event(payload):
+    scope = str(payload.get("scope", "client") or "client")
+    level = str(payload.get("level", "log") or "log").upper()
+    message = str(payload.get("message", "") or "")
+    extra = payload.get("extra")
+    if extra is None:
+        log(f"[CLIENT/{level}/{scope}] {message}")
+        return
+    try:
+        detail = json.dumps(extra, ensure_ascii=False, sort_keys=True)
+    except (TypeError, ValueError):
+        detail = str(extra)
+    log(f"[CLIENT/{level}/{scope}] {message} :: {detail}")
+
+
 def port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         return sock.connect_ex(("127.0.0.1", port)) == 0
@@ -856,6 +871,11 @@ body {{
 
         if path == "/api/system/activity":
             self._send_json({"ok": True, "system": device_service.remember_activity()})
+            return
+
+        if path == "/api/log/client":
+            log_client_event(data)
+            self._send_json({"ok": True})
             return
 
         app_id, subpath = parse_app_route(path)

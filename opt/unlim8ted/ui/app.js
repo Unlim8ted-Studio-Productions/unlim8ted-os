@@ -26,7 +26,13 @@ const state = {
     appSwitcherOpen: false,
     homeEditMode: false,
     homeEditTimer: null,
-    selectedHomeApp: null
+    selectedHomeApp: null,
+    pagePointerId: null,
+    pageDragStartX: 0,
+    pageDragStartY: 0,
+    pageDragOrigin: 0,
+    pageDragMoved: false,
+    suppressAppClick: false
 };
 
 const lockscreen = document.getElementById('lockscreen');
@@ -37,10 +43,16 @@ const dots = Array.from(document.querySelectorAll('.dot'));
 const controlCenter = document.getElementById('controlCenter');
 const ccSheet = document.getElementById('ccSheet');
 const ccBackdrop = document.getElementById('ccBackdrop');
+const topConfigHandle = document.getElementById('topConfigHandle');
+const statusTimeButton = document.getElementById('statusTimeButton');
 const appView = document.getElementById('appView');
 const appBody = document.getElementById('appBody');
 const appTitle = document.getElementById('appTitle');
 const closeAppBtn = document.getElementById('closeAppBtn');
+const switchAppsBtn = document.getElementById('switchAppsBtn');
+const homeNavBtn = document.getElementById('homeNavBtn');
+const quickSettingsBtn = document.getElementById('quickSettingsBtn');
+const appSwitcherSheet = document.getElementById('appSwitcherSheet');
 const brightnessRange = document.getElementById('brightnessRange');
 const brightnessValue = document.getElementById('brightnessValue');
 const sleepButton = document.getElementById('sleepButton');
@@ -48,7 +60,7 @@ const sleepScreen = document.getElementById('sleepScreen');
 const sleepTime = document.getElementById('sleepTime');
 const toggles = Array.from(document.querySelectorAll('.toggle'));
 
-closeAppBtn.textContent = 'x';
+closeAppBtn.textContent = '×';
 
 const appTitles = {
     phone: 'Phone',
@@ -139,69 +151,110 @@ function swapHomeApps(first, second) {
 
 function rememberRecentApp(appId, payload = null) {
     const title = payload?.title || appTitles[appId] || 'App';
+    const subtitle = payload?.subtitle || payload?.view || (appId === state.appId ? 'Currently open' : 'Ready');
+    const preview = payload?.sections?.slice?.(0, 3)?.map((section) => section.title || section.body || '').filter(Boolean) || [];
     state.recentApps = state.recentApps.filter((item) => item.id !== appId);
-    state.recentApps.unshift({ id: appId, title });
+    state.recentApps.unshift({ id: appId, title, subtitle, preview });
     state.recentApps = state.recentApps.slice(0, 8);
 }
 
-function renderAppSwitcher() {
-    if (!state.appOpen) return '';
-    const items = state.recentApps.length ? state.recentApps : [{ id: state.appId, title: appTitles[state.appId] || 'App' }];
-    const cards = items.map((item) => `
-        <button type="button" data-switch-app="${escapeHtml(item.id)}" style="display:grid;gap:6px;width:100%;text-align:left;padding:14px;border-radius:20px;border:1px solid rgba(140,186,255,.12);background:${item.id === state.appId ? 'rgba(155,205,255,.16)' : 'rgba(255,255,255,.04)'};color:#eef3ff;">
-            <span style="font-size:15px;font-weight:800;">${escapeHtml(item.title)}</span>
-            <span style="font-size:11px;color:#91a8ca;text-transform:uppercase;letter-spacing:.12em;">${escapeHtml(item.id)}</span>
-        </button>
-    `).join('');
+function removeRecentApp(appId) {
+    state.recentApps = state.recentApps.filter((item) => item.id !== appId);
+}
+
+function renderAppSwitcherPreview(item) {
+    const previewRows = (item.preview?.length ? item.preview : [
+        `${item.title} is ready to resume.`,
+        state.appId === item.id ? 'This task is active right now.' : 'Tap to jump back in.',
+        'Swipe up from the bottom anytime to return here.'
+    ]).slice(0, 3).map((line) => `<div class="content-text" style="max-width:none;">${escapeHtml(line)}</div>`).join('');
     return `
-        <div id="appSwitcherSheet" style="position:absolute;inset:0;display:none;align-items:flex-end;justify-content:center;padding:24px 16px calc(var(--safe-bottom) + 20px);background:rgba(5,9,16,.52);backdrop-filter:blur(14px);z-index:12;">
-            <div style="width:min(560px,100%);display:grid;gap:12px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px;">
-                    <div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#93a9ca;">Open Apps</div>
-                    <button type="button" id="appSwitcherExit" style="height:34px;padding:0 14px;border-radius:17px;border:1px solid rgba(140,186,255,.12);background:rgba(100,145,255,.08);color:#eef3ff;">Exit App</button>
+        <div class="switcher-card ${item.id === state.appId ? 'active' : ''}" data-switch-app="${escapeHtml(item.id)}" tabindex="0" role="button">
+            <div class="switcher-card-top">
+                <div>
+                    <div style="font-size:18px;font-weight:800;">${escapeHtml(item.title)}</div>
+                    <div class="switcher-card-id">${escapeHtml(item.id)}</div>
                 </div>
-                <div style="display:grid;gap:10px;">${cards}</div>
+                <button type="button" class="switcher-btn" data-close-recent="${escapeHtml(item.id)}">Close</button>
+            </div>
+            <div class="switcher-preview">
+                <div class="switcher-preview-bar"><span></span><span></span><span></span></div>
+                <div class="content-title" style="margin:0;">${escapeHtml(item.subtitle || 'Task')}</div>
+                ${previewRows}
             </div>
         </div>
     `;
 }
 
 function ensureAppSwitcher() {
-    let node = document.getElementById('appSwitcherSheet');
-    if (!node) {
-        appView.insertAdjacentHTML('beforeend', renderAppSwitcher());
-        node = document.getElementById('appSwitcherSheet');
-    } else {
-        node.outerHTML = renderAppSwitcher();
-        node = document.getElementById('appSwitcherSheet');
-    }
-    document.querySelectorAll('[data-switch-app]').forEach((button) => {
+    if (!appSwitcherSheet) return null;
+    const items = state.recentApps.length ? state.recentApps : [];
+    appSwitcherSheet.innerHTML = `
+        <div class="switcher-shell">
+            <div class="switcher-top">
+                <div class="switcher-title">Android Recents</div>
+                <div class="switcher-actions">
+                    <button type="button" class="switcher-btn" id="appSwitcherHome">Home</button>
+                    <button type="button" class="switcher-btn" id="appSwitcherClear">Clear All</button>
+                </div>
+            </div>
+            ${items.length ? `<div class="switcher-list">${items.map(renderAppSwitcherPreview).join('')}</div>` : `<div class="switcher-empty">No recent apps yet. Open an app, then swipe up from the bottom to get Android-style recents.</div>`}
+        </div>
+    `;
+    appSwitcherSheet.querySelectorAll('[data-switch-app]').forEach((button) => {
         button.addEventListener('click', async () => {
             closeAppSwitcher();
             await openApp(button.dataset.switchApp || '');
         });
+        button.addEventListener('keydown', async (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            closeAppSwitcher();
+            await openApp(button.dataset.switchApp || '');
+        });
     });
-    document.getElementById('appSwitcherExit')?.addEventListener('click', () => {
+    appSwitcherSheet.querySelectorAll('[data-close-recent]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const appId = button.dataset.closeRecent || '';
+            removeRecentApp(appId);
+            if (state.appId === appId) closeApp();
+            ensureAppSwitcher();
+            if (!state.recentApps.length) closeAppSwitcher();
+        });
+    });
+    appSwitcherSheet.querySelector('#appSwitcherHome')?.addEventListener('click', () => {
         closeAppSwitcher();
         closeApp();
     });
-    node?.addEventListener('click', (event) => {
-        if (event.target?.id === 'appSwitcherSheet') closeAppSwitcher();
+    appSwitcherSheet.querySelector('#appSwitcherClear')?.addEventListener('click', () => {
+        state.recentApps = [];
+        closeApp();
+        ensureAppSwitcher();
     });
-    return node;
+    appSwitcherSheet.onclick = (event) => {
+        if (event.target === appSwitcherSheet) closeAppSwitcher();
+    };
+    return appSwitcherSheet;
 }
 
 function openAppSwitcher() {
-    if (!state.appOpen) return;
+    if (state.sleeping || !state.unlocked) return;
+    closeControlCenter();
     state.appSwitcherOpen = true;
     const node = ensureAppSwitcher();
-    if (node) node.style.display = 'flex';
+    if (node) {
+        node.classList.add('visible');
+        node.setAttribute('aria-hidden', 'false');
+    }
 }
 
 function closeAppSwitcher() {
     state.appSwitcherOpen = false;
-    const node = document.getElementById('appSwitcherSheet');
-    if (node) node.style.display = 'none';
+    if (appSwitcherSheet) {
+        appSwitcherSheet.classList.remove('visible');
+        appSwitcherSheet.setAttribute('aria-hidden', 'true');
+    }
 }
 
 async function requestJson(url, options = {}) {
@@ -265,7 +318,8 @@ function lockDevice() {
 }
 
 function openControlCenter() {
-    if (!state.unlocked || state.appOpen || state.sleeping) return;
+    if (!state.unlocked || state.sleeping) return;
+    closeAppSwitcher();
     state.controlOpen = true;
     controlCenter.classList.add('visible');
     controlCenter.setAttribute('aria-hidden', 'false');
@@ -481,6 +535,26 @@ function renderStructuredApp(payload) {
 const appTemplateCache = new Map();
 const appClientLoaderCache = new Map();
 window.__unlim8tedLogs = window.__unlim8tedLogs || [];
+let clientLogSequence = 0;
+
+async function sendClientLog(level, scope, message, extra = null) {
+    clientLogSequence += 1;
+    try {
+        await fetch('/api/log/client', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                seq: clientLogSequence,
+                level,
+                scope,
+                message,
+                extra
+            }),
+            keepalive: true
+        });
+    } catch (_error) {
+    }
+}
 
 function shellLog(level, scope, message, extra = null) {
     const entry = {
@@ -513,18 +587,27 @@ function shellLog(level, scope, message, extra = null) {
         panel.prepend(row);
         while (panel.childElementCount > 24) panel.removeChild(panel.lastElementChild);
     }
+    if (level === 'error') {
+        sendClientLog(level, scope, message, extra);
+    }
 }
 
 window.addEventListener('error', (event) => {
     shellLog('error', 'window', event?.message || 'Unhandled error', {
         source: event?.filename || '',
         line: event?.lineno || 0,
-        column: event?.colno || 0
+        column: event?.colno || 0,
+        stack: event?.error?.stack || ''
     });
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-    shellLog('error', 'promise', 'Unhandled rejection', event?.reason || null);
+    const reason = event?.reason;
+    shellLog('error', 'promise', 'Unhandled rejection', {
+        message: reason?.message || String(reason || ''),
+        stack: reason?.stack || '',
+        detail: typeof reason === 'object' ? reason : String(reason || '')
+    });
 });
 
 document.addEventListener('contextmenu', (event) => {
@@ -691,6 +774,8 @@ async function renderAppPayload(payload, appId) {
 async function openApp(appId) {
     if (state.sleeping) return;
     noteActivity(true);
+    closeControlCenter();
+    closeAppSwitcher();
     try {
         shellLog('log', appId, 'Opening app');
         const response = await requestJson(`/api/apps/${encodeURIComponent(appId)}`);
@@ -747,11 +832,92 @@ async function closeApp() {
     if (appTop) appTop.style.display = '';
 }
 
+function isInteractiveElement(target) {
+    return !!target?.closest?.('button, input, textarea, select, a, [data-app-action], [data-app-form]');
+}
+
+function snapToPage(index) {
+    if (!pages) return;
+    const maxIndex = Math.max(0, dots.length - 1);
+    const nextIndex = Math.max(0, Math.min(maxIndex, index));
+    const width = pages.clientWidth || 1;
+    pages.scrollTo({ left: nextIndex * width, behavior: 'smooth' });
+    setActivePage(nextIndex);
+}
+
+function attachSystemGestures() {
+    document.addEventListener('pointerdown', (event) => {
+        if (state.sleeping) return;
+        state.startX = event.clientX;
+        state.startY = event.clientY;
+        state.currentY = event.clientY;
+        state.startTime = Date.now();
+        state.gestureMode = '';
+        if (!state.unlocked && event.target.closest('#lockscreen')) {
+            state.gestureMode = 'lock-unlock';
+            return;
+        }
+        if (!state.unlocked || state.appOpen) return;
+        if (state.controlOpen) {
+            state.gestureMode = 'panel-close';
+            return;
+        }
+        if (event.target.closest('#homeScreen')) {
+            state.gestureMode = 'home-swipe';
+        }
+    }, { passive: true });
+
+    document.addEventListener('pointermove', (event) => {
+        if (!state.gestureMode) return;
+        state.currentY = event.clientY;
+    }, { passive: true });
+
+    document.addEventListener('pointerup', (event) => {
+        if (state.sleeping || !state.gestureMode) return;
+        const deltaX = event.clientX - state.startX;
+        const deltaY = event.clientY - state.startY;
+        const elapsed = Date.now() - state.startTime;
+        const mode = state.gestureMode;
+        state.gestureMode = '';
+        if (elapsed >= 1200) return;
+        const horizontal = Math.abs(deltaX) > Math.abs(deltaY);
+        if (mode === 'lock-unlock' && deltaY < -42) {
+            unlock();
+            return;
+        }
+        if (mode === 'panel-close' && deltaY < -42) {
+            closeControlCenter();
+            return;
+        }
+        if (mode === 'home-swipe' && horizontal && Math.abs(deltaX) > 28) {
+            state.suppressAppClick = true;
+            snapToPage(state.pageIndex + (deltaX < 0 ? 1 : -1));
+            window.setTimeout(() => {
+                state.suppressAppClick = false;
+            }, 140);
+            return;
+        }
+        if (mode === 'home-swipe' && deltaY > 42) {
+            openControlCenter();
+            return;
+        }
+        if (mode === 'home-swipe' && deltaY < -42) {
+            openAppSwitcher();
+        }
+    }, { passive: true });
+}
+
 function bindShellUi() {
     document.querySelectorAll('.app').forEach((button) => {
         button.addEventListener('click', async () => {
+            if (state.suppressAppClick) {
+                state.suppressAppClick = false;
+                return;
+            }
             if (state.sleeping) return;
             if (!state.unlocked) unlock();
+            closeControlCenter();
+            closeAppSwitcher();
             await openApp(button.dataset.app || '');
         });
     });
@@ -775,6 +941,11 @@ function bindShellUi() {
     sleepButton?.addEventListener('click', () => sleepSystem('button'));
     closeAppBtn?.addEventListener('click', () => closeApp());
     ccBackdrop?.addEventListener('click', () => closeControlCenter());
+    topConfigHandle?.addEventListener('click', () => openControlCenter());
+    statusTimeButton?.addEventListener('click', () => openControlCenter());
+    switchAppsBtn?.addEventListener('click', () => openAppSwitcher());
+    homeNavBtn?.addEventListener('click', () => closeApp());
+    quickSettingsBtn?.addEventListener('click', () => openControlCenter());
 
     pages?.addEventListener('scroll', () => {
         const width = pages.clientWidth || 1;
@@ -787,9 +958,6 @@ function bindShellUi() {
             return;
         }
         noteActivity();
-        if (!state.unlocked && !event.target.closest('#controlCenter')) {
-            unlock();
-        }
     }, { passive: true });
 
     document.addEventListener('keydown', (event) => {
@@ -799,6 +967,10 @@ function bindShellUi() {
         }
         noteActivity(true);
         if (event.key === 'Escape') {
+            if (state.appSwitcherOpen) {
+                closeAppSwitcher();
+                return;
+            }
             if (state.appOpen) {
                 closeApp();
                 return;
@@ -811,6 +983,8 @@ function bindShellUi() {
             sleepSystem('power-key');
         }
     });
+
+    attachSystemGestures();
 }
 
 restoreHomeLayout();

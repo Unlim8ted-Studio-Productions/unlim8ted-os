@@ -132,9 +132,22 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
-            pointer-events: none;
             opacity: calc(1 - min(var(--panel-progress), 0.6) * 0.45);
             transition: opacity 180ms ease;
+        }
+
+        .statusbar::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: calc(var(--safe-top) + 6px);
+            transform: translateX(-50%);
+            width: 128px;
+            height: 5px;
+            border-radius: 999px;
+            background: rgba(236, 242, 255, 0.72);
+            box-shadow: 0 0 18px rgba(131, 186, 255, 0.22);
+            pointer-events: none;
         }
 
         .sb-left,
@@ -150,6 +163,18 @@
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .statusbar button {
+            appearance: none;
+            border: 0;
+            color: inherit;
+            background: transparent;
+            font: inherit;
+            letter-spacing: inherit;
+            text-transform: inherit;
+            padding: 0;
+            cursor: pointer;
         }
 
         .wifi {
@@ -234,6 +259,7 @@
             display: grid;
             place-items: center;
             padding: 80px 24px calc(32px + var(--safe-bottom));
+            touch-action: none;
         }
 
         .lock-content {
@@ -329,7 +355,7 @@
             scroll-behavior: smooth;
             -ms-overflow-style: none;
             scrollbar-width: none;
-            touch-action: pan-x pan-y;
+            touch-action: pan-x;
         }
 
         .pages::-webkit-scrollbar {
@@ -515,15 +541,29 @@
         .control-center {
             position: absolute;
             inset: 0;
-            z-index: 40;
+            z-index: 60;
             pointer-events: none;
             opacity: 0;
             transition: opacity 180ms ease;
+            touch-action: none;
         }
 
         .control-center.visible {
             opacity: 1;
             pointer-events: auto;
+        }
+
+        .quick-pull-zone {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: min(220px, 58vw);
+            height: calc(var(--safe-top) + 34px);
+            z-index: 32;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
         }
 
         .cc-backdrop {
@@ -541,6 +581,7 @@
             padding: calc(var(--safe-top) + 40px) 16px calc(var(--safe-bottom) + 22px);
             transform: translateY(-100%);
             will-change: transform;
+            touch-action: none;
         }
 
         .cc-panel {
@@ -792,16 +833,22 @@
 
         .app-view {
             position: absolute;
-            inset: 0;
+            inset: calc(var(--safe-top) + 8px) 0 0;
+            margin: 0 8px;
+            border-radius: 28px 28px 0 0;
+            border: 1px solid rgba(140, 186, 255, 0.12);
             background:
-                radial-gradient(760px 540px at 18% 14%, rgba(74, 149, 255, 0.12), transparent 56%),
-                linear-gradient(180deg, rgba(12, 17, 28, 0.98), rgba(4, 7, 12, 0.98));
-            transform: translate3d(100%, 0, 0) scale(0.985);
+                radial-gradient(760px 540px at 18% 14%, rgba(74, 149, 255, 0.16), transparent 56%),
+                linear-gradient(180deg, rgba(15, 20, 32, 0.985), rgba(4, 8, 14, 0.99));
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+            transform: translate3d(0, 110%, 0) scale(0.94);
+            transform-origin: center bottom;
             opacity: 0;
-            transition: transform 520ms var(--ease-os), opacity 320ms ease;
+            transition: transform 420ms var(--ease-os), opacity 260ms ease, border-radius 260ms ease;
             pointer-events: auto;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .app-view.open {
@@ -818,22 +865,39 @@
         }
 
         .app-top {
-            padding: calc(var(--safe-top) + 16px) 18px 16px;
+            padding: 16px 18px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(140, 186, 255, 0.08);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
         }
 
         .app-title {
-            font-size: 28px;
+            font-size: 18px;
             font-weight: 760;
-            letter-spacing: -0.03em;
+            letter-spacing: 0.02em;
+            text-transform: none;
+        }
+
+        .app-meta {
+            display: grid;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .app-chip {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
+            color: rgba(188, 208, 255, 0.62);
         }
 
         .close-btn {
-            width: 34px;
-            height: 34px;
+            width: 38px;
+            height: 38px;
             border: 1px solid rgba(140, 186, 255, 0.14);
             background: rgba(100, 145, 255, 0.10);
             color: rgba(255, 255, 255, 0.95);
@@ -846,10 +910,200 @@
 
         .app-body {
             flex: 1;
-            padding: 8px 18px calc(var(--safe-bottom) + 30px);
+            min-height: 0;
+            overflow: auto;
+            padding: 14px 18px 18px;
             display: grid;
             gap: 12px;
             align-content: start;
+        }
+
+        .app-nav {
+            flex: 0 0 auto;
+            padding: 10px 18px calc(var(--safe-bottom) + 12px);
+            display: grid;
+            gap: 10px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.04));
+            border-top: 1px solid rgba(140, 186, 255, 0.08);
+        }
+
+        .app-nav-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .nav-btn {
+            min-height: 42px;
+            border: 1px solid rgba(140, 186, 255, 0.12);
+            background: rgba(100, 145, 255, 0.08);
+            color: rgba(245, 248, 255, 0.96);
+            font-size: 11px;
+            font-weight: 760;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .gesture-handle {
+            width: 132px;
+            height: 5px;
+            margin: 0 auto;
+            border-radius: 999px;
+            background: rgba(240, 246, 255, 0.84);
+            box-shadow: 0 0 18px rgba(131, 186, 255, 0.18);
+        }
+
+        .app-switcher {
+            position: absolute;
+            inset: 0;
+            z-index: 55;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: calc(var(--safe-top) + 26px) 12px calc(var(--safe-bottom) + 20px);
+            background:
+                radial-gradient(520px 360px at 50% 16%, rgba(97, 144, 255, 0.18), transparent 62%),
+                rgba(3, 7, 14, 0.76);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms ease;
+        }
+
+        .app-switcher.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .switcher-shell {
+            width: min(560px, 100%);
+            display: grid;
+            gap: 16px;
+        }
+
+        .switcher-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 0 4px;
+        }
+
+        .switcher-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(190, 212, 255, 0.72);
+        }
+
+        .switcher-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .switcher-btn {
+            min-height: 34px;
+            padding: 0 14px;
+            border-radius: 17px;
+            border: 1px solid rgba(140, 186, 255, 0.12);
+            background: rgba(100, 145, 255, 0.08);
+            color: #eef3ff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .switcher-list {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding: 8px 4px 16px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .switcher-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .switcher-card {
+            flex: 0 0 min(76vw, 300px);
+            min-height: 440px;
+            border: 1px solid rgba(140, 186, 255, 0.14);
+            border-radius: 28px;
+            padding: 14px;
+            background:
+                linear-gradient(180deg, rgba(104, 145, 255, 0.16), rgba(16, 22, 36, 0.82)),
+                rgba(8, 12, 20, 0.94);
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+            display: grid;
+            gap: 14px;
+            align-content: start;
+            scroll-snap-align: center;
+            text-align: left;
+            color: #eef3ff;
+            cursor: pointer;
+        }
+
+        .switcher-card.active {
+            transform: translateY(-8px) scale(1.01);
+            border-color: rgba(186, 224, 255, 0.34);
+        }
+
+        .switcher-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switcher-card-id {
+            font-size: 10px;
+            color: rgba(188, 208, 255, 0.58);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .switcher-preview {
+            min-height: 0;
+            border-radius: 22px;
+            border: 1px solid rgba(140, 186, 255, 0.08);
+            background:
+                radial-gradient(300px 200px at 20% 0, rgba(96, 142, 255, 0.18), transparent 70%),
+                linear-gradient(180deg, rgba(18, 24, 38, 0.96), rgba(8, 11, 19, 0.98));
+            padding: 18px;
+            display: grid;
+            align-content: start;
+            gap: 12px;
+        }
+
+        .switcher-preview-bar {
+            display: flex;
+            gap: 6px;
+        }
+
+        .switcher-preview-bar span {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        .switcher-empty {
+            min-height: 280px;
+            padding: 22px;
+            border: 1px solid rgba(140, 186, 255, 0.12);
+            border-radius: 28px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            background: rgba(8, 12, 20, 0.74);
+            color: rgba(224, 235, 255, 0.7);
         }
 
         .os.home-edit .app {
@@ -1148,7 +1402,9 @@
 
         <div class="statusbar">
             <div class="sb-left">
-                <div id="sbTime">9:41</div>
+                <button type="button" id="statusTimeButton" aria-label="Open quick settings">
+                    <span id="sbTime">9:41</span>
+                </button>
             </div>
             <div class="sb-right">
                 <div class="wifi"><span></span></div>
@@ -1157,6 +1413,7 @@
                 </div>
             </div>
         </div>
+        <button class="quick-pull-zone" id="topConfigHandle" type="button" aria-label="Open quick settings"></button>
 
         <section class="screen lockscreen" id="lockscreen">
             <div class="lock-content">
@@ -1595,11 +1852,23 @@
         <div class="app-layer" id="appLayer">
             <section class="app-view" id="appView">
                 <div class="app-top">
-                    <div class="app-title" id="appTitle">App</div>
+                    <div class="app-meta">
+                        <div class="app-chip">Android app</div>
+                        <div class="app-title" id="appTitle">App</div>
+                    </div>
                     <button class="close-btn" id="closeAppBtn" aria-label="Close app">×</button>
                 </div>
                 <div class="app-body" id="appBody"></div>
+                <div class="app-nav">
+                    <div class="app-nav-row">
+                        <button class="nav-btn" id="switchAppsBtn" type="button">Recents</button>
+                        <button class="nav-btn" id="homeNavBtn" type="button">Home</button>
+                        <button class="nav-btn" id="quickSettingsBtn" type="button">Panels</button>
+                    </div>
+                    <div class="gesture-handle"></div>
+                </div>
             </section>
+            <section class="app-switcher" id="appSwitcherSheet" aria-hidden="true"></section>
         </div>
 
         <div class="sleep-screen" id="sleepScreen" aria-hidden="true">
