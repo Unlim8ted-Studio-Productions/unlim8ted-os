@@ -1,7 +1,75 @@
-﻿<section class="app-template app-template-settings" style="display:grid;gap:14px;min-height:100%;">
-    <header style="display:grid;gap:4px;">
-        <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#89a4c9;">Settings</div>
-        <div style="font-size:26px;font-weight:800;color:#eef3ff;">Settings</div>
-    </header>
-    <div data-app-slot="content" style="display:grid;gap:12px;"></div>
+﻿<section class="app-template app-template-settings">
+    <div class="settings-shell">
+        <header class="settings-hero">
+            <div>
+                <div class="settings-eyebrow">System center</div>
+                <div class="settings-title">Settings</div>
+                <div class="settings-sub" id="settingsOwnerLine">Everything important in one place.</div>
+            </div>
+            <div class="settings-hero-badge">Android-style shell</div>
+        </header>
+        <div class="settings-grid">
+            <section class="settings-panel settings-panel-primary">
+                <div class="settings-section-head"><div><div class="settings-section-kicker">Profile</div><div class="settings-section-title">Device and owner</div></div></div>
+                <div id="settingsProfileCard"></div>
+                <div id="settingsDeviceStats" class="settings-stat-grid"></div>
+            </section>
+            <section class="settings-panel">
+                <div class="settings-section-head"><div><div class="settings-section-kicker">Connectivity</div><div class="settings-section-title">Quick controls</div></div></div>
+                <div id="settingsToggleGrid" class="settings-toggle-grid"></div>
+            </section>
+            <section class="settings-panel settings-panel-wide">
+                <div class="settings-section-head"><div><div class="settings-section-kicker">Display</div><div class="settings-section-title">Brightness and timeout</div></div></div>
+                <div id="settingsDisplayControls"></div>
+            </section>
+            <section class="settings-panel">
+                <div class="settings-section-head"><div><div class="settings-section-kicker">Attention</div><div class="settings-section-title">Notification badges</div></div></div>
+                <div id="settingsBadges"></div>
+            </section>
+        </div>
+    </div>
+    <style>
+        .app-template-settings { min-height: 100%; }
+        .settings-shell { display: grid; gap: 16px; min-height: 100%; }
+        .settings-hero, .settings-panel { border: 1px solid rgba(140, 186, 255, 0.12); border-radius: 26px; background: linear-gradient(180deg, rgba(109, 150, 255, 0.14), rgba(9, 14, 24, 0.84)); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24); }
+        .settings-hero { padding: 20px; display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+        .settings-eyebrow, .settings-section-kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(171, 197, 245, 0.72); }
+        .settings-title { margin-top: 6px; font-size: 30px; font-weight: 800; color: #eef3ff; }
+        .settings-sub { margin-top: 8px; color: rgba(213, 225, 249, 0.74); font-size: 14px; line-height: 1.45; }
+        .settings-hero-badge { padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(160, 209, 255, 0.18); background: rgba(255, 255, 255, 0.06); font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #eef3ff; white-space: nowrap; }
+        .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .settings-panel { padding: 18px; display: grid; gap: 16px; align-content: start; }
+        .settings-panel-primary, .settings-panel-wide { grid-column: span 2; }
+        .settings-section-title { margin-top: 4px; font-size: 20px; font-weight: 780; color: #eef3ff; }
+        .settings-profile { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(140, 186, 255, 0.1); }
+        .settings-avatar { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; font-size: 22px; font-weight: 800; background: linear-gradient(135deg, #8ac6ff, #667bff); color: #08111f; }
+        .settings-profile-name { font-size: 19px; font-weight: 780; color: #eef3ff; }
+        .settings-profile-copy { margin-top: 4px; font-size: 13px; color: rgba(213, 225, 249, 0.68); }
+        .settings-stat-grid, .settings-toggle-grid, .settings-badge-list, .settings-timeout-grid { display: grid; gap: 12px; }
+        .settings-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .settings-stat, .settings-toggle, .settings-display-card, .settings-badge-card { border-radius: 20px; border: 1px solid rgba(140, 186, 255, 0.1); background: rgba(255, 255, 255, 0.04); }
+        .settings-stat { padding: 14px; display: grid; gap: 6px; }
+        .settings-stat-label, .settings-badge-id { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(171, 197, 245, 0.6); }
+        .settings-stat-value, .settings-badge-count { font-size: 18px; font-weight: 760; color: #eef3ff; }
+        .settings-toggle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .settings-toggle { padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; }
+        .settings-toggle.active { background: linear-gradient(180deg, rgba(111, 199, 255, 0.24), rgba(83, 114, 255, 0.14)); border-color: rgba(158, 214, 255, 0.2); }
+        .settings-toggle-name { font-size: 15px; font-weight: 760; color: #eef3ff; }
+        .settings-toggle-state { margin-top: 4px; font-size: 12px; color: rgba(213, 225, 249, 0.64); }
+        .settings-toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); position: relative; flex: 0 0 auto; }
+        .settings-toggle-pill::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 999px; background: #f4f8ff; transition: transform 180ms ease; }
+        .settings-toggle.active .settings-toggle-pill::after { transform: translateX(18px); }
+        .settings-display-stack { display: grid; gap: 12px; }
+        .settings-display-card { padding: 16px; display: grid; gap: 12px; }
+        .settings-slider-row { display: flex; align-items: center; gap: 12px; }
+        .settings-slider { width: 100%; accent-color: #91d4ff; }
+        .settings-slider-value { min-width: 52px; text-align: right; font-size: 14px; font-weight: 800; color: #eef3ff; }
+        .settings-timeout-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .settings-chip { min-height: 42px; border-radius: 16px; border: 1px solid rgba(140, 186, 255, 0.1); background: rgba(255, 255, 255, 0.04); color: #eef3ff; font-size: 13px; font-weight: 760; cursor: pointer; }
+        .settings-chip.active { background: linear-gradient(180deg, rgba(111, 199, 255, 0.24), rgba(83, 114, 255, 0.14)); border-color: rgba(158, 214, 255, 0.22); }
+        .settings-badge-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .settings-badge-card { padding: 14px; display: grid; gap: 8px; }
+        .settings-empty { padding: 18px; border-radius: 18px; background: rgba(255, 255, 255, 0.04); color: rgba(213, 225, 249, 0.68); font-size: 13px; line-height: 1.5; }
+        @media (max-width: 720px) { .settings-grid, .settings-stat-grid, .settings-toggle-grid, .settings-badge-list, .settings-timeout-grid { grid-template-columns: 1fr; } .settings-panel-primary, .settings-panel-wide { grid-column: span 1; } .settings-hero { display: grid; } }
+    </style>
 </section>

@@ -1106,6 +1106,195 @@
             color: rgba(224, 235, 255, 0.7);
         }
 
+        .keyboard-layer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 65;
+            padding: 8px 8px calc(var(--safe-bottom) + 8px);
+            display: grid;
+            gap: 6px;
+            max-height: min(48vh, 360px);
+            background:
+                linear-gradient(180deg, rgba(6, 10, 17, 0), rgba(6, 10, 17, 0.94) 24%),
+                radial-gradient(420px 180px at 50% 0, rgba(102, 153, 255, 0.16), transparent 80%);
+            transform: translateY(110%);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 220ms ease, opacity 180ms ease;
+            touch-action: none;
+        }
+
+        .keyboard-layer.visible {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .keyboard-tray,
+        .keyboard-predictions,
+        .keyboard-row {
+            display: flex;
+            gap: 6px;
+            align-items: stretch;
+        }
+
+        .keyboard-tray,
+        .keyboard-predictions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .keyboard-suggestion,
+        .keyboard-tray-btn,
+        .keyboard-key {
+            border: 1px solid rgba(140, 186, 255, 0.14);
+            background: rgba(255, 255, 255, 0.07);
+            color: #eef3ff;
+            min-height: 44px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 760;
+            cursor: pointer;
+            backdrop-filter: blur(14px);
+            white-space: nowrap;
+            flex: 1 1 0;
+            min-width: 0;
+            padding: 0 4px;
+        }
+
+        .keyboard-tray-btn {
+            min-height: 34px;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .keyboard-suggestion {
+            min-height: 32px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .keyboard-row-offset {
+            padding: 0 16px;
+        }
+
+        .keyboard-row-bottom {
+            display: flex;
+        }
+
+        .keyboard-glide-path {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .keyboard-key.special {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .keyboard-key.key-wide {
+            flex: 1.35 1 0;
+        }
+
+        .keyboard-key.key-wider {
+            flex: 1.7 1 0;
+        }
+
+        .keyboard-key.glide-hit,
+        .keyboard-suggestion:active,
+        .keyboard-tray-btn:active,
+        .keyboard-key:active {
+            background: linear-gradient(180deg, rgba(111, 199, 255, 0.3), rgba(83, 114, 255, 0.18));
+            border-color: rgba(176, 220, 255, 0.24);
+        }
+
+        @media (max-height: 760px) {
+            .keyboard-layer {
+                padding: 6px 6px calc(var(--safe-bottom) + 6px);
+                gap: 5px;
+                max-height: min(45vh, 320px);
+            }
+
+            .keyboard-tray,
+            .keyboard-predictions,
+            .keyboard-row {
+                gap: 5px;
+            }
+
+            .keyboard-suggestion,
+            .keyboard-tray-btn,
+            .keyboard-key {
+                min-height: 40px;
+                border-radius: 12px;
+                font-size: 15px;
+            }
+
+            .keyboard-tray-btn {
+                min-height: 30px;
+                font-size: 10px;
+            }
+
+            .keyboard-suggestion {
+                min-height: 28px;
+                font-size: 11px;
+            }
+
+            .keyboard-row-offset {
+                padding: 0 12px;
+            }
+
+            .keyboard-key.special {
+                font-size: 10px;
+            }
+        }
+
+        .debug-toggle {
+            position: absolute;
+            right: 12px;
+            bottom: calc(var(--safe-bottom) + 14px);
+            z-index: 91;
+            width: 50px;
+            height: 50px;
+            border-radius: 999px;
+            border: 1px solid rgba(140, 186, 255, 0.18);
+            background: linear-gradient(180deg, rgba(109, 150, 255, 0.22), rgba(10, 16, 28, 0.84));
+            color: #eef3ff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            backdrop-filter: blur(14px);
+            cursor: pointer;
+        }
+
+        .debug-console {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: calc(var(--safe-bottom) + 74px);
+            z-index: 90;
+            max-height: 22vh;
+            overflow: auto;
+            padding: 8px 10px;
+            border-radius: 16px;
+            background: rgba(7,12,24,.78);
+            backdrop-filter: blur(12px);
+            color: #cfe0ff;
+            font: 11px/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+            display: none;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .debug-console.visible {
+            display: grid;
+        }
+
         .os.home-edit .app {
             animation: homeJiggle 180ms ease-in-out infinite alternate;
         }
@@ -1870,13 +2059,27 @@
             </section>
             <section class="app-switcher" id="appSwitcherSheet" aria-hidden="true"></section>
         </div>
+        <section class="keyboard-layer" id="keyboardLayer" aria-hidden="true">
+            <svg class="keyboard-glide-path" id="keyboardGlidePath" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+            <div class="keyboard-tray" id="keyboardTray">
+                <button type="button" class="keyboard-tray-btn" id="keyboardClipboardBtn">Paste</button>
+                <button type="button" class="keyboard-tray-btn" id="keyboardCopyBtn">Copy</button>
+                <button type="button" class="keyboard-tray-btn" id="keyboardHideBtn">Hide</button>
+            </div>
+            <div class="keyboard-predictions" id="keyboardPredictions"></div>
+            <div class="keyboard-row" id="keyboardRowQ"></div>
+            <div class="keyboard-row keyboard-row-offset" id="keyboardRowA"></div>
+            <div class="keyboard-row keyboard-row-offset" id="keyboardRowZ"></div>
+            <div class="keyboard-row keyboard-row-bottom" id="keyboardRowBottom"></div>
+        </section>
 
         <div class="sleep-screen" id="sleepScreen" aria-hidden="true">
             <div class="sleep-time" id="sleepTime">9:41</div>
             <div class="sleep-sub">Tap, click, or press a key to wake</div>
         </div>
 
-        <div id="debugConsole" style="position:absolute;left:10px;right:10px;bottom:calc(var(--safe-bottom) + 8px);z-index:90;max-height:22vh;overflow:auto;padding:8px 10px;border-radius:16px;background:rgba(7,12,24,.78);backdrop-filter:blur(12px);color:#cfe0ff;font:11px/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;display:grid;gap:4px;pointer-events:none;"></div>
+        <div class="debug-console" id="debugConsole"></div>
+        <button class="debug-toggle" id="debugToggleBtn" type="button" aria-pressed="false">Debug</button>
 
         <div class="branding">Unlim8ted Studios</div>
     </div>

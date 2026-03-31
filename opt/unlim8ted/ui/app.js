@@ -32,7 +32,9 @@ const state = {
     pageDragStartY: 0,
     pageDragOrigin: 0,
     pageDragMoved: false,
-    suppressAppClick: false
+    suppressAppClick: false,
+    keyboardVisible: false,
+    debugVisible: false
 };
 
 const lockscreen = document.getElementById('lockscreen');
@@ -53,6 +55,17 @@ const switchAppsBtn = document.getElementById('switchAppsBtn');
 const homeNavBtn = document.getElementById('homeNavBtn');
 const quickSettingsBtn = document.getElementById('quickSettingsBtn');
 const appSwitcherSheet = document.getElementById('appSwitcherSheet');
+const keyboardLayer = document.getElementById('keyboardLayer');
+const keyboardPredictions = document.getElementById('keyboardPredictions');
+const keyboardClipboardBtn = document.getElementById('keyboardClipboardBtn');
+const keyboardCopyBtn = document.getElementById('keyboardCopyBtn');
+const keyboardHideBtn = document.getElementById('keyboardHideBtn');
+const keyboardRowQ = document.getElementById('keyboardRowQ');
+const keyboardRowA = document.getElementById('keyboardRowA');
+const keyboardRowZ = document.getElementById('keyboardRowZ');
+const keyboardRowBottom = document.getElementById('keyboardRowBottom');
+const keyboardGlidePath = document.getElementById('keyboardGlidePath');
+const debugToggleBtn = document.getElementById('debugToggleBtn');
 const brightnessRange = document.getElementById('brightnessRange');
 const brightnessValue = document.getElementById('brightnessValue');
 const sleepButton = document.getElementById('sleepButton');
@@ -79,6 +92,36 @@ const appTitles = {
 };
 
 const appTop = document.querySelector('.app-top');
+const keyboardState = {
+    target: null,
+    suggestions: [],
+    glideActive: false,
+    glideKeys: [],
+    glidePointerId: null,
+    glideStartAt: 0,
+    clipboardMemory: '',
+    glidePoints: []
+};
+const predictionDictionary = [
+    'the', 'and', 'you', 'your', 'hello', 'home', 'settings', 'browser', 'camera', 'messages', 'phone', 'clock',
+    'notes', 'maps', 'files', 'mail', 'music', 'store', 'display', 'brightness', 'timeout', 'focus', 'wifi',
+    'bluetooth', 'airplane', 'device', 'system', 'owner', 'search', 'route', 'save', 'create', 'delete', 'call',
+    'send', 'draft', 'gallery', 'alarm', 'panel', 'open', 'close', 'sleep', 'wake', 'today', 'tomorrow',
+    'android', 'raspberry', 'keyboard', 'clipboard', 'typing', 'quick', 'toggle', 'connectivity', 'network'
+];
+const predictionWeights = {
+    the: 1000, and: 980, you: 970, your: 950, hello: 920, home: 910, settings: 900, browser: 890,
+    messages: 880, camera: 870, phone: 860, notes: 850, maps: 840, files: 830, mail: 820, music: 810,
+    search: 800, open: 790, close: 780, sleep: 770, wake: 760, keyboard: 750, clipboard: 740,
+    typing: 730, display: 720, brightness: 710, timeout: 700, wifi: 690, bluetooth: 680, network: 670,
+    android: 660, raspberry: 650, system: 640, device: 630, panel: 620, gallery: 610, alarm: 600
+};
+const keyboardLayout = {
+    q: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    a: ['shift', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+    z: ['z', 'x', 'c', 'v', 'b', 'n', 'm', "'", 'backspace'],
+    bottom: ['123', ',', 'space', '.', 'done']
+};
 
 function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, (char) => ({
@@ -88,6 +131,252 @@ function escapeHtml(value) {
         '"': '&quot;',
         "'": '&#39;'
     }[char]));
+}
+
+function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = String(target.tagName || '').toLowerCase();
+    if (tagName === 'textarea') return true;
+    if (tagName === 'input') {
+        const type = String(target.type || 'text').toLowerCase();
+        return !['range', 'checkbox', 'radio', 'button', 'submit', 'color', 'file'].includes(type);
+    }
+    return !!target.isContentEditable;
+}
+
+function keyboardButtonMarkup(key) {
+    const labels = {
+        shift: 'Shift',
+        backspace: 'Bksp',
+        enter: 'Enter',
+        space: 'Space',
+        done: 'Hide'
+    };
+    const special = ['shift', 'backspace', 'enter', 'space', 'done', '123'].includes(key);
+    const widthClass = ({
+        shift: 'key-wide',
+        backspace: 'key-wide',
+        enter: 'key-wide',
+        done: 'key-wide',
+        '123': 'key-wide',
+        space: 'key-wider'
+    })[key];
+    const className = ['keyboard-key', special ? 'special' : '', widthClass || ''].filter(Boolean).join(' ');
+    return `<button type="button" class="${className}" data-keyboard-key="${escapeHtml(key)}">${escapeHtml(labels[key] || key)}</button>`;
+}
+
+function renderKeyboardLayout() {
+    if (!keyboardRowQ) return;
+    keyboardRowQ.innerHTML = keyboardLayout.q.map(keyboardButtonMarkup).join('');
+    keyboardRowA.innerHTML = keyboardLayout.a.map(keyboardButtonMarkup).join('');
+    keyboardRowZ.innerHTML = keyboardLayout.z.map(keyboardButtonMarkup).join('');
+    keyboardRowBottom.innerHTML = keyboardLayout.bottom.map(keyboardButtonMarkup).join('');
+}
+
+function setKeyboardVisible(visible) {
+    state.keyboardVisible = visible;
+    keyboardLayer?.classList.toggle('visible', visible);
+    keyboardLayer?.setAttribute('aria-hidden', String(!visible));
+    if (!visible) {
+        keyboardState.glidePoints = [];
+        if (keyboardGlidePath) keyboardGlidePath.innerHTML = '';
+    }
+}
+
+function focusKeyboardTarget(target) {
+    if (!isTextEntryTarget(target)) return;
+    keyboardState.target = target;
+    setKeyboardVisible(true);
+    updateKeyboardPredictions();
+}
+
+function blurKeyboardTarget() {
+    keyboardState.target = null;
+    setKeyboardVisible(false);
+}
+
+function currentTextValue() {
+    const target = keyboardState.target;
+    if (!target) return '';
+    return typeof target.value === 'string' ? target.value : (target.textContent || '');
+}
+
+function currentSelectionStart() {
+    const target = keyboardState.target;
+    if (!target) return 0;
+    if (typeof target.selectionStart === 'number') return target.selectionStart;
+    return currentTextValue().length;
+}
+
+function setTextValue(value, caret = value.length) {
+    const target = keyboardState.target;
+    if (!target) return;
+    if (typeof target.value === 'string') {
+        target.value = value;
+        if (typeof target.setSelectionRange === 'function') target.setSelectionRange(caret, caret);
+    } else {
+        target.textContent = value;
+    }
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function bindIframeKeyboardBridge(frame) {
+    try {
+        const doc = frame.contentDocument;
+        if (!doc || doc.__unlim8tedKeyboardBound) return;
+        doc.__unlim8tedKeyboardBound = true;
+        doc.addEventListener('focusin', (event) => {
+            if (isTextEntryTarget(event.target)) focusKeyboardTarget(event.target);
+        });
+        doc.addEventListener('pointerdown', (event) => {
+            if (!state.keyboardVisible) return;
+            if (!isTextEntryTarget(event.target)) blurKeyboardTarget();
+        });
+    } catch (_error) {
+    }
+}
+
+function replaceSelection(insertText) {
+    const target = keyboardState.target;
+    if (!target) return;
+    const value = currentTextValue();
+    const start = typeof target.selectionStart === 'number' ? target.selectionStart : value.length;
+    const end = typeof target.selectionEnd === 'number' ? target.selectionEnd : start;
+    const next = value.slice(0, start) + insertText + value.slice(end);
+    setTextValue(next, start + insertText.length);
+    updateKeyboardPredictions();
+}
+
+function deleteBackward() {
+    const target = keyboardState.target;
+    if (!target) return;
+    const value = currentTextValue();
+    const start = typeof target.selectionStart === 'number' ? target.selectionStart : value.length;
+    const end = typeof target.selectionEnd === 'number' ? target.selectionEnd : start;
+    if (start !== end) {
+        setTextValue(value.slice(0, start) + value.slice(end), start);
+    } else if (start > 0) {
+        setTextValue(value.slice(0, start - 1) + value.slice(end), start - 1);
+    }
+    updateKeyboardPredictions();
+}
+
+function currentWordInfo() {
+    const value = currentTextValue();
+    const caret = currentSelectionStart();
+    const left = value.slice(0, caret);
+    const match = left.match(/([A-Za-z']+)$/);
+    if (!match) return { prefix: '', start: caret, end: caret };
+    return { prefix: match[1].toLowerCase(), start: caret - match[1].length, end: caret };
+}
+
+function computePredictions() {
+    const { prefix } = currentWordInfo();
+    const valueWords = currentTextValue().toLowerCase().match(/[a-z']{3,}/g) || [];
+    const learnedRecent = valueWords.slice(-24);
+    const learnedWeights = learnedRecent.reduce((weights, word, index) => {
+        weights[word] = (weights[word] || 0) + (learnedRecent.length - index) + 12;
+        return weights;
+    }, {});
+    const seen = new Set();
+    const source = [...learnedRecent.slice().reverse(), ...predictionDictionary].filter((word) => {
+        if (seen.has(word)) return false;
+        seen.add(word);
+        return true;
+    });
+    const normalizedPrefix = prefix.toLowerCase();
+    const ranked = source
+        .map((word, index) => {
+            const lower = word.toLowerCase();
+            const startsWithPrefix = normalizedPrefix ? lower.startsWith(normalizedPrefix) : true;
+            if (!startsWithPrefix && normalizedPrefix) return null;
+            return {
+                word,
+                score: (predictionWeights[lower] || 0) + (learnedWeights[lower] || 0) - Math.max(0, lower.length - normalizedPrefix.length) - (index * 0.01)
+            };
+        })
+        .filter(Boolean)
+        .sort((left, right) => right.score - left.score);
+    return ranked.slice(0, 3).map((entry) => entry.word);
+}
+
+function renderPredictions() {
+    if (!keyboardPredictions) return;
+    keyboardState.suggestions = computePredictions();
+    keyboardPredictions.innerHTML = keyboardState.suggestions.map((word) =>
+        `<button type="button" class="keyboard-suggestion" data-keyboard-suggestion="${escapeHtml(word)}">${escapeHtml(word)}</button>`
+    ).join('') || [
+        '<button type="button" class="keyboard-suggestion">the</button>',
+        '<button type="button" class="keyboard-suggestion">and</button>',
+        '<button type="button" class="keyboard-suggestion">you</button>'
+    ].join('');
+}
+
+function updateKeyboardPredictions() {
+    if (!state.keyboardVisible) return;
+    renderPredictions();
+}
+
+function applySuggestion(word) {
+    const info = currentWordInfo();
+    const value = currentTextValue();
+    const next = value.slice(0, info.start) + word + ' ' + value.slice(info.end);
+    setTextValue(next, info.start + word.length + 1);
+    updateKeyboardPredictions();
+}
+
+function decodeGlideWord(path) {
+    const condensed = path.filter((key, index) => index === 0 || key !== path[index - 1]).join('');
+    const words = Array.from(new Set([...predictionDictionary, ...(currentTextValue().toLowerCase().match(/[a-z']{3,}/g) || [])]));
+    let best = '';
+    let bestScore = -Infinity;
+    words.forEach((word) => {
+        if (word[0] !== condensed[0] || word[word.length - 1] !== condensed[condensed.length - 1]) return;
+        let cursor = 0;
+        for (const char of condensed) {
+            cursor = word.indexOf(char, cursor);
+            if (cursor === -1) return;
+            cursor += 1;
+        }
+        const score = (condensed.length * 4) - Math.abs(word.length - condensed.length) + (predictionWeights[word] || 0);
+        if (score > bestScore) {
+            best = word;
+            bestScore = score;
+        }
+    });
+    return best || condensed;
+}
+
+function commitKeyboardKey(key) {
+    if (!keyboardState.target) return;
+    if (key === 'backspace') return deleteBackward();
+    if (key === 'space') return replaceSelection(' ');
+    if (key === 'enter') return replaceSelection('\n');
+    if (key === 'done') return blurKeyboardTarget();
+    if (key === '123' || key === 'shift') return;
+    replaceSelection(key);
+}
+
+function setDebugVisible(visible) {
+    state.debugVisible = visible;
+    document.getElementById('debugConsole')?.classList.toggle('visible', visible);
+    debugToggleBtn?.setAttribute('aria-pressed', String(visible));
+}
+
+function appendGlidePoint(x, y) {
+    if (!keyboardLayer || !keyboardGlidePath) return;
+    const rect = keyboardLayer.getBoundingClientRect();
+    const px = Math.max(0, Math.min(rect.width, x - rect.left));
+    const py = Math.max(0, Math.min(rect.height, y - rect.top));
+    keyboardState.glidePoints.push([px, py]);
+    const points = keyboardState.glidePoints;
+    if (!points.length) {
+        keyboardGlidePath.innerHTML = '';
+        return;
+    }
+    const d = points.map((point, index) => `${index ? 'L' : 'M'} ${point[0]} ${point[1]}`).join(' ');
+    keyboardGlidePath.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`);
+    keyboardGlidePath.innerHTML = `<path d="${d}" fill="none" stroke="rgba(150,220,255,.96)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".72"></path>`;
 }
 
 function saveHomeLayout() {
@@ -308,6 +597,7 @@ function unlock() {
 function lockDevice() {
     if (state.appOpen) closeApp();
     closeControlCenter();
+    blurKeyboardTarget();
     state.unlocked = false;
     lockscreen.classList.remove('unlocked');
     homeScreen.classList.remove('unlocked');
@@ -438,6 +728,7 @@ async function setBrightness(percent) {
 async function sleepSystem(reason = 'manual') {
     if (state.sleeping) return;
     stopCameraPreview(true);
+    blurKeyboardTarget();
     lockDevice();
     closeControlCenter();
     const payload = await requestJson('/api/system/sleep', {
@@ -825,6 +1116,7 @@ function stopCameraPreview(clearOnly = false) {
 async function closeApp() {
     stopCameraPreview(true);
     closeAppSwitcher();
+    blurKeyboardTarget();
     state.appOpen = false;
     state.appId = '';
     appView.classList.remove('open');
@@ -908,6 +1200,7 @@ function attachSystemGestures() {
 }
 
 function bindShellUi() {
+    renderKeyboardLayout();
     document.querySelectorAll('.app').forEach((button) => {
         button.addEventListener('click', async () => {
             if (state.suppressAppClick) {
@@ -959,6 +1252,111 @@ function bindShellUi() {
         }
         noteActivity();
     }, { passive: true });
+
+    document.addEventListener('focusin', (event) => {
+        if (isTextEntryTarget(event.target)) {
+            focusKeyboardTarget(event.target);
+        }
+    });
+
+    document.addEventListener('load', (event) => {
+        const frame = event.target;
+        if (frame?.tagName === 'IFRAME') bindIframeKeyboardBridge(frame);
+    }, true);
+    document.querySelectorAll('iframe').forEach(bindIframeKeyboardBridge);
+
+    document.addEventListener('pointerdown', (event) => {
+        if (!state.keyboardVisible) return;
+        if (keyboardLayer?.contains(event.target)) return;
+        if (isTextEntryTarget(event.target)) return;
+        blurKeyboardTarget();
+    });
+
+    keyboardPredictions?.addEventListener('click', (event) => {
+        const suggestion = event.target?.closest?.('[data-keyboard-suggestion]')?.dataset?.keyboardSuggestion;
+        if (suggestion) applySuggestion(suggestion);
+    });
+
+    keyboardHideBtn?.addEventListener('click', () => blurKeyboardTarget());
+    debugToggleBtn?.addEventListener('click', () => setDebugVisible(!state.debugVisible));
+    keyboardCopyBtn?.addEventListener('click', async () => {
+        const target = keyboardState.target;
+        if (!target) return;
+        const value = currentTextValue();
+        const start = typeof target.selectionStart === 'number' ? target.selectionStart : 0;
+        const end = typeof target.selectionEnd === 'number' ? target.selectionEnd : value.length;
+        keyboardState.clipboardMemory = value.slice(start, end) || value;
+        if (navigator.clipboard?.writeText && keyboardState.clipboardMemory) {
+            try { await navigator.clipboard.writeText(keyboardState.clipboardMemory); } catch (_error) {}
+        }
+    });
+    keyboardClipboardBtn?.addEventListener('click', async () => {
+        let pasteText = keyboardState.clipboardMemory;
+        if (navigator.clipboard?.readText) {
+            try {
+                pasteText = await navigator.clipboard.readText() || pasteText;
+            } catch (_error) {
+            }
+        }
+        if (pasteText) replaceSelection(pasteText);
+    });
+
+    keyboardLayer?.addEventListener('pointerdown', (event) => {
+        const keyButton = event.target?.closest?.('[data-keyboard-key]');
+        if (!keyButton) return;
+        noteActivity(true);
+        keyboardState.glidePointerId = event.pointerId;
+        keyboardState.glideStartAt = Date.now();
+        keyboardState.glideActive = true;
+        keyboardState.glideKeys = [];
+        keyboardState.glidePoints = [];
+        keyboardLayer.setPointerCapture?.(event.pointerId);
+        const key = keyButton.dataset.keyboardKey || '';
+        if (/^[a-z']$/.test(key)) {
+            keyboardState.glideKeys.push(key);
+            keyButton.classList.add('glide-hit');
+            appendGlidePoint(event.clientX, event.clientY);
+        } else {
+            commitKeyboardKey(key);
+            keyboardState.glideActive = false;
+        }
+        event.preventDefault();
+    });
+
+    keyboardLayer?.addEventListener('pointermove', (event) => {
+        if (!keyboardState.glideActive || keyboardState.glidePointerId !== event.pointerId) return;
+        const keyButton = document.elementFromPoint(event.clientX, event.clientY)?.closest?.('[data-keyboard-key]');
+        const key = keyButton?.dataset?.keyboardKey || '';
+        appendGlidePoint(event.clientX, event.clientY);
+        if (!/^[a-z']$/.test(key)) return;
+        if (keyboardState.glideKeys[keyboardState.glideKeys.length - 1] === key) return;
+        keyboardState.glideKeys.push(key);
+        keyButton.classList.add('glide-hit');
+        event.preventDefault();
+    });
+
+    const endKeyboardPointer = (event) => {
+        if (keyboardState.glidePointerId !== event.pointerId) return;
+        keyboardLayer?.releasePointerCapture?.(event.pointerId);
+        document.querySelectorAll('.keyboard-key.glide-hit').forEach((node) => node.classList.remove('glide-hit'));
+        const elapsed = Date.now() - keyboardState.glideStartAt;
+        const keys = keyboardState.glideKeys.slice();
+        keyboardState.glideActive = false;
+        keyboardState.glidePointerId = null;
+        keyboardState.glideKeys = [];
+        window.setTimeout(() => {
+            keyboardState.glidePoints = [];
+            if (keyboardGlidePath) keyboardGlidePath.innerHTML = '';
+        }, 80);
+        if (!keys.length) return;
+        if (keys.length === 1 || elapsed < 120) {
+            commitKeyboardKey(keys[0]);
+            return;
+        }
+        applySuggestion(decodeGlideWord(keys));
+    };
+    keyboardLayer?.addEventListener('pointerup', endKeyboardPointer);
+    keyboardLayer?.addEventListener('pointercancel', endKeyboardPointer);
 
     document.addEventListener('keydown', (event) => {
         if (state.sleeping) {

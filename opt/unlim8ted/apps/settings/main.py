@@ -8,19 +8,49 @@
     }
 
 
-def get_app_payload(context):
+def _settings_payload(context):
     system = context["system"]
+    owner = context["owner"]["name"]
+    brightness = int(system["brightness"] * 100)
+    idle_timeout = int(system["idle_timeout_sec"])
+    toggles = [
+        {
+            "id": key,
+            "label": key.replace("_", " ").title(),
+            "enabled": bool(value),
+        }
+        for key, value in system["toggles"].items()
+    ]
+    badges = [
+        {"id": key, "count": int(value)}
+        for key, value in sorted(system.get("badges", {}).items())
+        if int(value) > 0
+    ]
     return {
-        "view": "structured",
+        "view": "template",
         "title": "Settings",
-        "sections": [
-            {"type": "kv", "title": "Device", "rows": [{"label": "Owner", "value": context['owner']['name']}, {"label": "Brightness", "value": f"{int(system['brightness'] * 100)}%"}, {"label": "Idle Timeout", "value": f"{system['idle_timeout_sec']}s"}]},
-            {"type": "chips", "title": "Connectivity", "items": [{"label": f"{key}: {'On' if value else 'Off'}", "action": "toggle_connectivity", "value": key} for key, value in system['toggles'].items()]},
-            {"type": "form", "title": "Display", "action": "set_brightness", "fields": [{"name": "value", "placeholder": "Brightness percent 5-100"}], "submit_label": "Apply"},
-            {"type": "form", "title": "Idle Timeout", "action": "set_idle_timeout", "fields": [{"name": "value", "placeholder": "Seconds"}], "submit_label": "Apply"},
-            {"type": "kv", "title": "Badges", "rows": [{"label": key, "value": str(value)} for key, value in system.get('badges', {}).items()]},
-        ],
+        "owner": owner,
+        "settings": {
+            "brightness": brightness,
+            "idle_timeout_sec": idle_timeout,
+            "sleeping": bool(system.get("sleeping")),
+            "toggles": toggles,
+            "badges": badges,
+            "device": [
+                {"label": "Owner", "value": owner},
+                {"label": "Brightness", "value": f"{brightness}%"},
+                {"label": "Idle Timeout", "value": f"{idle_timeout}s"},
+                {
+                    "label": "State",
+                    "value": "Sleeping" if system.get("sleeping") else "Awake",
+                },
+            ],
+        },
     }
+
+
+def get_app_payload(context):
+    return _settings_payload(context)
 
 
 def handle_action(context, action, payload):
