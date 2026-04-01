@@ -29,7 +29,7 @@ It includes:
 - 32GB microSD card
 - 15cm double-sided 15-pin DSI cable
 - Seeed LiPo Rider Plus
-- 3.7V 1800mAh LiPo battery
+- 3.7V 3000mAh LiPo battery
 - Adafruit USB Type A to USB Type C cable
 
 ## Cost Breakdown
@@ -43,7 +43,7 @@ It includes:
 | Waveshare CM4-NANO-C | 1 | $29.99 |
 | Waveshare 6.25-inch DSI LCD | 1 | $59.99 |
 | Seeed LiPo Rider Plus | 1 | $4.90 |
-| 3.7V 1800mAh battery | 1 | $12.49 |
+| 3.7V 3000mAh battery | 1 | $12.49 |
 | 32GB microSD card | 1 | $20.00 |
 | Adafruit USB A to USB C cable (PID 4472) | 1 | $2.95 |
 | 15cm DSI cable | 1 | TBD |
@@ -76,12 +76,12 @@ At minimum, you need:
 - CM4 Lite
 - CM4-NANO-C carrier
 - Waveshare 6.25-inch DSI LCD
-- microSD card
+- microSD card (min 12 GB)
 - LiPo Rider Plus
-- 3.7V battery
+- 3.7V battery (min of around 2A to help prevent quick degradation)
 - USB-C power/data cable
 - 15cm DSI cable
-- case, spacer, standoff, and mounting hardware as needed
+- case and mounting hardware as needed (case is 3D printed) 
 
 ### 2. Prepare the microSD card
 
