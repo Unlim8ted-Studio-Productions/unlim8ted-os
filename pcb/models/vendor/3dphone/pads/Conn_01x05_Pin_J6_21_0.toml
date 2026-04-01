@@ -1,0 +1,13 @@
+position = [ 86.9, 59.725 ]
+is_flipped = false
+has_model = true
+is_tht_or_smd = true
+has_paste = false
+pad_type = "THT"
+shape = "RECT"
+size = [ 0.85, 0.85 ]
+rotation = 1.5707963267948966
+roundness = 0.25
+drill_shape = "OVAL"
+drill_size = [ 0.5, 0.5 ]
+fab_type = "NONE"

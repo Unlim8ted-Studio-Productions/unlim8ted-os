@@ -1,0 +1,12 @@
+### Missing 3D models - created on 2025-12-02 14:16
+### Printed by checking_3D_models plugin
+Board file: C:\Users\gusan\Documents\Phone\Phone.kicad_pcb
+3D missing models written to:
+C:\Users\gusan\Documents\Phone\Phone_missing3Dmodels.txt
+-------
+('U2', 'D:\\KiCAD\\share\\kicad\\3dmodels\\Package_DFN_QFN.3dshapes\\VQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step')
+('D2', 'D:\\KiCAD\\share\\kicad\\3dmodels\\Diode_SMD.3dshapes\\D_0201_0603Metric.step')
+('U3', 'D:\\KiCAD\\share\\kicad\\3dmodels\\OptoDevice.3dshapes\\Broadcom_APDS-9301.step')
+-------
+NUM of 3D missing models:3
+checked extensions ['.stp', '.step', '.stpZ']

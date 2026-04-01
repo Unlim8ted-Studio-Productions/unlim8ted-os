@@ -1,0 +1,13 @@
+position = [ 82.0, 144.4375 ]
+is_flipped = false
+has_model = true
+is_tht_or_smd = true
+has_paste = false
+pad_type = "SMD"
+shape = "RECT"
+size = [ 1.6, 1.6 ]
+rotation = 4.71238898038469
+roundness = 0.25
+drill_shape = "OVAL"
+drill_size = [ 0.0, 0.0 ]
+fab_type = "HEATSINK"

@@ -1,0 +1,13 @@
+position = [ 22.199999, 107.35 ]
+is_flipped = false
+has_model = false
+is_tht_or_smd = false
+has_paste = false
+pad_type = "NPTH"
+shape = "CIRCLE"
+size = [ 2.7, 2.7 ]
+rotation = 0.0
+roundness = 0.25
+drill_shape = "OVAL"
+drill_size = [ 2.7, 2.7 ]
+fab_type = "NONE"

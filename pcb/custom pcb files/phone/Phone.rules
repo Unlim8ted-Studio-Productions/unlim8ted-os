@@ -1,0 +1,118 @@
+
+(rules PCB Phone.dsn
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout on)
+    (autoroute on)
+    (postroute on)
+    (vias on)
+    (via_costs 5)
+    (plane_via_costs 1)
+    (start_ripup_costs 10)
+    (start_pass_no 1)
+    (layer_rule F.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.8)
+      (against_preferred_direction_trace_costs 1.5)
+    )
+    (layer_rule In1.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 1.5)
+    )
+    (layer_rule In2.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 1.5)
+    )
+    (layer_rule B.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.8)
+      (against_preferred_direction_trace_costs 1.5)
+    )
+  )
+  (rule
+    (width 200.0)
+    (clearance 200.0)
+    (clearance 100.0 (type smd_to_turn_gap))
+    (clearance 50.0 (type smd))
+    (clearance 200.0 (type "kicad_default"))
+  )
+  (padstack "Via[0-3]_600:300_um"
+    (shape
+      (circle F.Cu 600.0 0.0 0.0)
+    )
+    (shape
+      (circle In1.Cu 600.0 0.0 0.0)
+    )
+    (shape
+      (circle In2.Cu 600.0 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 600.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-3]_600:300_um" "Via[0-3]_600:300_um" default
+  )
+  (via 
+    "Via[0-3]_600:300_um-kicad_default" "Via[0-3]_600:300_um" "kicad_default"
+  )
+  (via_rule
+    default "Via[0-3]_600:300_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-3]_600:300_um-kicad_default"
+  )
+  (class default
+    (clearance_class default)
+    (via_rule default)
+    (rule
+      (width 200.0)
+    )
+    (circuit 
+      (use_layer F.Cu In1.Cu In2.Cu B.Cu)
+    )
+  )
+  (class "kicad_default"
+    "/DSI0_C_N" /SDA1 GND "unconnected-(J15-Pin_15-Pad15)" /+3.3v "unconnected-(J15-Pin_14-Pad14)" "unconnected-(J15-Pin_11-Pad11)" /SCL1
+    "unconnected-(J15-Pin_17-Pad17)" "/DSI0_D0_P" "/DSI0_D1_N" "/DSI0_D0_N" "unconnected-(J15-Pin_12-Pad12)" "/DSI0_D1_P" "unconnected-(J15-Pin_18-Pad18)" "/DSI0_C_P"
+    "unconnected-(J4-Pin_12-Pad12)" "unconnected-(J4-Pin_11-Pad11)" "unconnected-(J4-Pin_15-Pad15)" "/CAM_GPIO" "/CAM0_C_P" "/CAM0_D1_P" "/CAM0_C_N" "unconnected-(J4-Pin_14-Pad14)"
+    "/CAM0_D0_P" "unconnected-(J4-Pin_18-Pad18)" "/CAM0_D1_N" "/CAM0_D0_N" "/CAM1_D0_P" "/CAM1_C_N" /SCL0 "/CAM1_D0_N"
+    "/CAM1_D2_P" "/CAM1_D3_N" "/CAM1_C_P" /SDA0 "/CAM1_D1_N" "/CAM1_D3_P" "/CAM1_D1_P" "/CAM1_D2_N"
+    /GPIO18 "/SD_CMD" "/HDMI1_SDA" "/TRD0_N" "/HDMI0_CK_N" /GPIO15 "/HDMI1_D2_P" "/HDMI0_D2_P"
+    "/TRD2_P" "/HDMI1_D1_N" "/TRD3_P" /+1.8v "/HDMI1_D2_N" /GPIO10 "/ETH_LEDG" "/SYNC_OUT"
+    /GPIO12 "/HDMI0_CK_P" /+5v /GPIO11 /Reserved /GPIO14 /nRPIBOOT "/DSI1_D1_P"
+    /GPIO21 "/SD_CLK" "/EEPROM_nWP" "/PCIE_CLK_N" "/TRD3_N" "/GLOBAL_EN" /nEXTRST /GPIO26
+    /AIN1 "/HDMI1_D1_P" "/SD_DAT1" "/PCIE_RX_N" "/ID_SD" "/HDMI1_CK_N" "/PCIE_TX_N" /GPIO6
+    "/DSI1_D3_P" "/GPIO_VREF" "/HDMI1_D0_N" "/DSI1_C_P" "/HDMI1_D0_P" "/PCIE_CLK_P" "/TRD1_P" "/DSI1_D0_N"
+    /GPIO22 "/USB2_P" /GPIO19 "/HDMI0_D1_N" "/RUN_PG" /GPIO9 /GPIO17 "/SD_DAT3"
+    /GPIO13 "/HDMI1_CEC" "/ID_SC" "/SD_DAT2" "/HDMI0_D0_P" "/TRD0_P" "/HDMI0_D2_N" "/WL_nDis"
+    "/nPWR_LED" "/ETH_LEDY" "/HDMI1_SCL" "/DSI1_D2_P" "/PCIE_nRST" /GPIO16 "/USB2_N" "/HDMI0_HOTPLUG"
+    "/HDMI1_HOTPLUG" "/USBOTG_ID" "/HDMI0_SDA" /GPIO27 "/HDMI0_SCL" /GPIO25 "/SD_PWR_ON" "/TV_OUT"
+    "/PCIE_CLK_nREQ" "/HDMI1_CK_P" "/TRD1_N" "/DSI1_D0_P" /GPIO5 "/TRD2_N" "/HDMI0_CEC" "/PCIE_TX_P"
+    /GPIO8 "/DSI1_C_N" /AIN0 "/DSI1_D2_N" "/PCIE_RX_P" "/HDMI0_D0_N" /GPIO7 "/DSI1_D3_N"
+    "/HDMI0_D1_P" /GPIO23 "/SYNC_IN" /GPIO24 "/DSI1_D1_N" "/BT_nDis" "/SD_DAT0" /GPIO20
+    "unconnected-(U1A-SD_DAT6-Pad72)" "unconnected-(U1A-Camera_GPIO-Pad97)" "unconnected-(U1A-Ethernet_nLED1(3.3v)-Pad19)" "unconnected-(U1B-Reserved-Pad104)" "unconnected-(U1A-SD_DAT4-Pad68)" "unconnected-(U1A-SD_DAT5-Pad64)" "unconnected-(U1A-SD_DAT7-Pad70)" "unconnected-(U1A-PI_nLED_Activity-Pad21)"
+    "unconnected-(U1B-Reserved-Pad106)" "unconnected-(U1A-SD_VDD_Override-Pad73)" "/SD_PWR" "unconnected-(J5-Pin_18-Pad18)" "Net-(J7-DET_A)" "Net-(J7-DET_B)" "unconnected-(U18-nFLG-Pad3)" "/PCM_FS"
+    "/PCM_CLK" "/PCM_DIN" "unconnected-(U2-SDO{slash}AD0-Pad9)" "unconnected-(U2-NC-Pad5)" "unconnected-(U2-RESV-Pad19)" "unconnected-(U2-FSYNC-Pad11)" "unconnected-(U2-NC-Pad17)" "unconnected-(U2-SDA{slash}SDI-Pad24)"
+    "unconnected-(U2-NC-Pad6)" "unconnected-(U2-INT1-Pad12)" "unconnected-(U2-REGOUT-Pad10)" "unconnected-(U2-NC-Pad3)" "unconnected-(U2-VDDIO-Pad8)" "unconnected-(U2-VDD-Pad13)" "unconnected-(U2-NC-Pad14)" "Net-(U2-GND-Pad18)"
+    "unconnected-(U2-NC-Pad4)" "unconnected-(U2-~{CS}-Pad22)" "unconnected-(U2-SCL{slash}SCLK-Pad23)" "unconnected-(U2-NC-Pad1)" "unconnected-(U2-NC-Pad2)" "unconnected-(U2-NC-Pad16)" "unconnected-(U2-AUX_DA-Pad21)" "unconnected-(U2-AUX_CL-Pad7)"
+    "unconnected-(U2-NC-Pad15)" "unconnected-(U3-ADR_SEL-Pad3)" "unconnected-(U3-INT-Pad6)"
+    (clearance_class "kicad_default")
+    (via_rule "kicad_default")
+    (rule
+      (width 200.0)
+    )
+    (circuit 
+      (use_layer F.Cu In1.Cu In2.Cu B.Cu)
+    )
+  )
+)

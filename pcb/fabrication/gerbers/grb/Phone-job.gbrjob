@@ -1,0 +1,221 @@
+{
+  "Header": {
+    "GenerationSoftware": {
+      "Vendor": "KiCad",
+      "Application": "Pcbnew",
+      "Version": "9.0.6"
+    },
+    "CreationDate": "2025-12-07T13:32:44-05:00"
+  },
+  "GeneralSpecs": {
+    "ProjectId": {
+      "Name": "Phone",
+      "GUID": "50686f6e-652e-46b6-9963-61645f706362",
+      "Revision": "rev?"
+    },
+    "Size": {
+      "X": 75.75,
+      "Y": 128.9
+    },
+    "LayerNumber": 6,
+    "BoardThickness": 1.6,
+    "Finish": "User defined",
+    "ImpedanceControlled": true
+  },
+  "DesignRules": [
+    {
+      "Layers": "Outer",
+      "PadToPad": 0.2,
+      "PadToTrack": 0.2,
+      "TrackToTrack": 0.2,
+      "MinLineWidth": 0.1
+    },
+    {
+      "Layers": "Inner",
+      "PadToPad": 0.0,
+      "PadToTrack": 0.0,
+      "TrackToTrack": 0.2,
+      "MinLineWidth": 0.1,
+      "TrackToRegion": 0.2,
+      "RegionToRegion": 0.2
+    }
+  ],
+  "FilesAttributes": [
+    {
+      "Path": "Phone-Top Layer.gbr",
+      "FileFunction": "Copper,L1,Top",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-Ground Layer 1.gbr",
+      "FileFunction": "Copper,L2,Inr",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-Ground Layer 2.gbr",
+      "FileFunction": "Copper,L3,Inr",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-In3_Cu.gbr",
+      "FileFunction": "Copper,L4,Inr",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-In4_Cu.gbr",
+      "FileFunction": "Copper,L5,Inr",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-Bottom Layer.gbr",
+      "FileFunction": "Copper,L6,Bot",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-F_Paste.gbr",
+      "FileFunction": "SolderPaste,Top",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-B_Paste.gbr",
+      "FileFunction": "SolderPaste,Bot",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-Top Overlay.gbr",
+      "FileFunction": "Legend,Top",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-Board Layer Stack Bottom Overlay.gbr",
+      "FileFunction": "Legend,Bot",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "Phone-Top Solder.gbr",
+      "FileFunction": "SolderMask,Top",
+      "FilePolarity": "Negative"
+    },
+    {
+      "Path": "Phone-Board Layer Stack Bottom Solder.gbr",
+      "FileFunction": "SolderMask,Bot",
+      "FilePolarity": "Negative"
+    },
+    {
+      "Path": "Phone-Edge_Cuts.gbr",
+      "FileFunction": "Profile",
+      "FilePolarity": "Positive"
+    }
+  ],
+  "MaterialStackup": [
+    {
+      "Type": "Legend",
+      "Name": "Top Silk Screen"
+    },
+    {
+      "Type": "SolderPaste",
+      "Name": "Top Solder Paste"
+    },
+    {
+      "Type": "SolderMask",
+      "Color": "Green",
+      "Thickness": 0.0305,
+      "Material": "SM-001",
+      "DielectricConstant": "3.8",
+      "LossTangent": "0.03",
+      "Name": "Top Solder Mask"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.035,
+      "Name": "Top Layer"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 0.1,
+      "Material": "NP-140F",
+      "DielectricConstant": "4.4",
+      "LossTangent": "0.02",
+      "Name": "Top Layer/Ground Layer 1",
+      "Notes": "Type: dielectric layer 1 (from Top Layer to Ground Layer 1)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.0152,
+      "Name": "Ground Layer 1"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 0.5343,
+      "Material": "FR4-Generic",
+      "DielectricConstant": "4.6",
+      "LossTangent": "0.02",
+      "Name": "Ground Layer 1/Ground Layer 2",
+      "Notes": "Type: dielectric layer 2 (from Ground Layer 1 to Ground Layer 2)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.0152,
+      "Name": "Ground Layer 2"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 0.1,
+      "Material": "NP-140F",
+      "DielectricConstant": "4.4",
+      "LossTangent": "0.02",
+      "Name": "Ground Layer 2/In3.Cu",
+      "Notes": "Type: dielectric layer 3 (from Ground Layer 2 to In3.Cu)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.035,
+      "Name": "In3.Cu"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 0.5343,
+      "Material": "FR4",
+      "DielectricConstant": "4.5",
+      "LossTangent": "0.02",
+      "Name": "In3.Cu/In4.Cu",
+      "Notes": "Type: dielectric layer 4 (from In3.Cu to In4.Cu)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.035,
+      "Name": "In4.Cu"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 0.1,
+      "Material": "FR4",
+      "DielectricConstant": "4.5",
+      "LossTangent": "0.02",
+      "Name": "In4.Cu/Bottom Layer",
+      "Notes": "Type: dielectric layer 5 (from In4.Cu to Bottom Layer)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.035,
+      "Name": "Bottom Layer"
+    },
+    {
+      "Type": "SolderMask",
+      "Color": "Green",
+      "Thickness": 0.0305,
+      "Material": "SM-001",
+      "DielectricConstant": "3.8",
+      "LossTangent": "0.03",
+      "Name": "Bottom Solder Mask"
+    },
+    {
+      "Type": "SolderPaste",
+      "Name": "Bottom Solder Paste"
+    },
+    {
+      "Type": "Legend",
+      "Name": "Bottom Silk Screen"
+    }
+  ]
+}

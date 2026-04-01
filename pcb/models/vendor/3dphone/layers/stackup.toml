@@ -1,0 +1,6 @@
+thickness_mm = 2.0
+mask_color = "GREEN"
+mask_color_custom = [ 0, 0, 0 ]
+silks_color = "WHITE"
+silks_color_custom = [ 0.0, 0.0, 0.0 ]
+surface_finish = "HASL"

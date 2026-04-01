@@ -1,0 +1,99 @@
+(footprint "logo and phone refrence"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Radxa CM4 Compute Module")
+	(tags "Radxa CM4")
+	(property "Reference" "REF**"
+		(at 16.18 -48.8 0)
+		(unlocked yes)
+		(layer "User.1")
+		(hide yes)
+		(uuid "26f66278-dd1d-437d-aecf-41baf02e3f17")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.25)
+			)
+		)
+	)
+	(property "Value" ""
+		(at 16.68 -50.2 0)
+		(unlocked yes)
+		(layer "User.1")
+		(hide yes)
+		(uuid "e8a8675d-a7e5-423a-afd5-e304bd29a688")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.25)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "User.1")
+		(hide yes)
+		(uuid "51f2352a-9e9d-456c-a760-1ee60dead576")
+		(effects
+			(font
+				(size 4 1)
+				(thickness 0.25)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "User.1")
+		(hide yes)
+		(uuid "bf3343b2-33fa-4add-b032-182c97c7deea")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.25)
+			)
+		)
+	)
+	(property "Version" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "User.1")
+		(hide yes)
+		(uuid "7336f4da-7242-43cf-a807-5f49fc6c614c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.25)
+			)
+		)
+	)
+	(attr smd board_only)
+	(fp_text user "battery refrence"
+		(at -5.45 0.6 0)
+		(unlocked yes)
+		(layer "User.1")
+		(uuid "75dc7853-452d-4327-909a-193acfb2cebb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/1578 500mAh battery.step"
+		(offset
+			(xyz 0 0 -1.8)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+)

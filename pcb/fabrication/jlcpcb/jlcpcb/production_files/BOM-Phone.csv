@@ -1,0 +1,28 @@
+Comment,Designator,Footprint,LCSC,Quantity
+L,L1,L_0201_0603Metric,,1
+110 kΩ,R_top1,R_0201_0603Metric,,1
+Conn_01x04_Pin,J2,PinHeader_1x02_P1.00mm_Horizontal,,1
+nf,R17,R_0402_1005Metric,,1
+nf,R18,R_0402_1005Metric,,1
+Conn_01x02,J8,JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,,1
+BQ24074RGT,U2,VQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm,,1
+12K 1%,R29,R_0402_1005Metric,,1
+Conn_01x05_Pin,J6,PinHeader_1x05_P1.00mm_Horizontal,,1
+22 µF,R5,R_0201_0603Metric,,1
+D,D2,D_0201_0603Metric,,1
+Conn_01x22_Female,J4,Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal,,1
+Conn_01x22_Female,J15,Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal,,1
+0.1 µF,C3,C_0201_0603Metric,,1
+MT3608,U5,SOT-23-6,,1
+RT9742GGJ5,U18,SOT-23-5,,1
+2.2 nF,C2,C_0201_0603Metric,,1
+22 µF,R7,R_0201_0603Metric,,1
+10u,C5,C_0805_2012Metric,,1
+MPU-9150,U4,InvenSense_QFN-24_4x4mm_P0.5mm,,1
+ComputeModule4,U1,Raspberry-Pi-4-Compute-Module-Connector-Phone-Modified,,1
+APDS-9301,U3,Broadcom_APDS-9301,,1
+Conn_01x22_Female,J5,Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal,,1
+Micro_SD_Card_Det,J7,SDCARD_MOLEX_503398-1892,,1
+MP45DT02,MK2,ST_HLGA-6_3.76x4.72mm_P1.65mm,,1
+DF40C-100DS,U1A,e30f3db5-79c3-4296-a91e-8cada387ac0b,,1
+DF40C-100DS,U1B,81a00ac8-e87d-4e7e-8d85-8e0ea2ee5095,,1

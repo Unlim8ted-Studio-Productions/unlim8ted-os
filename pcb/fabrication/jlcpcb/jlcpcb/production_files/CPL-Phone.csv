@@ -1,0 +1,28 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+C2,2.2 nF,C_0201_0603Metric,80.455,-156.86,0.0,top
+C3,0.1 µF,C_0201_0603Metric,79.54,-163.62,0.0,top
+C5,10u,C_0805_2012Metric,81.89,-165.58,90.0,top
+D2,D,D_0201_0603Metric,81.645,-155.55,0.0,top
+J15,Conn_01x22_Female,Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal,90.3,-158.5,-90.0,top
+J2,Conn_01x04_Pin,PinHeader_1x02_P1.00mm_Horizontal,19.675,-118.05,0.0,top
+J4,Conn_01x22_Female,Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal,88.4,-175.65,90.0,top
+J5,Conn_01x22_Female,Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal,20.75,-175.95,270.0,bottom
+J6,Conn_01x05_Pin,PinHeader_1x05_P1.00mm_Horizontal,88.9,-59.725,90.0,top
+J7,Micro_SD_Card_Det,SDCARD_MOLEX_503398-1892,84.428244,-177.121906,270.0,bottom
+J8,Conn_01x02,JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,82.31,-150.71,-90.0,top
+L1,L,L_0201_0603Metric,76.37,-155.6,90.0,top
+MK2,MP45DT02,ST_HLGA-6_3.76x4.72mm_P1.65mm,72.7,-181.35,0.0,bottom
+R17,nf,R_0402_1005Metric,84.28,-164.84,90.0,top
+R18,nf,R_0402_1005Metric,84.19,-168.09,-90.0,top
+R29,12K 1%,R_0402_1005Metric,77.01,-169.52,180.0,top
+R5,22 µF,R_0201_0603Metric,85.6,-143.36,90.0,top
+R7,22 µF,R_0201_0603Metric,84.17,-156.15,90.0,top
+R_top1,110 kΩ,R_0201_0603Metric,86.67,-149.0,180.0,top
+U1,ComputeModule4,Raspberry-Pi-4-Compute-Module-Connector-Phone-Modified,22.2,-145.58,-90.0,top
+U18,RT9742GGJ5,SOT-23-5,76.95,-166.41,-90.0,top
+U1A,DF40C-100DS,e30f3db5-79c3-4296-a91e-8cada387ac0b,43.7,-145.12,90.0,top
+U1B,DF40C-100DS,81a00ac8-e87d-4e7e-8d85-8e0ea2ee5095,43.7,-179.04,90.0,top
+U2,BQ24074RGT,VQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm,82.0,-144.4375,-90.0,top
+U3,APDS-9301,Broadcom_APDS-9301,68.9325,-181.95,0.0,bottom
+U4,MPU-9150,InvenSense_QFN-24_4x4mm_P0.5mm,79.23,-160.2,0.0,top
+U5,MT3608,SOT-23-6,76.99,-144.65,0.0,top

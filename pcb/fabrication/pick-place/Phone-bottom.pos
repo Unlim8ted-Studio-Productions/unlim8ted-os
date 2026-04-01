@@ -1,0 +1,10 @@
+### Footprint positions - created on 2025-12-07T13:48:50-0500 ###
+### Printed by KiCad version 9.0.6
+## Unit = mm, Angle = deg.
+## Side : bottom
+# Ref     Val                Package                                                 PosX       PosY       Rot  Side
+J5        Conn_01x22_Female  Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal    20.7500  -175.9500  -90.0000  bottom
+J7        Micro_SD_Card_Det  SDCARD_MOLEX_503398-1892                             84.0382  -177.1219  -90.0000  bottom
+MK2       MP45DT02           ST_HLGA-6_3.76x4.72mm_P1.65mm                        72.7000  -181.3500  180.0000  bottom
+U3        APDS-9301          Broadcom_APDS-9301                                   68.9325  -181.9500  180.0000  bottom
+## End

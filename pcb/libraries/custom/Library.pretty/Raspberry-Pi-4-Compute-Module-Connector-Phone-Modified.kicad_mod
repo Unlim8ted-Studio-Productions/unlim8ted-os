@@ -1,0 +1,239 @@
+(footprint "Raspberry-Pi-4-Compute-Module-Connector-Phone-Modified"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Raspberry Pi 4 Compute Module")
+	(tags "Raspberry Pi 4 Compute Module")
+	(property "Reference" "REF**"
+		(at 18.38 -5.08 90)
+		(layer "F.SilkS")
+		(uuid "ff61dda7-5254-4ec7-9d57-19fac2f09318")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "ComputeModule4"
+		(at 16.52 0.19 180)
+		(layer "F.Fab")
+		(uuid "91b66769-a937-435e-b9b2-9fe875d8271a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 180)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d697a4fb-95c3-4140-ab94-57628958a598")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 180)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "27546a33-c81c-413f-8289-f13c0360df24")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Field4" "Hirose"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "75e8a7ab-302b-4573-9332-aab26e59ed05")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Field5" "2off DF40C-100DS-0.4V"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0dc877ac-72db-403b-bf44-a09dc9f3641f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Field6" "2off DF40C-100DS-0.4V"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "53177bca-9302-42c5-8186-1100a8046432")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Field7" "Hirose"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c68a2f01-a638-400c-9628-629ab06513df")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Part Description" "	100 Position Connector Receptacle, Center Strip Contacts Surface Mount Gold"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f17265b0-89f4-44d8-82bb-40d7ee2493f1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -3.5 -48)
+		(end -3.5 0)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "979e62c7-1be4-404e-85b8-78c2c1d8faab")
+	)
+	(fp_line
+		(start 0 3.5)
+		(end 33 3.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f2340eda-e353-424e-a5cd-9127f3805ce1")
+	)
+	(fp_line
+		(start 33 -51.5)
+		(end 0 -51.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "4a6ea2c8-b3f3-45f1-a5f0-ddb82ad96da8")
+	)
+	(fp_line
+		(start 36.5 0)
+		(end 36.5 -48)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "461ceca2-433b-4b4d-ad32-64ca3c7ab66b")
+	)
+	(fp_arc
+		(start -3.5 -48)
+		(mid -2.474874 -50.474874)
+		(end 0 -51.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f3db291e-11f1-4592-8f0f-1316ab54091d")
+	)
+	(fp_arc
+		(start 0 3.5)
+		(mid -2.474874 2.474874)
+		(end -3.5 0)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "cfc8c46a-b309-41ed-a03a-a5649a2bc446")
+	)
+	(fp_arc
+		(start 33 -51.5)
+		(mid 35.474874 -50.474874)
+		(end 36.5 -48)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "70970cab-1c2c-491f-9db9-f1765b342eb7")
+	)
+	(fp_arc
+		(start 36.5 0)
+		(mid 35.474874 2.474874)
+		(end 33 3.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "44271641-b837-43ce-9ed5-90eb1b27dde2")
+	)
+	(embedded_fonts no)
+	(model "${CM4IO}/DF40C-100DS.stp"
+		(offset
+			(xyz -0.46 15.38 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 0 0)
+		)
+	)
+	(model "${CM4IO}/DF40C-100DS.stp"
+		(offset
+			(xyz 33.46 15.38 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 0 0)
+		)
+	)
+	(model "${KIPRJMOD}/RP-008171-DS-1-CM4Lite-step/CM4Lite.step"
+		(opacity 0.4500)
+		(offset
+			(xyz 52.5 -3.5 2)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 -90)
+		)
+	)
+)

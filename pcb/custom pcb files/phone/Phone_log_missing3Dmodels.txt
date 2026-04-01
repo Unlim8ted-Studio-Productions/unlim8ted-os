@@ -1,0 +1,1 @@
+[('U2', 'D:\\KiCAD\\share\\kicad\\3dmodels\\Package_DFN_QFN.3dshapes\\VQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm.step'), ('D2', 'D:\\KiCAD\\share\\kicad\\3dmodels\\Diode_SMD.3dshapes\\D_0201_0603Metric.step'), ('U3', 'D:\\KiCAD\\share\\kicad\\3dmodels\\OptoDevice.3dshapes\\Broadcom_APDS-9301.step')]

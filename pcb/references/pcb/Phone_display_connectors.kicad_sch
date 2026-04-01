@@ -1,0 +1,80 @@
+(kicad_sch
+  (version 20250114)
+  (generator "eeschema")
+  (generator_version "9.0")
+  (uuid "2f048ace-a764-4ff7-9750-ea8d7938f02e")
+  (paper "A4")
+
+  ;; DSI + Touch 15-pin FPC connector
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x15")
+    (at 50 50 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (fields_autoplaced yes)
+    (uuid "b4b623af-55f4-4a3d-ae18-9c6cb9f22319")
+    (property "Reference" "J5"
+      (at 52 50 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "DSI_Touch_FPC_15"
+      (at 50 46 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Connector_FFC-FPC:FFC_15_P0.5mm_Horizontal"
+      (at 50 44 0)
+      (effects (font (size 1.27 1.27)) (hide yes))
+    )
+    (property "Datasheet" "~"
+      (at 50 42 0)
+      (effects (font (size 1.27 1.27)) (hide yes))
+    )
+    (property "Description" "MIPI DSI + I2C touch, 15-pin FFC"
+      (at 50 40 0)
+      (effects (font (size 1.27 1.27)) (hide yes))
+    )
+  )
+
+  ;; 2-pin 5V display power connector
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 90 50 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (fields_autoplaced yes)
+    (uuid "8371e9f2-2a55-4e39-9e25-ef25e4ea00cb")
+    (property "Reference" "J6"
+      (at 92 50 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "DISPLAY_5V"
+      (at 90 46 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Connector_JST:JST_PH_B2B-PH_1x02_P2.00mm_Vertical"
+      (at 90 44 0)
+      (effects (font (size 1.27 1.27)) (hide yes))
+    )
+    (property "Datasheet" "~"
+      (at 90 42 0)
+      (effects (font (size 1.27 1.27)) (hide yes))
+    )
+    (property "Description" "5V + GND power to external display board"
+      (at 90 40 0)
+      (effects (font (size 1.27 1.27)) (hide yes))
+    )
+  )
+
+  (sheet_instances
+    (path "/"
+      (page "1")
+    )
+  )
+  (embedded_fonts no)
+)

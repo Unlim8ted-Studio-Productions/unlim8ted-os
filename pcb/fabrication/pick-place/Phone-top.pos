@@ -1,0 +1,40 @@
+### Footprint positions - created on 2025-12-07T13:48:50-0500 ###
+### Printed by KiCad version 9.0.6
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref            Val                Package                                                      PosX       PosY       Rot  Side
+                                    5ca960f4-6581-4d8d-93d4-aec265c8b1d9                      22.2000  -107.3500    0.0000  top
+                                    5ca960f4-6581-4d8d-93d4-aec265c8b1d9                      22.2000   -59.4000    0.0000  top
+                                    5ca960f4-6581-4d8d-93d4-aec265c8b1d9                      89.3500  -144.9500    0.0000  top
+                                    5ca960f4-6581-4d8d-93d4-aec265c8b1d9                      89.3500  -107.3500    0.0000  top
+C1               10uF               C_0201_0603Metric                                         55.3500   -26.6800    0.0000  top
+C2               2.2_nF             C_0201_0603Metric                                         80.4550  -156.8600    0.0000  top
+C3               0.1_µF            C_0201_0603Metric                                         79.5400  -163.6200    0.0000  top
+C5               10u                C_0805_2012Metric                                         81.8900  -165.5800   90.0000  top
+D2               D                  D_0201_0603Metric                                         81.6450  -155.5500    0.0000  top
+DisplayRefrence                     logo_and_phone_refrence                                   56.3000  -184.5000    0.0000  top
+DisplayRefrence                     logo_and_phone_refrence                                   31.7500  -175.9400    0.0000  top
+J1               USB_C_Receptacle   USB_C_Receptacle_Molex_105450-0101                        55.6500   -21.8000  180.0000  top
+J2               Conn_01x04_Pin     PinHeader_1x02_P1.00mm_Horizontal                         19.6750  -117.5500    0.0000  top
+J3               Conn_01x05_Pin     PinHeader_1x05_P1.00mm_Horizontal                         62.9250   -19.8300    0.0000  top
+J4               Conn_01x22_Female  Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal         88.4000  -175.6500   90.0000  top
+J6               Conn_01x05_Pin     PinHeader_1x05_P1.00mm_Horizontal                         86.9000   -59.7250   90.0000  top
+J8               Conn_01x02         JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal                   82.3100  -149.7100  -90.0000  top
+J15              Conn_01x22_Female  Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal         90.3000  -158.5000  -90.0000  top
+L1               L                  L_0201_0603Metric                                         76.3700  -155.6000   90.0000  top
+R1               5.1K               R_0201_0603Metric                                         59.4500   -26.6300    0.0000  top
+R2               5.1K               R_0201_0603Metric                                         57.5500   -26.6300    0.0000  top
+R3               0_Ω               R_0201_0603Metric                                         53.3050   -26.6800    0.0000  top
+R5               22_µF             R_0201_0603Metric                                         85.6000  -143.3600   90.0000  top
+R7               22_µF             R_0201_0603Metric                                         84.1700  -156.1500   90.0000  top
+R17              nf                 R_0402_1005Metric                                         84.2800  -164.8400   90.0000  top
+R18              nf                 R_0402_1005Metric                                         84.1900  -168.0900  -90.0000  top
+R29              12K_1%             R_0402_1005Metric                                         77.0100  -169.5200  180.0000  top
+R_bottom1        15_kΩ             R_0201_0603Metric                                         85.2500  -147.1200   90.0000  top
+R_top1           110_kΩ            R_0201_0603Metric                                         86.6700  -149.0000  180.0000  top
+U1               ComputeModule4     Raspberry-Pi-4-Compute-Module-Connector-Phone-Modified    22.2000  -145.5800  -90.0000  top
+U2               BQ24074RGT         VQFN-16-1EP_3x3mm_P0.5mm_EP1.6x1.6mm                      82.0000  -144.4375  -90.0000  top
+U4               MPU-9150           InvenSense_QFN-24_4x4mm_P0.5mm                            79.2300  -160.2000    0.0000  top
+U5               MT3608             SOT-23-6                                                  76.9900  -144.6500    0.0000  top
+U18              RT9742GGJ5         SOT-23-5                                                  76.9500  -166.4100  -90.0000  top
+## End

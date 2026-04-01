@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "RPi_Compute_Module_4")(type "KiCad")(uri "${KIPRJMOD}/../../libraries/vendor/RPi_Compute_Module_4.pretty")(options "")(descr ""))
+)
