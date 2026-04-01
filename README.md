@@ -51,7 +51,7 @@ It includes:
 ### Current known total
 
 **$235.32**  
-This includes the **CM4**.
+Note that this includes the **CM4** 8GB RAM varient which is not necessarily required.
 
 > Final total will be a little higher once the DSI cable price is added, along with any enclosure materials, fasteners, speakers, buttons, and shipping.
 
