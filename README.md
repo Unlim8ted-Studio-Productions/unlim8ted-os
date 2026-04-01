@@ -12,8 +12,7 @@ A CM4-based handheld phone project with hardware, 3D, PCB, and OS work in one re
 
 ## Overview
 
-Unlim8ted Phone is a custom handheld phone build based on the Raspberry Pi Compute Module 4. This repo is the full project repo, not just the OS.
-
+Unlim8ted Phone is a custom handheld phone build based on the Raspberry Pi Compute Module 4. This repo contains the full project. 
 It includes:
 
 - hardware documentation
