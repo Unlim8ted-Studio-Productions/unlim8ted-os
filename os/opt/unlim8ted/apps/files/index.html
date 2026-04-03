@@ -1,7 +1,123 @@
-﻿<section class="app-template app-template-files" style="display:grid;gap:14px;min-height:100%;">
-    <header style="display:grid;gap:4px;">
-        <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#89a4c9;">Files</div>
-        <div style="font-size:26px;font-weight:800;color:#eef3ff;">Files</div>
-    </header>
-    <div data-app-slot="content" style="display:grid;gap:12px;"></div>
+﻿<section class="app-template app-template-files">
+    <div class="files-shell">
+        <header class="files-hero">
+            <div class="files-kicker">Storage</div>
+            <div class="files-title">Files</div>
+            <div class="files-sub" id="filesPathLabel">Personal storage and folders.</div>
+        </header>
+
+        <section class="files-section">
+            <div class="files-section-label">Browse</div>
+            <div class="files-group" id="filesEntryList"></div>
+        </section>
+
+        <section class="files-section">
+            <div class="files-section-label">Create</div>
+            <div class="files-group files-compose-group">
+                <form class="files-form" id="filesCreateFileForm">
+                    <div class="files-form-title">New text file</div>
+                    <label class="files-field">
+                        <span class="files-field-label">Name</span>
+                        <input class="files-input" name="name" placeholder="note.txt" />
+                    </label>
+                    <label class="files-field">
+                        <span class="files-field-label">Contents</span>
+                        <textarea class="files-textarea" name="body" placeholder="Write something here"></textarea>
+                    </label>
+                    <button class="files-submit" type="submit">Create file</button>
+                </form>
+
+                <form class="files-form" id="filesCreateFolderForm">
+                    <div class="files-form-title">New folder</div>
+                    <label class="files-field">
+                        <span class="files-field-label">Folder name</span>
+                        <input class="files-input" name="name" placeholder="Projects" />
+                    </label>
+                    <button class="files-submit files-submit-secondary" type="submit">Create folder</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="files-section">
+            <div class="files-section-label">Preview</div>
+            <div class="files-group">
+                <div class="files-preview-label" id="filesPreviewPath">No file selected</div>
+                <pre class="files-preview" id="filesPreviewText"></pre>
+            </div>
+        </section>
+
+        <section class="files-section">
+            <div class="files-section-label">Delete</div>
+            <div class="files-group">
+                <form class="files-form files-delete-form" id="filesDeleteForm">
+                    <div class="files-form-title">Delete path</div>
+                    <label class="files-field">
+                        <span class="files-field-label">Full path</span>
+                        <input class="files-input" name="value" id="filesDeleteInput" placeholder="Select a file or folder first" />
+                    </label>
+                    <button class="files-submit files-submit-danger" type="submit">Delete selected path</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <style>
+        .app-template-files { min-height: 100%; }
+        .files-shell { display: grid; gap: 18px; min-height: 100%; padding-bottom: 14px; }
+        .files-hero {
+            padding: 22px; border-radius: 30px; border: 1px solid rgba(223, 235, 255, 0.16);
+            background:
+                radial-gradient(220px 150px at 14% 14%, rgba(126, 198, 255, 0.22), transparent 64%),
+                radial-gradient(180px 140px at 88% 14%, rgba(164, 140, 255, 0.18), transparent 64%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+                rgba(16, 24, 46, 0.7);
+            box-shadow: 0 26px 64px rgba(0, 0, 0, 0.28);
+        }
+        .files-kicker, .files-section-label, .files-field-label, .files-preview-label {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(208, 223, 255, 0.56);
+        }
+        .files-title { margin-top: 8px; font-size: 32px; font-weight: 760; letter-spacing: -0.04em; color: rgba(247, 249, 255, 0.98); }
+        .files-sub { margin-top: 10px; font-size: 14px; line-height: 1.55; color: rgba(229, 237, 255, 0.74); }
+        .files-section { display: grid; gap: 10px; }
+        .files-group {
+            border-radius: 28px; border: 1px solid rgba(216, 230, 255, 0.12);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)), rgba(15, 22, 40, 0.52);
+            overflow: hidden; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2);
+        }
+        .files-entry {
+            width: 100%; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer;
+            padding: 16px 18px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center;
+            border-top: 1px solid rgba(218, 232, 255, 0.08);
+        }
+        .files-entry:first-child { border-top: 0; }
+        .files-entry-icon {
+            width: 38px; height: 38px; border-radius: 16px; display: grid; place-items: center;
+            background: rgba(255, 255, 255, 0.08); font-size: 18px;
+        }
+        .files-entry-name { font-size: 15px; font-weight: 700; color: rgba(247, 249, 255, 0.98); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .files-entry-meta { margin-top: 4px; font-size: 13px; color: rgba(197, 208, 236, 0.72); line-height: 1.45; }
+        .files-entry-arrow { font-size: 18px; color: rgba(233, 240, 255, 0.52); }
+        .files-compose-group { display: grid; gap: 0; }
+        .files-form { padding: 18px; display: grid; gap: 12px; border-top: 1px solid rgba(218, 232, 255, 0.08); }
+        .files-form:first-child { border-top: 0; }
+        .files-form-title { font-size: 17px; font-weight: 720; color: rgba(247, 249, 255, 0.97); }
+        .files-field { display: grid; gap: 8px; }
+        .files-input, .files-textarea {
+            width: 100%; border: 1px solid rgba(220, 233, 255, 0.12); border-radius: 18px; background: rgba(11, 17, 32, 0.5);
+            color: rgba(247, 249, 255, 0.98); padding: 14px 16px; font: inherit; outline: none;
+        }
+        .files-textarea { min-height: 100px; resize: vertical; }
+        .files-submit {
+            min-height: 44px; border: 0; border-radius: 18px; background: linear-gradient(135deg, rgba(136, 203, 255, 0.92), rgba(161, 145, 255, 0.88));
+            color: #08101f; font-size: 14px; font-weight: 760; box-shadow: 0 14px 28px rgba(110, 155, 255, 0.22);
+        }
+        .files-submit-secondary { background: rgba(255, 255, 255, 0.1); color: rgba(247, 249, 255, 0.96); box-shadow: none; border: 1px solid rgba(220, 233, 255, 0.12); }
+        .files-submit-danger { background: linear-gradient(135deg, rgba(255, 166, 190, 0.92), rgba(255, 122, 154, 0.92)); }
+        .files-delete-form { border-top: 0; }
+        .files-preview-label { padding: 18px 18px 0; }
+        .files-preview {
+            padding: 12px 18px 18px; min-height: 130px; white-space: pre-wrap; word-break: break-word;
+            font: 13px/1.55 Consolas, 'Courier New', monospace; color: rgba(232, 239, 255, 0.8);
+        }
+    </style>
 </section>

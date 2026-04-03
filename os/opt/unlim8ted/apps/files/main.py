@@ -19,27 +19,48 @@ def _save(context, value):
     context["services"]["accounts"].store.write("files_app", value)
 
 
+def _display_path(path, root_path):
+    current = os.path.abspath(path or root_path)
+    root = os.path.abspath(root_path)
+    if current == root:
+        return "Personal Storage"
+    relative = os.path.relpath(current, root)
+    return f"Personal Storage / {relative.replace(os.sep, ' / ')}"
+
+
 def get_app_payload(context):
     state = _state(context)
+    root_path = os.path.abspath(context["paths"]["user_files_dir"])
     listing = context["services"]["files"].list_dir(state["path"])
     preview = context["services"]["files"].read_text(state["preview"]) if state.get("preview") else ""
-    items = []
-    root_path = os.path.abspath(context["paths"]["user_files_dir"])
     current_path = os.path.abspath(listing["path"]) if listing["path"] else root_path
+    items = []
     if current_path != root_path:
-        items.append({"title": "..", "subtitle": "Parent", "action": "open_path", "value": os.path.dirname(current_path) or root_path})
-    items.extend({"title": item["name"], "subtitle": item["kind"], "action": "open_path" if item["kind"] == "dir" else "preview_file", "value": item["path"]} for item in listing["items"][:24])
+        items.append({
+            "name": "Back",
+            "kind": "nav",
+            "description": "Go up one level",
+            "action": "open_path",
+            "value": os.path.dirname(current_path) or root_path,
+        })
+    for item in listing["items"][:48]:
+        items.append({
+            "name": item["name"],
+            "kind": item["kind"],
+            "description": "Folder" if item["kind"] == "dir" else "Text preview available",
+            "action": "open_path" if item["kind"] == "dir" else "preview_file",
+            "value": item["path"],
+        })
+
     return {
-        "view": "structured",
+        "view": "template",
         "title": "Files",
-        "sections": [
-            {"type": "hero", "title": listing["path"], "body": "Personal storage only"},
-            {"type": "form", "title": "Create Text File", "action": "create_file", "fields": [{"name": "name", "placeholder": "filename.txt"}, {"name": "body", "placeholder": "File contents"}], "submit_label": "Create"},
-            {"type": "form", "title": "Create Folder", "action": "create_folder", "fields": [{"name": "name", "placeholder": "Folder name"}], "submit_label": "Create"},
-            {"type": "list", "title": "Entries", "items": items},
-            {"type": "text", "title": "Preview", "body": preview or "Select a text file to preview."},
-            {"type": "form", "title": "Delete Path", "action": "delete_file", "fields": [{"name": "value", "placeholder": "Full path to delete"}], "submit_label": "Delete"},
-        ],
+        "path": listing["path"] or root_path,
+        "path_label": _display_path(listing["path"], root_path),
+        "root_label": "Personal Storage",
+        "entries": items,
+        "preview": preview or "Select a text file to preview its contents.",
+        "preview_path": state.get("preview", ""),
     }
 
 
@@ -73,4 +94,3 @@ def handle_action(context, action, payload):
                 state["preview"] = ""
             _save(context, state)
     return {"app": get_app_payload(context), "system": context["system"]}
-

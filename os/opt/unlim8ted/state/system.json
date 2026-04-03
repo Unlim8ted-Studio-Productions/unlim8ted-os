@@ -7,8 +7,8 @@
     "preview_active": false
   },
   "display_awake": true,
-  "idle_timeout_sec": 45,
-  "last_interaction": 1775169644.8755407,
+  "idle_timeout_sec": 15,
+  "last_interaction": 1775175187.7053568,
   "last_sleep_reason": "",
   "sleeping": false,
   "toggles": {

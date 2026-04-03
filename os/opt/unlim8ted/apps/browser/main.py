@@ -265,7 +265,7 @@ def _browser_fetch(target):
         target,
         headers={
             "User-Agent": (
-                "Mozilla/5.0 (Linux; Android 14; Unlim8ted CM4) "
+                "Mozilla/5.0 (X11; Linux armv7l; Unlim8ted) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36"
             ),
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

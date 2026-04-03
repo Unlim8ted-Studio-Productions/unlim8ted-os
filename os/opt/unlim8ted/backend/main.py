@@ -1008,7 +1008,7 @@ def start_ui():
                 "--no-default-browser-check",
                 "--disable-session-crashed-bubble",
                 "--disable-component-update",
-                "--user-agent=Mozilla/5.0 (Linux; Android 10; Mobile)",
+                "--user-agent=Mozilla/5.0 (X11; Linux armv7l; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Unlim8tedOS/1.0",
                 f"--app=http://localhost:{PORT}",
             ]
         )

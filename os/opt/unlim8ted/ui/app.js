@@ -108,14 +108,14 @@ const predictionDictionary = [
     'notes', 'maps', 'files', 'mail', 'music', 'store', 'display', 'brightness', 'timeout', 'focus', 'wifi',
     'bluetooth', 'airplane', 'device', 'system', 'owner', 'search', 'route', 'save', 'create', 'delete', 'call',
     'send', 'draft', 'gallery', 'alarm', 'panel', 'open', 'close', 'sleep', 'wake', 'today', 'tomorrow',
-    'android', 'raspberry', 'keyboard', 'clipboard', 'typing', 'quick', 'toggle', 'connectivity', 'network'
+    'unlim8ted', 'raspberry', 'keyboard', 'clipboard', 'typing', 'quick', 'toggle', 'connectivity', 'network'
 ];
 const predictionWeights = {
     the: 1000, and: 980, you: 970, your: 950, hello: 920, home: 910, settings: 900, browser: 890,
     messages: 880, camera: 870, phone: 860, notes: 850, maps: 840, files: 830, mail: 820, music: 810,
     search: 800, open: 790, close: 780, sleep: 770, wake: 760, keyboard: 750, clipboard: 740,
     typing: 730, display: 720, brightness: 710, timeout: 700, wifi: 690, bluetooth: 680, network: 670,
-    android: 660, raspberry: 650, system: 640, device: 630, panel: 620, gallery: 610, alarm: 600
+    unlim8ted: 660, raspberry: 650, system: 640, device: 630, panel: 620, gallery: 610, alarm: 600
 };
 const keyboardLayout = {
     q: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -482,13 +482,13 @@ function ensureAppSwitcher() {
     appSwitcherSheet.innerHTML = `
         <div class="switcher-shell">
             <div class="switcher-top">
-                <div class="switcher-title">Android Recents</div>
+                <div class="switcher-title">Recent Apps</div>
                 <div class="switcher-actions">
                     <button type="button" class="switcher-btn" id="appSwitcherHome">Home</button>
                     <button type="button" class="switcher-btn" id="appSwitcherClear">Clear All</button>
                 </div>
             </div>
-            ${items.length ? `<div class="switcher-list">${items.map(renderAppSwitcherPreview).join('')}</div>` : `<div class="switcher-empty">No recent apps yet. Open an app, then swipe up from the bottom to get Android-style recents.</div>`}
+            ${items.length ? `<div class="switcher-list">${items.map(renderAppSwitcherPreview).join('')}</div>` : `<div class="switcher-empty">No recent apps yet. Open an app, then swipe up from the bottom to see your recent apps.</div>`}
         </div>
     `;
     appSwitcherSheet.querySelectorAll('[data-switch-app]').forEach((button) => {
@@ -788,50 +788,148 @@ function renderHtmlApp(payload, appId) {
 }
 
 function renderStructuredSection(section) {
+    const sectionTitle = escapeHtml(section.title || '');
+    const sectionBody = escapeHtml(section.body || '');
+    const renderRow = (item) => {
+        const title = escapeHtml(item.title || '');
+        const subtitle = escapeHtml(item.subtitle || '');
+        const attrs = item.action
+            ? `data-app-action="${escapeHtml(item.action)}" data-app-value="${escapeHtml(item.value || '')}"`
+            : '';
+        const tag = item.action ? 'button' : 'div';
+        const buttonType = tag === 'button' ? ' type="button"' : '';
+        return `
+            <${tag}${buttonType} class="app-list-row" ${attrs}>
+                <div class="app-list-row-main">
+                    <div class="app-list-row-title">${title}</div>
+                    ${subtitle ? `<div class="app-list-row-subtitle">${subtitle}</div>` : ''}
+                </div>
+                <div class="app-list-row-trailing">${item.action ? '&#8250;' : ''}</div>
+            </${tag}>
+        `;
+    };
+    const renderField = (field) => {
+        const name = escapeHtml(field.name || '');
+        const placeholder = escapeHtml(field.placeholder || '');
+        const label = escapeHtml(field.label || field.name || 'Field');
+        const lower = String(field.name || '').toLowerCase();
+        const multiline = lower.includes('body') || lower.includes('message') || lower.includes('note');
+        const input = multiline
+            ? `<textarea class="app-textarea" name="${name}" placeholder="${placeholder}"></textarea>`
+            : `<input class="app-input" name="${name}" placeholder="${placeholder}" />`;
+        return `<label class="app-field"><span class="app-field-label">${label}</span>${input}</label>`;
+    };
+
     if (section.type === 'hero') {
         const actions = (section.actions || []).map((item) =>
-            `<button type="button" data-app-action="${escapeHtml(item.action || '')}" data-app-value="${escapeHtml(item.value || '')}" style="padding:10px 14px;margin-right:8px;">${escapeHtml(item.label || 'Action')}</button>`
+            `<button type="button" class="app-pill-btn" data-app-action="${escapeHtml(item.action || '')}" data-app-value="${escapeHtml(item.value || '')}">${escapeHtml(item.label || 'Action')}</button>`
         ).join('');
-        return `<div class="content-card"><div class="content-title">${escapeHtml(section.title || '')}</div><div class="content-text">${escapeHtml(section.body || '')}</div><div style="margin-top:12px;">${actions}</div></div>`;
+        return `
+            <section class="app-section">
+                <div class="app-hero-card">
+                    <div class="content-title">Overview</div>
+                    <div class="app-hero-title">${sectionTitle}</div>
+                    ${sectionBody ? `<div class="app-hero-body">${sectionBody}</div>` : ''}
+                    ${actions ? `<div class="app-inline-actions">${actions}</div>` : ''}
+                </div>
+            </section>
+        `;
     }
     if (section.type === 'form') {
-        const fields = (section.fields || []).map((field) =>
-            `<input name="${escapeHtml(field.name || '')}" placeholder="${escapeHtml(field.placeholder || '')}" style="width:100%;padding:12px;margin-top:12px;background:#0d1320;color:#eef3ff;border:1px solid rgba(140,186,255,.16);" />`
-        ).join('');
-        return `<div class="content-card"><div class="content-title">${escapeHtml(section.title || '')}</div><form data-app-form="${escapeHtml(section.action || '')}">${fields}<button type="submit" style="margin-top:12px;padding:10px 14px;">${escapeHtml(section.submit_label || 'Submit')}</button></form></div>`;
+        const fields = (section.fields || []).map(renderField).join('');
+        return `
+            <section class="app-section">
+                <div class="app-group">
+                    <div class="app-group-header">
+                        <div class="app-group-title">${sectionTitle}</div>
+                        ${sectionBody ? `<div class="app-group-copy">${sectionBody}</div>` : ''}
+                    </div>
+                    <form class="app-form" data-app-form="${escapeHtml(section.action || '')}">
+                        ${fields}
+                        <button class="app-submit" type="submit">${escapeHtml(section.submit_label || 'Submit')}</button>
+                    </form>
+                </div>
+            </section>
+        `;
     }
     if (section.type === 'chips') {
         const items = (section.items || []).map((item) =>
-            `<button type="button" data-app-action="${escapeHtml(item.action || '')}" data-app-value="${escapeHtml(item.value || '')}" style="padding:10px 14px;margin:6px 6px 0 0;">${escapeHtml(item.label || '')}</button>`
+            `<button type="button" class="app-pill-btn" data-app-action="${escapeHtml(item.action || '')}" data-app-value="${escapeHtml(item.value || '')}">${escapeHtml(item.label || '')}</button>`
         ).join('');
-        return `<div class="content-card"><div class="content-title">${escapeHtml(section.title || '')}</div><div style="margin-top:12px;">${items}</div></div>`;
+        return `
+            <section class="app-section">
+                <div class="app-group">
+                    <div class="app-group-header">
+                        <div class="app-group-title">${sectionTitle}</div>
+                    </div>
+                    <div class="app-form" style="padding-top:0;">
+                        <div class="app-chip-row">${items}</div>
+                    </div>
+                </div>
+            </section>
+        `;
     }
     if (section.type === 'kv') {
         const rows = (section.rows || []).map((row) =>
-            `<div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(140,186,255,.08);"><strong>${escapeHtml(row.label || '')}</strong><span>${escapeHtml(row.value || '')}</span></div>`
+            `<div class="app-list-row">
+                <div class="app-list-row-main">
+                    <div class="app-list-row-title">${escapeHtml(row.label || '')}</div>
+                </div>
+                <div class="app-list-row-subtitle">${escapeHtml(row.value || '')}</div>
+            </div>`
         ).join('');
-        return `<div class="content-card"><div class="content-title">${escapeHtml(section.title || '')}</div><div style="margin-top:8px;">${rows}</div></div>`;
+        return `
+            <section class="app-section">
+                <div class="app-group">
+                    <div class="app-group-header">
+                        <div class="app-group-title">${sectionTitle}</div>
+                    </div>
+                    <div class="app-list">${rows}</div>
+                </div>
+            </section>
+        `;
     }
     if (section.type === 'grid') {
         const items = (section.items || []).map((item) => `
-            <div class="content-card" style="padding:10px;">
-                ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title || '')}" style="width:100%;height:120px;object-fit:cover;margin-bottom:10px;" />` : ''}
-                <div class="content-title">${escapeHtml(item.title || '')}</div>
-                <div class="content-text">${escapeHtml(item.subtitle || '')}</div>
+            <div class="app-grid-card">
+                ${item.image_url ? `<img class="app-grid-image" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title || '')}" />` : ''}
+                <div class="app-list-row-title">${escapeHtml(item.title || '')}</div>
+                <div class="app-list-row-subtitle">${escapeHtml(item.subtitle || '')}</div>
             </div>
         `).join('');
-        return `<div><div class="content-title" style="margin:0 0 12px 4px;">${escapeHtml(section.title || '')}</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">${items}</div></div>`;
+        return `
+            <section class="app-section">
+                <div class="app-group-header" style="padding:0 4px;">
+                    <div class="app-group-title">${sectionTitle}</div>
+                </div>
+                <div class="app-grid">${items}</div>
+            </section>
+        `;
     }
     if (section.type === 'text') {
-        return `<div class="content-card"><div class="content-title">${escapeHtml(section.title || '')}</div><div class="content-text">${escapeHtml(section.body || '')}</div></div>`;
+        return `
+            <section class="app-section">
+                <div class="app-group">
+                    <div class="app-group-header">
+                        <div class="app-group-title">${sectionTitle}</div>
+                        <div class="app-group-copy">${sectionBody}</div>
+                    </div>
+                </div>
+            </section>
+        `;
     }
-    const items = (section.items || []).map((item) =>
-        `<button type="button" ${item.action ? `data-app-action="${escapeHtml(item.action)}" data-app-value="${escapeHtml(item.value || '')}"` : ''} style="display:block;width:100%;text-align:left;padding:12px 0;border:0;background:transparent;color:inherit;border-bottom:1px solid rgba(140,186,255,.08);">
-            <div style="font-weight:700;">${escapeHtml(item.title || '')}</div>
-            <div class="content-text">${escapeHtml(item.subtitle || '')}</div>
-        </button>`
-    ).join('');
-    return `<div class="content-card"><div class="content-title">${escapeHtml(section.title || '')}</div><div style="margin-top:8px;">${items || `<div class="content-text">No items</div>`}</div></div>`;
+    const items = (section.items || []).map(renderRow).join('');
+    return `
+        <section class="app-section">
+            <div class="app-group">
+                <div class="app-group-header">
+                    <div class="app-group-title">${sectionTitle}</div>
+                    ${sectionBody ? `<div class="app-group-copy">${sectionBody}</div>` : ''}
+                </div>
+                <div class="app-list">${items || '<div class="app-list-row"><div class="app-list-row-main"><div class="app-list-row-subtitle">No items</div></div></div>'}</div>
+            </div>
+        </section>
+    `;
 }
 
 function renderStructuredApp(payload) {
@@ -1054,11 +1152,13 @@ async function renderTemplateApp(payload, appId) {
 async function renderAppPayload(payload, appId) {
     try {
         appTitle.textContent = payload?.title || appTitles[appId] || 'App';
+        appView.dataset.appId = appId || '';
         if (appTop) appTop.style.display = '';
         appView.classList.remove('browser-chrome-only');
         appBody.style.padding = '';
         appBody.style.gap = '';
         appBody.style.alignContent = '';
+        appBody.scrollTop = 0;
         if (payload?.view === 'camera' || appId === 'camera') {
             renderCameraApp();
             startCameraPreview();
@@ -1135,6 +1235,7 @@ async function closeApp() {
     blurKeyboardTarget();
     state.appOpen = false;
     state.appId = '';
+    appView.dataset.appId = '';
     appView.classList.remove('open');
     appBody.innerHTML = '';
     if (appTop) appTop.style.display = '';
