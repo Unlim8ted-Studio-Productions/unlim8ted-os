@@ -439,10 +439,23 @@ function swapHomeApps(first, second) {
     saveHomeLayout();
 }
 
+function recentAppSubtitle(appId, payload = null) {
+    if (payload?.subtitle) return payload.subtitle;
+    if (payload?.path_label) return payload.path_label;
+    if (payload?.gallery?.selected?.name) return payload.gallery.selected.name;
+    if (payload?.camera?.available) return payload?.camera?.preview_active ? 'Live camera preview' : 'Camera ready';
+    if (payload?.view === 'structured' && payload?.sections?.length) {
+        return payload.sections[0]?.title || payload.sections[0]?.body || 'Ready';
+    }
+    if (payload?.view === 'camera') return 'Capture and preview';
+    return appId === state.appId ? 'Currently open' : 'Ready';
+}
+
 function rememberRecentApp(appId, payload = null) {
     const title = payload?.title || appTitles[appId] || 'App';
-    const subtitle = payload?.subtitle || payload?.view || (appId === state.appId ? 'Currently open' : 'Ready');
-    const preview = payload?.sections?.slice?.(0, 3)?.map((section) => section.title || section.body || '').filter(Boolean) || [];
+    const subtitle = recentAppSubtitle(appId, payload);
+    const preview = payload?.sections?.slice?.(0, 3)?.map((section) => section.title || section.body || '').filter(Boolean)
+        || [payload?.notice, payload?.path_label, payload?.gallery?.selected?.created_label].filter(Boolean);
     state.recentApps = state.recentApps.filter((item) => item.id !== appId);
     state.recentApps.unshift({ id: appId, title, subtitle, preview });
     state.recentApps = state.recentApps.slice(0, 8);
@@ -1510,3 +1523,4 @@ syncSystemState();
 scheduleIdleSleep();
 bindShellUi();
 shellLog('log', 'shell', 'Shell bootstrap restored');
+

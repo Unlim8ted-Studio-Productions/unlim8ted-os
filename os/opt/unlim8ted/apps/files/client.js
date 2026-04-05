@@ -11,10 +11,9 @@ window.Unlim8tedAppClients.files = (() => {
         if (response?.app) {
             currentCtx.payload = response.app;
             render(response.app, currentCtx);
+            currentCtx.rememberRecentApp?.('files', response.app);
         }
-        if (response?.system) {
-            currentCtx.syncSystemState?.();
-        }
+        if (response?.system) currentCtx.syncSystemState?.();
         return response;
     }
 
@@ -24,72 +23,106 @@ window.Unlim8tedAppClients.files = (() => {
         return '📄';
     }
 
-    function entryMeta(entry) {
-        if (entry.kind === 'nav') return 'Navigate to the parent folder';
-        if (entry.kind === 'dir') return 'Folder';
-        return entry.description || 'Text preview available';
-    }
-
     function entriesMarkup(entries) {
         if (!entries.length) {
-            return '<div class="files-form"><div class="files-form-title">This folder is empty</div><div class="files-entry-meta">Create a file or folder to get started.</div></div>';
+            return '<div class="files-empty">This folder is empty. Create a file or folder to get started.</div>';
         }
         return entries.map((entry) => `
-            <button type="button" class="files-entry" data-files-action="${currentCtx.escapeHtml(entry.action || '')}" data-files-value="${currentCtx.escapeHtml(entry.value || '')}">
+            <button type="button" class="files-entry ${entry.selected ? 'selected' : ''}" data-files-action="${currentCtx.escapeHtml(entry.action || '')}" data-files-value="${currentCtx.escapeHtml(entry.value || '')}">
                 <div class="files-entry-icon">${entryIcon(entry.kind)}</div>
-                <div>
+                <div class="files-entry-main">
                     <div class="files-entry-name">${currentCtx.escapeHtml(entry.name || '')}</div>
-                    <div class="files-entry-meta">${currentCtx.escapeHtml(entryMeta(entry))}</div>
+                    <div class="files-entry-meta">${currentCtx.escapeHtml(entry.meta || entry.description || '')}</div>
                 </div>
                 <div class="files-entry-arrow">›</div>
             </button>
         `).join('');
     }
 
+    function detailRowsMarkup(rows) {
+        if (!rows?.length) return '<div class="files-empty">No item selected.</div>';
+        return rows.map((row) => `
+            <div class="files-detail-row">
+                <div class="files-detail-label">${currentCtx.escapeHtml(row.label || '')}</div>
+                <div class="files-detail-value">${currentCtx.escapeHtml(row.value || '')}</div>
+            </div>
+        `).join('');
+    }
+
+    function previewMarkup(preview) {
+        const kind = preview?.kind || 'empty';
+        if (kind === 'text') {
+            return `
+                <form class="files-editor" id="filesSaveForm">
+                    <div class="files-form-title">Text Editor</div>
+                    <textarea class="files-textarea files-editor-textarea" name="body">${currentCtx.escapeHtml(preview.body || '')}</textarea>
+                    <div class="files-editor-actions">
+                        <button class="files-submit" type="submit">Save File</button>
+                    </div>
+                </form>
+            `;
+        }
+        if (kind === 'image') {
+            return `
+                <div class="files-image-wrap">
+                    <img class="files-image-preview" src="${currentCtx.escapeHtml(preview.url || '')}" alt="${currentCtx.escapeHtml(preview.title || 'Preview')}" />
+                </div>
+            `;
+        }
+        return `
+            <div class="files-preview-card">
+                <div class="files-form-title">${currentCtx.escapeHtml(preview?.title || 'Preview')}</div>
+                <div class="files-preview-copy">${currentCtx.escapeHtml(preview?.body || 'Nothing selected.')}</div>
+            </div>
+        `;
+    }
+
     function bindEvents(payload) {
         currentCtx.appBody.querySelectorAll('[data-files-action]').forEach((button) => {
             button.addEventListener('click', () => {
-                const action = button.dataset.filesAction || '';
-                const value = button.dataset.filesValue || '';
-                if (!action) return;
-                sendAction(action, { value });
-                const deleteInput = currentCtx.appBody.querySelector('#filesDeleteInput');
-                if (deleteInput) deleteInput.value = value;
+                sendAction(button.dataset.filesAction || '', { value: button.dataset.filesValue || '' });
             });
         });
 
-        const fileForm = currentCtx.appBody.querySelector('#filesCreateFileForm');
-        fileForm?.addEventListener('submit', (event) => {
+        currentCtx.appBody.querySelector('#filesCreateFileForm')?.addEventListener('submit', (event) => {
             event.preventDefault();
-            const form = new FormData(fileForm);
+            const form = new FormData(event.currentTarget);
             sendAction('create_file', {
                 name: String(form.get('name') || ''),
                 body: String(form.get('body') || '')
             });
-            fileForm.reset();
+            event.currentTarget.reset();
         });
 
-        const folderForm = currentCtx.appBody.querySelector('#filesCreateFolderForm');
-        folderForm?.addEventListener('submit', (event) => {
+        currentCtx.appBody.querySelector('#filesCreateFolderForm')?.addEventListener('submit', (event) => {
             event.preventDefault();
-            const form = new FormData(folderForm);
-            sendAction('create_folder', {
+            const form = new FormData(event.currentTarget);
+            sendAction('create_folder', { name: String(form.get('name') || '') });
+            event.currentTarget.reset();
+        });
+
+        currentCtx.appBody.querySelector('#filesRenameForm')?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            sendAction('rename_path', {
+                value: payload?.selected_path || '',
                 name: String(form.get('name') || '')
             });
-            folderForm.reset();
         });
 
-        const deleteForm = currentCtx.appBody.querySelector('#filesDeleteForm');
-        deleteForm?.addEventListener('submit', (event) => {
+        currentCtx.appBody.querySelector('#filesDeleteBtn')?.addEventListener('click', () => {
+            if (!payload?.selected_path) return;
+            sendAction('delete_file', { value: payload.selected_path });
+        });
+
+        currentCtx.appBody.querySelector('#filesSaveForm')?.addEventListener('submit', (event) => {
             event.preventDefault();
-            const form = new FormData(deleteForm);
-            sendAction('delete_file', {
-                value: String(form.get('value') || '')
+            const form = new FormData(event.currentTarget);
+            sendAction('save_file', {
+                value: payload?.selected_path || '',
+                body: String(form.get('body') || '')
             });
         });
-
-        const deleteInput = currentCtx.appBody.querySelector('#filesDeleteInput');
-        if (deleteInput && payload?.preview_path) deleteInput.value = payload.preview_path;
     }
 
     async function render(payload, ctx) {
@@ -97,14 +130,20 @@ window.Unlim8tedAppClients.files = (() => {
         currentCtx.payload = payload || {};
 
         const pathLabel = currentCtx.appBody.querySelector('#filesPathLabel');
-        const entryList = currentCtx.appBody.querySelector('#filesEntryList');
-        const previewPath = currentCtx.appBody.querySelector('#filesPreviewPath');
-        const previewText = currentCtx.appBody.querySelector('#filesPreviewText');
+        const status = currentCtx.appBody.querySelector('#filesStatus');
+        const list = currentCtx.appBody.querySelector('#filesEntryList');
+        const detail = currentCtx.appBody.querySelector('#filesDetailList');
+        const preview = currentCtx.appBody.querySelector('#filesPreviewPanel');
+        const renameInput = currentCtx.appBody.querySelector('#filesRenameInput');
+        const deleteBtn = currentCtx.appBody.querySelector('#filesDeleteBtn');
 
-        if (pathLabel) pathLabel.textContent = payload?.path_label || payload?.root_label || 'Personal Storage';
-        if (entryList) entryList.innerHTML = entriesMarkup(payload?.entries || []);
-        if (previewPath) previewPath.textContent = payload?.preview_path || 'No file selected';
-        if (previewText) previewText.textContent = payload?.preview || 'Select a text file to preview its contents.';
+        if (pathLabel) pathLabel.textContent = payload?.path_label || 'Personal Storage';
+        if (status) status.textContent = payload?.notice || payload?.subtitle || 'Manage your local files.';
+        if (list) list.innerHTML = entriesMarkup(payload?.entries || []);
+        if (detail) detail.innerHTML = detailRowsMarkup(payload?.details || []);
+        if (preview) preview.innerHTML = previewMarkup(payload?.preview || {});
+        if (renameInput) renameInput.value = payload?.selected_name || '';
+        if (deleteBtn) deleteBtn.disabled = !payload?.selected_path;
 
         bindEvents(payload || {});
     }

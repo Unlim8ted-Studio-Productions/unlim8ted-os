@@ -3,60 +3,61 @@
         <header class="files-hero">
             <div class="files-kicker">Storage</div>
             <div class="files-title">Files</div>
-            <div class="files-sub" id="filesPathLabel">Personal storage and folders.</div>
+            <div class="files-sub" id="filesPathLabel">Personal Storage</div>
+            <div class="files-status" id="filesStatus">Manage your local files.</div>
         </header>
 
-        <section class="files-section">
-            <div class="files-section-label">Browse</div>
-            <div class="files-group" id="filesEntryList"></div>
-        </section>
-
-        <section class="files-section">
-            <div class="files-section-label">Create</div>
-            <div class="files-group files-compose-group">
-                <form class="files-form" id="filesCreateFileForm">
-                    <div class="files-form-title">New text file</div>
-                    <label class="files-field">
-                        <span class="files-field-label">Name</span>
-                        <input class="files-input" name="name" placeholder="note.txt" />
-                    </label>
-                    <label class="files-field">
-                        <span class="files-field-label">Contents</span>
-                        <textarea class="files-textarea" name="body" placeholder="Write something here"></textarea>
-                    </label>
-                    <button class="files-submit" type="submit">Create file</button>
-                </form>
-
-                <form class="files-form" id="filesCreateFolderForm">
-                    <div class="files-form-title">New folder</div>
-                    <label class="files-field">
-                        <span class="files-field-label">Folder name</span>
-                        <input class="files-input" name="name" placeholder="Projects" />
-                    </label>
-                    <button class="files-submit files-submit-secondary" type="submit">Create folder</button>
-                </form>
+        <section class="files-section files-layout-grid">
+            <div class="files-column">
+                <div class="files-section-label">Browse</div>
+                <div class="files-group" id="filesEntryList"></div>
+            </div>
+            <div class="files-column">
+                <div class="files-section-label">Details</div>
+                <div class="files-group files-details-group" id="filesDetailList"></div>
             </div>
         </section>
 
-        <section class="files-section">
-            <div class="files-section-label">Preview</div>
-            <div class="files-group">
-                <div class="files-preview-label" id="filesPreviewPath">No file selected</div>
-                <pre class="files-preview" id="filesPreviewText"></pre>
+        <section class="files-section files-layout-grid files-layout-grid-secondary">
+            <div class="files-column">
+                <div class="files-section-label">Preview</div>
+                <div class="files-group files-preview-panel" id="filesPreviewPanel"></div>
             </div>
-        </section>
+            <div class="files-column files-actions-column">
+                <div class="files-section-label">Manage</div>
+                <div class="files-group files-compose-group">
+                    <form class="files-form" id="filesRenameForm">
+                        <div class="files-form-title">Rename Selected</div>
+                        <label class="files-field">
+                            <span class="files-field-label">Name</span>
+                            <input class="files-input" id="filesRenameInput" name="name" placeholder="Rename item" />
+                        </label>
+                        <button class="files-submit files-submit-secondary" type="submit">Rename</button>
+                        <button class="files-submit files-submit-danger" id="filesDeleteBtn" type="button">Delete Selected</button>
+                    </form>
 
-        <section class="files-section">
-            <div class="files-section-label">Delete</div>
-            <div class="files-group">
-                <form class="files-form files-delete-form" id="filesDeleteForm">
-                    <div class="files-form-title">Delete path</div>
-                    <label class="files-field">
-                        <span class="files-field-label">Full path</span>
-                        <input class="files-input" name="value" id="filesDeleteInput" placeholder="Select a file or folder first" />
-                    </label>
-                    <button class="files-submit files-submit-danger" type="submit">Delete selected path</button>
-                </form>
+                    <form class="files-form" id="filesCreateFileForm">
+                        <div class="files-form-title">New Text File</div>
+                        <label class="files-field">
+                            <span class="files-field-label">Name</span>
+                            <input class="files-input" name="name" placeholder="note.txt" />
+                        </label>
+                        <label class="files-field">
+                            <span class="files-field-label">Contents</span>
+                            <textarea class="files-textarea" name="body" placeholder="Write something here"></textarea>
+                        </label>
+                        <button class="files-submit" type="submit">Create File</button>
+                    </form>
+
+                    <form class="files-form" id="filesCreateFolderForm">
+                        <div class="files-form-title">New Folder</div>
+                        <label class="files-field">
+                            <span class="files-field-label">Folder Name</span>
+                            <input class="files-input" name="name" placeholder="Projects" />
+                        </label>
+                        <button class="files-submit files-submit-secondary" type="submit">Create Folder</button>
+                    </form>
+                </div>
             </div>
         </section>
     </div>
@@ -73,12 +74,16 @@
                 rgba(16, 24, 46, 0.7);
             box-shadow: 0 26px 64px rgba(0, 0, 0, 0.28);
         }
-        .files-kicker, .files-section-label, .files-field-label, .files-preview-label {
+        .files-kicker, .files-section-label, .files-field-label, .files-detail-label {
             font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(208, 223, 255, 0.56);
         }
         .files-title { margin-top: 8px; font-size: 32px; font-weight: 760; letter-spacing: -0.04em; color: rgba(247, 249, 255, 0.98); }
         .files-sub { margin-top: 10px; font-size: 14px; line-height: 1.55; color: rgba(229, 237, 255, 0.74); }
+        .files-status { margin-top: 10px; font-size: 13px; color: rgba(189, 224, 255, 0.88); }
         .files-section { display: grid; gap: 10px; }
+        .files-layout-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 16px; }
+        .files-layout-grid-secondary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .files-column { display: grid; gap: 10px; min-width: 0; }
         .files-group {
             border-radius: 28px; border: 1px solid rgba(216, 230, 255, 0.12);
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)), rgba(15, 22, 40, 0.52);
@@ -90,13 +95,19 @@
             border-top: 1px solid rgba(218, 232, 255, 0.08);
         }
         .files-entry:first-child { border-top: 0; }
+        .files-entry.selected { background: rgba(138, 202, 255, 0.12); }
         .files-entry-icon {
             width: 38px; height: 38px; border-radius: 16px; display: grid; place-items: center;
             background: rgba(255, 255, 255, 0.08); font-size: 18px;
         }
+        .files-entry-main { min-width: 0; }
         .files-entry-name { font-size: 15px; font-weight: 700; color: rgba(247, 249, 255, 0.98); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .files-entry-meta { margin-top: 4px; font-size: 13px; color: rgba(197, 208, 236, 0.72); line-height: 1.45; }
+        .files-entry-meta, .files-preview-copy { margin-top: 4px; font-size: 13px; color: rgba(197, 208, 236, 0.72); line-height: 1.45; }
         .files-entry-arrow { font-size: 18px; color: rgba(233, 240, 255, 0.52); }
+        .files-details-group, .files-preview-panel { padding: 18px; display: grid; gap: 12px; align-content: start; min-height: 220px; }
+        .files-detail-row { display: grid; gap: 6px; padding: 12px 0; border-top: 1px solid rgba(218, 232, 255, 0.08); }
+        .files-detail-row:first-child { border-top: 0; padding-top: 0; }
+        .files-detail-value { font-size: 14px; color: rgba(240, 244, 255, 0.9); line-height: 1.45; word-break: break-word; }
         .files-compose-group { display: grid; gap: 0; }
         .files-form { padding: 18px; display: grid; gap: 12px; border-top: 1px solid rgba(218, 232, 255, 0.08); }
         .files-form:first-child { border-top: 0; }
@@ -107,17 +118,20 @@
             color: rgba(247, 249, 255, 0.98); padding: 14px 16px; font: inherit; outline: none;
         }
         .files-textarea { min-height: 100px; resize: vertical; }
+        .files-editor-textarea { min-height: 260px; }
         .files-submit {
             min-height: 44px; border: 0; border-radius: 18px; background: linear-gradient(135deg, rgba(136, 203, 255, 0.92), rgba(161, 145, 255, 0.88));
             color: #08101f; font-size: 14px; font-weight: 760; box-shadow: 0 14px 28px rgba(110, 155, 255, 0.22);
         }
         .files-submit-secondary { background: rgba(255, 255, 255, 0.1); color: rgba(247, 249, 255, 0.96); box-shadow: none; border: 1px solid rgba(220, 233, 255, 0.12); }
         .files-submit-danger { background: linear-gradient(135deg, rgba(255, 166, 190, 0.92), rgba(255, 122, 154, 0.92)); }
-        .files-delete-form { border-top: 0; }
-        .files-preview-label { padding: 18px 18px 0; }
-        .files-preview {
-            padding: 12px 18px 18px; min-height: 130px; white-space: pre-wrap; word-break: break-word;
-            font: 13px/1.55 Consolas, 'Courier New', monospace; color: rgba(232, 239, 255, 0.8);
+        .files-image-wrap { display: grid; place-items: center; min-height: 260px; background: rgba(8, 12, 24, 0.45); border-radius: 22px; overflow: hidden; }
+        .files-image-preview { max-width: 100%; max-height: 360px; object-fit: contain; }
+        .files-empty { font-size: 13px; line-height: 1.5; color: rgba(197, 208, 236, 0.72); padding: 18px; }
+        .files-preview-card, .files-editor { display: grid; gap: 12px; }
+        .files-editor-actions { display: flex; justify-content: flex-end; }
+        @media (max-width: 760px) {
+            .files-layout-grid, .files-layout-grid-secondary { grid-template-columns: minmax(0, 1fr); }
         }
     </style>
 </section>

@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import mimetypes
 import os
 import secrets
 import shutil
@@ -319,8 +320,27 @@ class FilesService:
             if self._is_hidden(name):
                 continue
             full = os.path.join(target, name)
-            items.append({"name": name, "path": full, "kind": "dir" if os.path.isdir(full) else "file"})
+            item = self.describe(full)
+            if item:
+                items.append(item)
         return {"path": target, "items": items}
+
+    def describe(self, path):
+        target = self._safe(path)
+        if not target or not os.path.exists(target):
+            return None
+        stat = os.stat(target)
+        kind = "dir" if os.path.isdir(target) else "file"
+        mime, _encoding = mimetypes.guess_type(target)
+        return {
+            "name": os.path.basename(target),
+            "path": target,
+            "kind": kind,
+            "size": int(stat.st_size),
+            "modified_at": datetime.utcfromtimestamp(stat.st_mtime).isoformat() + "Z",
+            "mime": mime or ("inode/directory" if kind == "dir" else "application/octet-stream"),
+            "editable": kind == "file" and (mime or "").startswith("text/"),
+        }
 
     def read_text(self, path, limit=4000):
         target = self._safe(path)
@@ -331,6 +351,16 @@ class FilesService:
                 return handle.read(limit)
         except OSError:
             return ""
+
+    def read_binary(self, path, limit=None):
+        target = self._safe(path)
+        if not target or not os.path.isfile(target):
+            return b""
+        try:
+            with open(target, "rb") as handle:
+                return handle.read() if limit is None else handle.read(limit)
+        except OSError:
+            return b""
 
     def create_text(self, dir_path, name, body=""):
         target_dir = self._safe(dir_path)
@@ -344,6 +374,17 @@ class FilesService:
             handle.write(body)
         return True
 
+    def write_text(self, path, body=""):
+        target = self._safe(path)
+        if not target or not os.path.isfile(target):
+            return False
+        try:
+            with open(target, "w", encoding="utf-8") as handle:
+                handle.write(str(body))
+            return True
+        except OSError:
+            return False
+
     def create_dir(self, dir_path, name):
         target_dir = self._safe(dir_path)
         safe_name = self._safe_child_name(name)
@@ -353,6 +394,18 @@ class FilesService:
             return False
         os.makedirs(os.path.join(target_dir, safe_name), exist_ok=True)
         return True
+
+    def rename(self, path, name):
+        target = self._safe(path)
+        safe_name = self._safe_child_name(name)
+        if not target or not os.path.exists(target) or not safe_name:
+            return None
+        destination = os.path.join(os.path.dirname(target), safe_name)
+        safe_destination = self._safe(destination)
+        if not safe_destination:
+            return None
+        os.replace(target, safe_destination)
+        return safe_destination
 
     def delete(self, path):
         target = self._safe(path)
