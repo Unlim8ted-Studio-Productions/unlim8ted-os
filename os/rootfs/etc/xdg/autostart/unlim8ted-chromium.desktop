@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Unlim8ted Chromium Shell
+Exec=/opt/unlim8ted/bin/start-chromium.sh
+X-GNOME-Autostart-enabled=true
+NoDisplay=false

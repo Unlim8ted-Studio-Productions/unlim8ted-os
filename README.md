@@ -1,20 +1,20 @@
 # Unlim8ted Phone
 
-A CM4-based handheld phone project with hardware, 3D, PCB, and OS work in one repo.
+A handheld Linux phone project with hardware, 3D, PCB, and OS work in one repo.
 
 ![Unlim8ted Phone components animation](https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/3d/Components.gif)
 
 ## Repo Layout
 
     /
-    ├─ 3d/        # enclosure, mechanical, renders, printable parts
-    ├─ os/        # Unlim8ted OS source and OS-specific docs
-    ├─ pcb/       # archived PCB design files from an abandoned revision
-    └─ README.md
+    +- 3d/        # enclosure, mechanical, renders, printable parts
+    +- os/        # Unlim8ted OS source and OS-specific docs
+    +- pcb/       # archived PCB design files from an abandoned revision
+    +- README.md
 
 ## Overview
 
-Unlim8ted Phone is a custom handheld phone build based on the Raspberry Pi Compute Module 4. This repo contains the full project. 
+Unlim8ted Phone is a custom handheld Linux build. The current hardware path still includes Raspberry Pi-based variants, but the OS tree now supports custom-kernel builds for both Raspberry Pi CM4-class `arm64` hardware and regular `x86_64` computers from the same repository. This repo contains the full project.
 It includes:
 
 - hardware documentation
@@ -22,6 +22,18 @@ It includes:
 - archived PCB files
 - software / OS files
 - build notes
+
+The OS tree is now organized around three canonical directories:
+
+- `os/build` for the single build entrypoint
+- `os/rootfs` for the runtime filesystem tree
+- `os/bootfs` for bootloader config and custom kernel payloads
+
+Kernel build highlights:
+
+- `os/build/build-kernel-arm64-cm4.sh` builds the CM4 `arm64` kernel
+- `os/build/build-kernel-x86_64.sh` builds the PC `x86_64` kernel
+- both kernels are customized with an Unlim8ted kernel identity feature
 
 ## Main Parts
 
@@ -85,11 +97,12 @@ At minimum, you need:
 - 15cm DSI cable
 - case and mounting hardware as needed (case is 3D printed) 
 
-### 2. Prepare the microSD card
+### 2. Prepare the boot media
 
-- Flash the OS image to the 32GB microSD card
-- Insert the card into the CM4-NANO-C TF/microSD slot
-- Make sure the image matches the current hardware setup
+- Install the target Unlim8ted kernel and root filesystem to the selected boot media
+- For Raspberry Pi Lite-class boards, use the Pi firmware boot partition
+- For regular computers, install the kernel/initramfs through GRUB
+- Make sure the image matches the current hardware setup and architecture
 
 ### 3. Install the CM4
 
@@ -114,7 +127,7 @@ At minimum, you need:
 ### 6. First boot
 
 - Power on the board
-- Confirm the CM4 boots from microSD
+- Confirm the target hardware boots the custom Unlim8ted kernel
 - Confirm the display initializes
 - Confirm the OS reaches its main UI or setup state
 
@@ -133,7 +146,7 @@ Once the electronics boot correctly:
 
 To avoid debugging too many things at once:
 
-1. Boot CM4 + carrier + microSD only
+1. Boot the target board and storage first
 2. Add display and confirm video output
 3. Add battery/power board
 4. Add enclosure/mechanical parts
@@ -155,13 +168,14 @@ Unlim8ted OS files and OS-specific documentation.
 
 ## Notes
 
-- The CM4 used in this project is the **Lite** version, so storage is provided by the microSD card rather than onboard eMMC.
+- Raspberry Pi CM4 Lite is still a supported hardware option, but the OS tree is no longer meant to depend on Raspberry Pi OS Lite specifically.
+- CM4 hardware remains `arm64`; `x86_64` builds are for regular PCs, not CM4.
 - This repo is meant to track the full phone build, not only the operating system.
 - The cost section should be updated as parts change.
 - The PCB folder does not represent the current hardware path for this project.
 
 ## Links
 
-- OS docs: [`./os/`](./os)
-- 3D files: [`./3d/`](./3d)
-- PCB files: [`./pcb/`](./pcb)
+- OS docs: `./os/`
+- 3D files: `./3d/`
+- PCB files: `./pcb/`

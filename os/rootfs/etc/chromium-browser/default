@@ -1,0 +1,1 @@
+CHROMIUM_FLAGS="--no-first-run --no-default-browser-check --disable-session-crashed-bubble --disable-infobars --check-for-update-interval=31536000 --ozone-platform-hint=auto --enable-features=OverlayScrollbar"

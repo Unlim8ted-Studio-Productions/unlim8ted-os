@@ -2,130 +2,148 @@
 
 ## Overview
 
-**Unlim8ted OS** is a lightweight phone-style operating environment for the **CM4 phone project**, built around a Raspberry Pi Compute Module 4 stack. The repository is structured like an OS overlay or filesystem payload rather than a conventional application repo: it contains boot configuration, service definitions, a Python backend, a browser-rendered UI shell, app modules, and JSON-backed persistent state.
+**Unlim8ted OS** is a phone-style Linux environment built around a custom kernel plus a portable userspace tree. The repository is organized around three canonical directories:
 
-At a high level, the system boots on CM4 hardware, starts a Python backend as a systemd service, and presents a custom touch-friendly interface rendered in Chromium. The backend exposes local HTTP endpoints used by the frontend for system control, app launching, media access, and state synchronization.
+- `./build/` for build scripts
+- `./rootfs/` for the runtime filesystem tree
+- `./bootfs/` for bootloader configuration and built kernel payloads
 
-## Project Goals
-
-The CM4 phone project uses this repository to provide:
-
-- A custom phone-like interface for CM4-based hardware
-- Hardware-aware boot and display configuration
-- Local app hosting and app switching
-- Camera support for the CM4 carrier setup
-- Persistent state for system settings and app data
-- A simple architecture that is easy to iterate on
-
-This is not a full Linux distribution by itself. It is the **Unlim8ted OS layer** that sits on top of an existing Raspberry Pi OS style base image.
+The same userspace is intended to run on both Raspberry Pi CM4-class `arm64` hardware and regular `x86_64` PCs. Kernel builds are architecture-specific, but the runtime auto-detects the machine and follows the correct boot path.
 
 ## Repo Structure
 
-- [`./boot/firmware/config.txt`](./boot/firmware/config.txt) contains CM4 display and camera baseline boot configuration.
-- [`./etc/systemd/system/unlim8ted.service`](./etc/systemd/system/unlim8ted.service) starts the Python backend on boot.
-- [`./etc/default/unlim8ted`](./etc/default/unlim8ted) contains runtime environment overrides for display output names, browser path, and backlight path.
-- [`./opt/unlim8ted/backend/main.py`](./opt/unlim8ted/backend/main.py) is the local HTTP backend.
-- [`./opt/unlim8ted/ui/index.html`](./opt/unlim8ted/ui/index.html) and [`./opt/unlim8ted/ui/app.js`](./opt/unlim8ted/ui/app.js) provide the shell UI.
-- [`./opt/unlim8ted/apps/`](./opt/unlim8ted/apps/) contains the built-in app modules.
-- [`./opt/unlim8ted/commands/registry.json`](./opt/unlim8ted/commands/registry.json) documents user-facing command endpoints.
+- `./build/build.sh` is the single top-level build entrypoint.
+- `./build/build-kernel-arm64-cm4.sh` builds the Raspberry Pi CM4 `arm64` kernel.
+- `./build/build-kernel-x86_64.sh` builds the generic `x86_64` PC kernel.
+- `./build/install-unlim8ted-kernel-feature.sh` injects the custom Unlim8ted kernel feature into downloaded kernel sources.
+- `./rootfs/etc/systemd/system/unlim8ted.service` starts the launcher on boot.
+- `./rootfs/etc/default/unlim8ted` contains runtime overrides and Chromium flags.
+- `./rootfs/etc/chromium-browser/default` provides Chromium defaults.
+- `./rootfs/etc/xdg/autostart/unlim8ted-chromium.desktop` starts Chromium in desktop sessions.
+- `./rootfs/opt/unlim8ted/` contains the backend, UI, built-in apps, state, and helper scripts.
+- `./bootfs/rpi/config.txt` is the Raspberry Pi firmware boot profile.
+- `./bootfs/generic-arm/extlinux/extlinux.conf` is the generic ARM64 boot profile.
+- `./bootfs/pc/grub/grub.cfg` is the `x86_64` GRUB boot entry.
+- `./bootfs/kernel/` is where built kernel and initramfs payloads land.
 
-## Base Image Expectations
+## Platform Model
 
-Unlim8ted OS expects to be layered onto a Raspberry Pi OS style base image with:
+Architecture mapping:
 
-- Python 3 available at `/usr/bin/python3`
-- Chromium available at `/usr/bin/chromium-browser`
-- A graphical session on `:0`
-- systemd enabled
-- CM4 display, touch, and camera support packages installed
+- `aarch64` / `arm64` -> `arm64`
+- `amd64` / `x86_64` -> `x86_64`
+- Raspberry Pi hardware overrides generic ARM and selects the `rpi` boot target
 
-This repo does not currently build the base image for you. Treat it as an overlay that gets copied onto a prepared device image.
+Boot model:
 
-## Installation
+- Raspberry Pi CM4 uses firmware-driven boot via `config.txt`
+- Generic ARM64 uses `extlinux.conf`
+- `x86_64` PCs use GRUB and an ISO-oriented boot path
 
-### 1. Prepare the base system
+Important architecture constraint:
 
-Start from a working Raspberry Pi OS image for the CM4 hardware. Before copying this overlay, confirm the following on the device:
+- Raspberry Pi Compute Module 4 hardware is `arm64`, not `x86_64`
+- You can build an `x86_64` kernel for PCs and an `arm64` kernel for CM4 from the same repo
+- You cannot boot an `amd64`/`x86_64` kernel natively on CM4 hardware
 
-- The CM4 boots normally from the selected storage
-- The Waveshare display shows Linux output
-- Touch input works at the desktop level
-- Chromium launches manually
-- The connected camera is visible to `libcamera`
+## Custom Kernel
 
-### 2. Copy the overlay onto the device
+This repo now includes explicit kernel build scripts and custom kernel modifications.
 
-Copy the contents of this `os/` directory onto the root filesystem of the Pi image so the paths land exactly as laid out in the repo:
+Two target kernels:
 
-- `boot/firmware/config.txt` -> `/boot/firmware/config.txt`
-- `etc/default/unlim8ted` -> `/etc/default/unlim8ted`
-- `etc/systemd/system/unlim8ted.service` -> `/etc/systemd/system/unlim8ted.service`
-- `opt/unlim8ted/...` -> `/opt/unlim8ted/...`
-- `root/.vnc/...` -> `/root/.vnc/...` if you are using the included root desktop session setup
+- `arm64` CM4 kernel from the Raspberry Pi Linux tree
+- `x86_64` PC kernel from the upstream stable Linux tree
 
-If you are merging into an existing image instead of replacing files wholesale, review the target files first and merge carefully rather than overwriting unrelated local changes.
+Custom kernel feature:
 
-### 3. Review boot configuration
+- the build injects an Unlim8ted identity driver
+- built kernels expose `/proc/unlim8ted_identity`
 
-Check [`./boot/firmware/config.txt`](./boot/firmware/config.txt) against the actual hardware:
+Kernel source locations are configured in `./build/kernel-sources.env`.
 
-- `dtoverlay=vc4-kms-v3d` enables the KMS graphics stack
-- `dtoverlay=imx219,cam0` assumes an IMX219 camera on CAM0
-- `gpu_mem=256` reserves enough memory for Chromium and camera preview
+Built kernel payload locations:
 
-If the final camera module, display stack, or GPU requirements differ, adjust this file before first boot.
+- `./bootfs/kernel/arm64/Image`
+- `./bootfs/kernel/arm64/initramfs-unlim8ted.img`
+- `./bootfs/kernel/x86_64/vmlinuz-unlim8ted`
+- `./bootfs/kernel/x86_64/initramfs-unlim8ted.img`
 
-### 4. Review runtime configuration
+## Build Flow
 
-Edit [`./etc/default/unlim8ted`](./etc/default/unlim8ted) for the target device:
+Top-level build:
 
-- `UNLIM8TED_BROWSER` should point to the installed Chromium binary
-- `UNLIM8TED_DISPLAY` should match the graphical session display, usually `:0`
-- `UNLIM8TED_XAUTHORITY` should match the X session authority file
-- `UNLIM8TED_WLR_OUTPUT` and `UNLIM8TED_XRANDR_OUTPUT` should match the real output name on the device
-- `UNLIM8TED_BACKLIGHT_PATH` should match the real backlight brightness sysfs path
+```bash
+TARGET_ARCH=x86_64 ./os/build/build.sh
+TARGET_ARCH=arm64 ./os/build/build.sh
+```
 
-The default values are a reasonable CM4 starting point, but they should be verified on hardware instead of assumed.
+Kernel-only builds:
 
-### 5. Enable the service
+```bash
+./os/build/build-kernel-x86_64.sh
+./os/build/build-kernel-arm64-cm4.sh
+```
 
-After the overlay is in place on the Pi:
+Outputs:
+
+- `x86_64` -> `./os/build/out/unlim8ted-x86_64.iso`
+- `arm64` -> `./os/build/out/arm64/`
+
+WSL note:
+
+- do not build Linux sources under `/mnt/<drive>/...`
+- the kernel scripts default to `$HOME/.cache/unlim8ted-kernel-build`
+
+Required Linux build tools:
+
+- `git`
+- `make`
+- `gcc`
+- `flex`
+- `bison`
+- `perl`
+- `bc`
+- `libssl-dev`
+- `libelf-dev`
+- `aarch64-linux-gnu-gcc` for `arm64`
+- `grub-mkrescue` and `mksquashfs` for `x86_64` ISO output
+
+## Installation Layout
+
+When deployed to a target system, the important paths are:
+
+- `/etc/default/unlim8ted`
+- `/etc/systemd/system/unlim8ted.service`
+- `/etc/chromium-browser/default`
+- `/etc/xdg/autostart/unlim8ted-chromium.desktop`
+- `/opt/unlim8ted/...`
+
+To enable the service on the target system:
 
 ```bash
 sudo systemctl daemon-reload
+sudo chmod +x /opt/unlim8ted/bin/*.sh
 sudo systemctl enable unlim8ted.service
 sudo systemctl restart unlim8ted.service
 ```
 
-The service definition lives at [`./etc/systemd/system/unlim8ted.service`](./etc/systemd/system/unlim8ted.service) and launches the backend with root privileges.
+## Runtime Configuration
 
-## First-Boot Verification
+Edit `./rootfs/etc/default/unlim8ted` only when auto-detection is wrong:
 
-Use this order so failures stay isolated:
+- `UNLIM8TED_BROWSER` to pin a browser binary
+- `UNLIM8TED_DISPLAY` and `UNLIM8TED_XAUTHORITY` for X11 startup
+- `UNLIM8TED_WLR_OUTPUT` or `UNLIM8TED_XRANDR_OUTPUT` for display power and brightness helpers
+- `UNLIM8TED_BACKLIGHT_PATH` to force a specific sysfs brightness file
+- `UNLIM8TED_PLATFORM_AUTO_INSTALL=1` if service startup should refresh the boot target
+- `UNLIM8TED_CHROMIUM_FLAGS` to append Chromium runtime flags
 
-1. Confirm the base OS still boots after the overlay is applied.
-2. Check that the display comes up and the graphical session is on the expected output.
-3. Verify the backend starts: `systemctl status unlim8ted.service`
-4. If the service fails, inspect logs: `journalctl -u unlim8ted.service -b`
-5. Open Chromium manually once if needed and confirm the UI shell loads from the local backend.
-6. Test brightness and sleep/wake actions from the UI.
-7. Confirm camera preview and capture work with the configured module.
+## Verification
 
-## Bring-Up Checklist
-
-Before calling the image stable, verify all of the following on device:
-
-- The backend starts automatically on boot
-- The UI renders without requiring a keyboard or mouse
-- Touch input is correctly mapped to the display orientation
-- Brightness control writes to the configured backlight path
-- Sleep and wake behave predictably
-- The camera preview opens without blocking the rest of the shell
-- Captured media lands in the expected runtime state location
-- App launch and app switching work across the built-in apps
-
-## Development Notes
-
-This repo contains both source files and local runtime artifacts. Generated runtime data such as Chromium profile state, captured media, logs, and Python bytecode should not be committed as source of truth. The top-level `.gitignore` is intended to keep those paths out of normal version control flow.
-
-For day-to-day work, keep code and deployable defaults in the repo, but treat device-specific runtime state as disposable.
+1. Confirm the kernel and initramfs were built into `./bootfs/kernel/`.
+2. Confirm the built kernel exposes `/proc/unlim8ted_identity` after boot.
+3. Verify `systemctl status unlim8ted.service`.
+4. Check `journalctl -u unlim8ted.service -b`.
+5. Verify Chromium launches the Unlim8ted UI locally.
+6. Test brightness, sleep/wake, and camera behavior on the real hardware.

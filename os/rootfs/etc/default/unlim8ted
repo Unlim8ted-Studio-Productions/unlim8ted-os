@@ -1,0 +1,9 @@
+# Runtime environment for Unlim8ted OS on Linux ARM or x86 systems.
+UNLIM8TED_BROWSER=
+UNLIM8TED_DISPLAY=:0
+UNLIM8TED_XAUTHORITY=/root/.Xauthority
+UNLIM8TED_WLR_OUTPUT=
+UNLIM8TED_XRANDR_OUTPUT=
+UNLIM8TED_BACKLIGHT_PATH=
+UNLIM8TED_PLATFORM_AUTO_INSTALL=0
+UNLIM8TED_CHROMIUM_FLAGS=--ozone-platform-hint=auto --enable-features=OverlayScrollbar

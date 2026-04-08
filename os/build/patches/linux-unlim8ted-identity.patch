@@ -1,0 +1,79 @@
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 8c9d8b0..d2d1a71 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@
+ menu "Misc devices"
+ 
++config UNLIM8TED_IDENTITY
++    bool "Unlim8ted identity driver"
++    default n
++    help
++      Expose a small procfs entry that identifies an Unlim8ted kernel build.
++
+ source "drivers/misc/c2port/Kconfig"
+ diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index 2c5ef53..66ee955 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@
+ obj-$(CONFIG_SENSORS_TSL2550)  += tsl2550.o
+ obj-$(CONFIG_DS1682)   += ds1682.o
+ obj-$(CONFIG_PCH_PHUB) += pch_phub.o
++obj-$(CONFIG_UNLIM8TED_IDENTITY) += unlim8ted_identity.o
+ diff --git a/drivers/misc/unlim8ted_identity.c b/drivers/misc/unlim8ted_identity.c
+new file mode 100644
+index 0000000..8b1a730
+--- /dev/null
++++ b/drivers/misc/unlim8ted_identity.c
+@@
++// SPDX-License-Identifier: GPL-2.0
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/proc_fs.h>
++#include <linux/seq_file.h>
++
++#define UNLIM8TED_PROC_NAME "unlim8ted_identity"
++
++static int unlim8ted_identity_show(struct seq_file *m, void *v)
++{
++    seq_puts(m, "name=Unlim8ted OS\n");
++    seq_puts(m, "component=kernel\n");
++    seq_printf(m, "release=%s\n", UTS_RELEASE);
++    seq_printf(m, "build=%s %s\n", __DATE__, __TIME__);
++    return 0;
++}
++
++static int unlim8ted_identity_open(struct inode *inode, struct file *file)
++{
++    return single_open(file, unlim8ted_identity_show, NULL);
++}
++
++static const struct proc_ops unlim8ted_identity_proc_ops = {
++    .proc_open = unlim8ted_identity_open,
++    .proc_read = seq_read,
++    .proc_lseek = seq_lseek,
++    .proc_release = single_release,
++};
++
++static int __init unlim8ted_identity_init(void)
++{
++    if (!proc_create(UNLIM8TED_PROC_NAME, 0444, NULL, &unlim8ted_identity_proc_ops))
++        return -ENOMEM;
++
++    pr_info("unlim8ted_identity: registered /proc/%s\n", UNLIM8TED_PROC_NAME);
++    return 0;
++}
++
++static void __exit unlim8ted_identity_exit(void)
++{
++    remove_proc_entry(UNLIM8TED_PROC_NAME, NULL);
++}
++
++module_init(unlim8ted_identity_init);
++module_exit(unlim8ted_identity_exit);
++
++MODULE_DESCRIPTION("Unlim8ted identity driver");
++MODULE_AUTHOR("Unlim8ted");
++MODULE_LICENSE("GPL");

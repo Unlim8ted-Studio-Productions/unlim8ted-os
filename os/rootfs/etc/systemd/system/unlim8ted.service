@@ -1,4 +1,4 @@
-﻿[Unit]
+[Unit]
 Description=Unlim8ted OS
 After=network.target graphical.target systemd-user-sessions.service
 Wants=graphical.target
@@ -11,4 +11,3 @@ User=root
 
 [Install]
 WantedBy=graphical.target
-
