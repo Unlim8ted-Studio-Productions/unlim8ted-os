@@ -81,6 +81,7 @@ const appTitles = {
     messages: 'Messages',
     browser: 'Browser',
     camera: 'Camera',
+    code: 'Code',
     gallery: 'Gallery',
     music: 'Music',
     maps: 'Maps',
@@ -105,7 +106,7 @@ const keyboardState = {
 };
 const predictionDictionary = [
     'the', 'and', 'you', 'your', 'hello', 'home', 'settings', 'browser', 'camera', 'messages', 'phone', 'clock',
-    'notes', 'maps', 'files', 'mail', 'music', 'store', 'display', 'brightness', 'timeout', 'focus', 'wifi',
+    'notes', 'maps', 'files', 'mail', 'music', 'store', 'code', 'coding', 'project', 'editor', 'display', 'brightness', 'timeout', 'focus', 'wifi',
     'bluetooth', 'airplane', 'device', 'system', 'owner', 'search', 'route', 'save', 'create', 'delete', 'call',
     'send', 'draft', 'gallery', 'alarm', 'panel', 'open', 'close', 'sleep', 'wake', 'today', 'tomorrow',
     'unlim8ted', 'raspberry', 'keyboard', 'clipboard', 'typing', 'quick', 'toggle', 'connectivity', 'network'
@@ -113,7 +114,7 @@ const predictionDictionary = [
 const predictionWeights = {
     the: 1000, and: 980, you: 970, your: 950, hello: 920, home: 910, settings: 900, browser: 890,
     messages: 880, camera: 870, phone: 860, notes: 850, maps: 840, files: 830, mail: 820, music: 810,
-    search: 800, open: 790, close: 780, sleep: 770, wake: 760, keyboard: 750, clipboard: 740,
+    code: 808, coding: 806, project: 804, editor: 802, search: 800, open: 790, close: 780, sleep: 770, wake: 760, keyboard: 750, clipboard: 740,
     typing: 730, display: 720, brightness: 710, timeout: 700, wifi: 690, bluetooth: 680, network: 670,
     unlim8ted: 660, raspberry: 650, system: 640, device: 630, panel: 620, gallery: 610, alarm: 600
 };
