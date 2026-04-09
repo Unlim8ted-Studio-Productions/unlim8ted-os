@@ -1,0 +1,20 @@
+[Unit]
+Description=Unlim8ted OS Kiosk
+After=network-online.target systemd-user-sessions.service dbus.service
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/default/unlim8ted
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=no
+ExecStart=/usr/bin/xinit /opt/unlim8ted/bin/kiosk-session.sh -- :0 vt1 -keeptty -nolisten tcp
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
