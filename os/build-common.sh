@@ -59,6 +59,8 @@ ensure_buildroot() {
     require_command git
     require_command make
 
+    mkdir -p "$UNLIM8TED_BUILD_DIR" "$UNLIM8TED_ARTIFACT_DIR"
+
     if [ ! -d "$UNLIM8TED_BUILDROOT_DIR/.git" ]; then
         git clone "$UNLIM8TED_BUILDROOT_REPO" "$UNLIM8TED_BUILDROOT_DIR"
     fi
@@ -161,7 +163,7 @@ collect_artifacts() {
     artifact_name=$3
 
     images_dir="$output_dir/images"
-    target_dir="$UNLIM8TED_BUILD_DIR/$target_name"
+    target_dir="$UNLIM8TED_ARTIFACT_DIR/$target_name"
     stage_dir="$target_dir/iso-stage"
     final_iso="$target_dir/$artifact_name"
 
@@ -190,7 +192,7 @@ build_target() {
     ensure_buildroot
 
     output_dir="$UNLIM8TED_BUILD_DIR/output-$target_name"
-    mkdir -p "$UNLIM8TED_BUILD_DIR"
+    mkdir -p "$UNLIM8TED_BUILD_DIR" "$UNLIM8TED_ARTIFACT_DIR"
 
     make -C "$UNLIM8TED_BUILDROOT_DIR" \
         O="$output_dir" \

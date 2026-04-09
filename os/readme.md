@@ -1,21 +1,18 @@
 # Unlim8ted OS
 
-`os/` now contains the overlay, Buildroot metadata, build scripts, and generated artifacts for Unlim8ted OS.
+This directory contains the Buildroot setup for the Unlim8ted kiosk image and the filesystem overlay that gets installed into it.
 
-## Layout
+## Structure
 
-- `overlay/` is the filesystem overlay copied onto the built rootfs. It contains the existing `/boot`, `/etc`, and `/opt` payload.
-- `build/` is reserved for generated outputs. Scripts place per-target Buildroot outputs and final ISO artifacts here.
-- `build-config.env` defines shared Buildroot source, output, and artifact naming defaults.
-- `build-x86_64.sh` builds the generic `x86_64` image path.
-- `build-cm4.sh` builds the Raspberry Pi CM4 image path.
-- `buildroot-external/` is the Buildroot external tree with board hooks and target config fragments.
+- `overlay/` holds the files that end up inside the target image, including `/etc`, `/opt`, and the boot configuration tracked in this repo.
+- `buildroot-external/` contains the Buildroot fragments and board hook used to customize the stock targets.
+- `build-x86_64.sh` builds the desktop `x86_64` image.
+- `build-cm4.sh` builds the Raspberry Pi CM4 image.
+- `build/` receives the finished artifacts after each build.
 
-## Targets
+## Included software
 
-### x86_64
-
-The `x86_64` target is intended for a minimal kiosk-style Linux image that includes:
+Both targets are configured as small kiosk-oriented systems with:
 
 - `systemd`
 - Wi-Fi support
@@ -23,38 +20,36 @@ The `x86_64` target is intended for a minimal kiosk-style Linux image that inclu
 - `chromium`
 - `libcamera`
 - `python3`
-- the Unlim8ted overlay and kiosk service
 
-The build script tries to preserve a bootable ISO if Buildroot generates one. If the selected Buildroot configuration does not emit a native bootable ISO, the script still emits an ISO artifact that bundles the generated image set.
+The overlay also provides the kiosk startup path:
 
-### Raspberry Pi CM4
+- `etc/systemd/system/getty@tty1.service.d/autologin.conf` skips the tty1 login prompt.
+- `etc/systemd/system/unlim8ted.service` starts X with `xinit`.
+- `opt/unlim8ted/bin/kiosk-session.sh` starts the backend, and the backend launches Chromium in app mode.
 
-The CM4 target builds from the Raspberry Pi 4 64-bit Buildroot baseline and layers the Unlim8ted overlay on top. Because Raspberry Pi firmware boots from a raw disk image rather than ISO9660 media, the CM4 script emits an ISO transport artifact containing the produced `sdcard.img`, boot overlay files, and metadata. The flashable medium remains the raw image inside that ISO bundle.
+## Building
 
-## Usage
-
-Run from a Linux shell with Buildroot host dependencies installed:
+Run the scripts from a Linux shell:
 
 ```sh
 cd os
-sh ./build-x86_64.sh
-sh ./build-cm4.sh
+bash ./build-x86_64.sh
+bash ./build-cm4.sh
 ```
 
-Outputs land under:
+If you build from WSL on a Windows-mounted path such as `/mnt/o/...`, the scripts move the Buildroot working tree to a Linux-native cache directory and copy the finished artifacts back into `os/build/`. That avoids the symlink issues that break host-package installs on DrvFS.
 
-- `build/x86_64/`
-- `build/cm4/`
+## Output
 
-## Overlay Notes
+- `build/x86_64/` contains the `x86_64` image set and the final ISO.
+- `build/cm4/` contains the CM4 image set and a convenience ISO bundle.
 
-The overlay keeps the existing behavior:
+For CM4, the image you actually flash is `sdcard.img` from the CM4 output directory. The ISO is just a wrapper so the build products stay packaged together in one file.
 
-- `/etc/default/unlim8ted` carries runtime environment overrides.
-- `/etc/systemd/system/getty@tty1.service.d/autologin.conf` skips the TTY login prompt.
-- `/etc/systemd/system/unlim8ted.service` now starts an X11 kiosk session directly with `xinit`.
-- `/opt/unlim8ted/bin/kiosk-session.sh` launches the Python backend inside the kiosk session, which in turn starts Chromium in app mode.
+## CM4 boot configuration
 
-## Current Limitation
+The CM4 build uses Buildroot's standard `raspberrypi4_64_defconfig` image flow.
 
-The CM4 boot firmware overlay under `overlay/boot/firmware/` is bundled into the CM4 output ISO and copied into the Buildroot image staging flow, but the exact final boot partition layout still depends on the selected Buildroot Raspberry Pi image recipe. That path should be validated on real CM4 hardware before treating the image as production-ready.
+That target already uses the Raspberry Pi `post-image.sh` script to assemble `sdcard.img` from the kernel image, the generated DTBs, and the files placed in `output/images/rpi-firmware/`. Buildroot's `rpi-firmware` package writes `config.txt` into that `rpi-firmware` directory through `BR2_PACKAGE_RPI_FIRMWARE_CONFIG_FILE`.
+
+Unlim8ted sets `BR2_PACKAGE_RPI_FIRMWARE_CONFIG_FILE` to `overlay/boot/firmware/config.txt`, so the CM4 boot partition is built from the boot config tracked in this repository rather than copied in later by a custom script.
