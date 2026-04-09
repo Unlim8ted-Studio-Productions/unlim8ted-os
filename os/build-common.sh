@@ -5,6 +5,49 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # shellcheck source=./build-config.env
 . "$SCRIPT_DIR/build-config.env"
 
+sanitize_path() {
+    original_path=${PATH-}
+    safe_path=""
+    changed=0
+
+    OLD_IFS=${IFS}
+    IFS=:
+    set -f
+    for entry in $original_path; do
+        case "$entry" in
+            *[![:print:]]*)
+                changed=1
+                continue
+                ;;
+            *[[:space:]]*)
+                changed=1
+                continue
+                ;;
+            "")
+                changed=1
+                continue
+                ;;
+        esac
+
+        if [ -z "$safe_path" ]; then
+            safe_path=$entry
+        else
+            safe_path=$safe_path:$entry
+        fi
+    done
+    set +f
+    IFS=${OLD_IFS}
+
+    if [ -n "$safe_path" ]; then
+        PATH=$safe_path
+        export PATH
+    fi
+
+    if [ "$changed" -eq 1 ]; then
+        echo "Sanitized PATH for Buildroot by dropping entries with whitespace or empty segments." >&2
+    fi
+}
+
 require_command() {
     command -v "$1" >/dev/null 2>&1 || {
         echo "Missing required command: $1" >&2
@@ -27,8 +70,37 @@ ensure_buildroot() {
 apply_fragment() {
     output_dir=$1
     fragment=$2
+    merged_config=$output_dir/.config.merged
 
-    cat "$fragment" >> "$output_dir/.config"
+    awk '
+        FNR == NR {
+            if ($0 ~ /^BR2_[A-Z0-9_]+=.+$/ || $0 ~ /^# BR2_[A-Z0-9_]+ is not set$/) {
+                key = $0
+                sub(/^# /, "", key)
+                sub(/=.*/, "", key)
+                sub(/ is not set$/, "", key)
+                drop[key] = 1
+            }
+            fragment_lines[++fragment_count] = $0
+            next
+        }
+        {
+            key = $0
+            sub(/^# /, "", key)
+            sub(/=.*/, "", key)
+            sub(/ is not set$/, "", key)
+            if (!(key in drop)) {
+                print
+            }
+        }
+        END {
+            for (i = 1; i <= fragment_count; i++) {
+                print fragment_lines[i]
+            }
+        }
+    ' "$fragment" "$output_dir/.config" > "$merged_config"
+    mv "$merged_config" "$output_dir/.config"
+
     make -C "$UNLIM8TED_BUILDROOT_DIR" \
         O="$output_dir" \
         BR2_EXTERNAL="$UNLIM8TED_EXTERNAL_DIR" \
@@ -114,6 +186,7 @@ build_target() {
     fragment=$3
     artifact_name=$4
 
+    sanitize_path
     ensure_buildroot
 
     output_dir="$UNLIM8TED_BUILD_DIR/output-$target_name"
