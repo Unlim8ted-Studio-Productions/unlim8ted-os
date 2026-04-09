@@ -5,7 +5,7 @@ Wants=graphical.target
 
 [Service]
 EnvironmentFile=-/etc/default/unlim8ted
-ExecStart=/opt/unlim8ted/bin/launch-unlim8ted.sh
+ExecStart=/usr/bin/python3 /opt/unlim8ted/backend/main.py
 Restart=always
 User=root
 
