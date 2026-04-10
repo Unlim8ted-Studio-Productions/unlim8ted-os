@@ -7,6 +7,8 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 build_target \
     "cm4" \
-    "raspberrypi4_64_defconfig" \
-    "$UNLIM8TED_EXTERNAL_DIR/configs/unlim8ted_cm4.fragment" \
-    "unlim8ted-cm4.iso"
+    "arm64" \
+    "$UNLIM8TED_CM4_IMAGE_URL" \
+    "$UNLIM8TED_CM4_ARCHIVE_NAME" \
+    "$UNLIM8TED_CM4_PACKAGES" \
+    "unlim8ted-cm4.img"

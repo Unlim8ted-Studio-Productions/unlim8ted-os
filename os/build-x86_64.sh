@@ -7,6 +7,8 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 build_target \
     "x86_64" \
-    "qemu_x86_64_defconfig" \
-    "$UNLIM8TED_EXTERNAL_DIR/configs/unlim8ted_x86_64.fragment" \
-    "unlim8ted-x86_64.iso"
+    "x86_64" \
+    "$UNLIM8TED_X86_64_IMAGE_URL" \
+    "$UNLIM8TED_X86_64_ARCHIVE_NAME" \
+    "$UNLIM8TED_X86_64_PACKAGES" \
+    "unlim8ted-x86_64.img"
