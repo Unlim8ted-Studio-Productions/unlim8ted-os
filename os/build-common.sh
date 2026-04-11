@@ -172,7 +172,7 @@ find_partition_by_fstype() {
         return
     fi
 
-    for partition in "${loop_device}"p*; do
+    for partition in "${loop_device}"p* "${loop_device}"[0-9]*; do
         if [ ! -b "$partition" ]; then
             continue
         fi
@@ -188,7 +188,7 @@ find_partition_by_label() {
     loop_device=$1
     label=$2
 
-    for partition in "${loop_device}"p*; do
+    for partition in "${loop_device}"p* "${loop_device}"[0-9]*; do
         if [ ! -b "$partition" ]; then
             continue
         fi

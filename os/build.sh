@@ -240,9 +240,9 @@ select_cache_location() {
 
 select_image_growth() {
     echo
-    grow_mb=$(prompt "Extra image size in MiB [0]: ")
+    grow_mb=$(prompt "Extra image size in MiB [4096]: ")
     if [ -z "$grow_mb" ]; then
-        grow_mb=0
+        grow_mb=4096
     fi
 
     case "$grow_mb" in

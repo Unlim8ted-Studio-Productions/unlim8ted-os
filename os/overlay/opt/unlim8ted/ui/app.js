@@ -82,6 +82,7 @@ const appTitles = {
     browser: 'Browser',
     camera: 'Camera',
     code: 'Code',
+    terminal: 'Terminal',
     gallery: 'Gallery',
     music: 'Music',
     maps: 'Maps',

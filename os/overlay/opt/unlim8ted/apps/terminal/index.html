@@ -1,0 +1,15 @@
+<section class="app-template app-template-terminal" style="height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding:12px;background:radial-gradient(circle at 15% 0%,rgba(82,255,190,.20),transparent 34%),linear-gradient(180deg,#06100d,#020504);color:#d7ffe9;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+            <div style="font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:#62ffb0;font-weight:800;">Terminal</div>
+            <div id="terminalCwd" style="font-size:12px;color:#94caae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;">/root</div>
+        </div>
+        <button type="button" id="terminalClear" style="border:1px solid rgba(104,255,178,.25);background:rgba(104,255,178,.08);color:#bfffd9;border-radius:12px;padding:8px 10px;font-weight:800;">Clear</button>
+    </div>
+    <pre id="terminalOutput" style="margin:0;min-height:0;overflow:auto;border:1px solid rgba(104,255,178,.18);border-radius:18px;padding:12px;background:rgba(0,0,0,.44);box-shadow:inset 0 0 24px rgba(0,0,0,.45);font:12px/1.45 'Cascadia Mono','Consolas',monospace;white-space:pre-wrap;word-break:break-word;"></pre>
+    <form id="terminalForm" style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid rgba(104,255,178,.2);border-radius:18px;background:rgba(4,22,14,.82);padding:8px;">
+        <span style="color:#62ffb0;font-weight:900;">$</span>
+        <input id="terminalCommand" autocomplete="off" spellcheck="false" placeholder="type a command" style="min-width:0;border:0;outline:0;background:transparent;color:#eafff2;font:14px 'Cascadia Mono','Consolas',monospace;" />
+        <button type="submit" style="border:0;background:#62ffb0;color:#062017;border-radius:12px;padding:8px 12px;font-weight:900;">Run</button>
+    </form>
+</section>
