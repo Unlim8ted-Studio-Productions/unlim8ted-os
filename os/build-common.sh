@@ -58,7 +58,7 @@ require_linux_host() {
 ensure_prerequisites() {
     require_linux_host
 
-    for cmd in awk blkid cp curl e2fsck find grep install losetup lsblk mkdir mount mountpoint parted resize2fs rsync sed sudo tar truncate umount unzip; do
+    for cmd in awk blkid cp curl e2fsck find grep install losetup lsblk mkdir mount mountpoint parted resize2fs rsync sed sudo tar truncate umount unzip xz; do
         require_command "$cmd"
     done
 
@@ -94,6 +94,15 @@ resolve_image_path_from_archive() {
             if [ ! -f "$image_path" ]; then
                 mkdir -p "$extract_dir"
                 unzip -o "$archive_path" -d "$extract_dir" >/dev/null
+            fi
+            printf '%s\n' "$image_path"
+            ;;
+        *.img.xz | *.raw.xz)
+            image_name=$(basename "$archive_path" .xz)
+            image_path=$extract_dir/$image_name
+            if [ ! -f "$image_path" ]; then
+                mkdir -p "$extract_dir"
+                xz -dc "$archive_path" > "$image_path"
             fi
             printf '%s\n' "$image_path"
             ;;

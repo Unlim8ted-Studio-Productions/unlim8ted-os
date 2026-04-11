@@ -51,6 +51,7 @@ Required host tools:
 - `e2fsck`
 - `rsync`
 - `unzip`
+- `xz-utils`
 
 Additional requirement when building the CM4 image on an `x86_64` host:
 
@@ -59,6 +60,27 @@ Additional requirement when building the CM4 image on an `x86_64` host:
 The scripts mount the image, install packages with `apt`, copy the overlay, and enable `unlim8ted.service`. They do not work from plain Windows PowerShell.
 
 ## Building
+
+Interactive build:
+
+```sh
+cd os
+bash ./build.sh
+```
+
+The interactive script asks for:
+
+- target: `x86_64` test image or `arm64` CM4 image
+- cache/work location
+- optional extra image size in MiB
+
+Cache/work options:
+
+- On WSL, use the WSL Linux filesystem cache at `~/.cache/unlim8ted-os-build`, or select an external device/partition.
+- On Linux, use the repo-local `build/` directory, or select an external device/partition.
+- If you select an external device/partition, the script formats it as ext4 after requiring an explicit `FORMAT` confirmation.
+
+Direct non-interactive builds:
 
 ```sh
 cd os
