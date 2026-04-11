@@ -79,6 +79,9 @@ Cache/work options:
 - On WSL, use the WSL Linux filesystem cache at `~/.cache/unlim8ted-os-build`, or select an external device/partition.
 - On Linux, use the repo-local `build/` directory, or select an external device/partition.
 - If you select an external device/partition, the script formats it as ext4 after requiring an explicit `FORMAT` confirmation.
+- The interactive script automatically runs `sync` and unmounts that external cache device when the build exits.
+- For `x86_64`, you can also select an existing mounted folder such as `/mnt/o/unlim8ted-build-cache`; this does not format anything and works with Windows-mounted drives.
+- CM4 builds do not offer the existing-folder option because the arm64 image customization path needs Linux filesystem semantics.
 
 Direct non-interactive builds:
 

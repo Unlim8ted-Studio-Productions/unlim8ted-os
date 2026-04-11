@@ -2,6 +2,20 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+AUTO_UNMOUNT_CACHE=0
+AUTO_UNMOUNT_DIR=
+AUTO_UNMOUNT_DEVICE=
+
+cleanup() {
+    if [ "$AUTO_UNMOUNT_CACHE" -eq 1 ] && [ -n "$AUTO_UNMOUNT_DIR" ]; then
+        echo
+        echo "Flushing writes and unmounting external cache: $AUTO_UNMOUNT_DIR" >&2
+        sync
+        sudo umount "$AUTO_UNMOUNT_DIR" 2>/dev/null || sudo umount "$AUTO_UNMOUNT_DEVICE" 2>/dev/null || true
+    fi
+}
+
+trap cleanup EXIT INT TERM
 
 prompt() {
     printf '%s' "$1" >&2
@@ -18,6 +32,59 @@ require_command() {
 
 is_wsl() {
     grep -qi microsoft /proc/version 2>/dev/null
+}
+
+show_windows_drive_mounts() {
+    if ! is_wsl; then
+        return
+    fi
+
+    echo
+    echo "Windows drive mounts visible to WSL:"
+    awk '
+        $2 ~ /^\/mnt\/[A-Za-z]$/ {
+            drive = toupper(substr($2, 6, 1)) ":"
+            printf "  %-3s -> %s\n", drive, $2
+        }
+    ' /proc/mounts
+}
+
+show_windows_volumes() {
+    if ! is_wsl || ! command -v powershell.exe >/dev/null 2>&1; then
+        return
+    fi
+
+    echo
+    echo "Windows volumes:"
+    powershell.exe -NoProfile -Command "Get-Volume | Where-Object DriveLetter | Sort-Object DriveLetter | ForEach-Object { '{0}:  {1,-12} {2,-10} {3}' -f `$_.DriveLetter, `$_.FileSystemLabel, `$_.FileSystem, `$_.DriveType }" 2>/dev/null | tr -d '\r' || true
+}
+
+use_existing_folder_cache() {
+    echo
+    show_windows_drive_mounts
+    show_windows_volumes
+    echo
+    echo "Enter an existing mounted folder path. No formatting will be performed."
+    echo "Examples:"
+    echo "  /mnt/o/unlim8ted-build-cache"
+    echo "  /mnt/e/unlim8ted-build-cache"
+    folder=$(prompt "Cache folder: ")
+
+    if [ -z "$folder" ]; then
+        echo "Cache folder cannot be empty." >&2
+        exit 1
+    fi
+
+    mkdir -p "$folder/work" "$folder/base-images"
+
+    if [ ! -w "$folder" ]; then
+        echo "Cache folder is not writable: $folder" >&2
+        exit 1
+    fi
+
+    UNLIM8TED_WORK_DIR="$folder/work"
+    UNLIM8TED_BASE_IMAGE_DIR="$folder/base-images"
+    export UNLIM8TED_WORK_DIR UNLIM8TED_BASE_IMAGE_DIR
 }
 
 select_target() {
@@ -51,7 +118,9 @@ format_and_mount_external_cache() {
 
     echo
     echo "Available block devices:"
-    lsblk -o NAME,SIZE,TYPE,FSTYPE,LABEL,MOUNTPOINTS
+    lsblk -o NAME,SIZE,TYPE,FSTYPE,LABEL,MODEL,VENDOR,SERIAL,TRAN,MOUNTPOINTS
+    show_windows_drive_mounts
+    show_windows_volumes
     echo
     echo "External cache mode formats the selected device or partition as ext4."
     echo "This destroys all data on that device."
@@ -93,6 +162,10 @@ format_and_mount_external_cache() {
     sudo mkdir -p "$mount_dir/work" "$mount_dir/base-images"
     sudo chown -R "$(id -u):$(id -g)" "$mount_dir"
 
+    AUTO_UNMOUNT_CACHE=1
+    AUTO_UNMOUNT_DIR="$mount_dir"
+    AUTO_UNMOUNT_DEVICE="$device"
+
     UNLIM8TED_WORK_DIR="$mount_dir/work"
     UNLIM8TED_BASE_IMAGE_DIR="$mount_dir/base-images"
     export UNLIM8TED_WORK_DIR UNLIM8TED_BASE_IMAGE_DIR
@@ -104,7 +177,12 @@ select_cache_location() {
         echo "Select cache/work location:"
         echo "  1) WSL Linux cache at ~/.cache/unlim8ted-os-build"
         echo "  2) External drive or partition, formatted as ext4"
-        choice=$(prompt "Cache option [1-2]: ")
+        if [ "$TARGET_NAME" != "cm4" ]; then
+            echo "  3) Existing mounted folder, no formatting"
+            choice=$(prompt "Cache option [1-3]: ")
+        else
+            choice=$(prompt "Cache option [1-2]: ")
+        fi
 
         case "$choice" in
             1)
@@ -113,6 +191,13 @@ select_cache_location() {
                 ;;
             2)
                 format_and_mount_external_cache
+                ;;
+            3)
+                if [ "$TARGET_NAME" = "cm4" ]; then
+                    echo "Existing mounted folder cache is disabled for CM4 builds." >&2
+                    exit 1
+                fi
+                use_existing_folder_cache
                 ;;
             *)
                 echo "Invalid cache option: $choice" >&2
@@ -123,7 +208,12 @@ select_cache_location() {
         echo "Select cache/work location:"
         echo "  1) Default repo-local build directory"
         echo "  2) External drive or partition, formatted as ext4"
-        choice=$(prompt "Cache option [1-2]: ")
+        if [ "$TARGET_NAME" != "cm4" ]; then
+            echo "  3) Existing mounted folder, no formatting"
+            choice=$(prompt "Cache option [1-3]: ")
+        else
+            choice=$(prompt "Cache option [1-2]: ")
+        fi
 
         case "$choice" in
             1)
@@ -132,6 +222,13 @@ select_cache_location() {
                 ;;
             2)
                 format_and_mount_external_cache
+                ;;
+            3)
+                if [ "$TARGET_NAME" = "cm4" ]; then
+                    echo "Existing mounted folder cache is disabled for CM4 builds." >&2
+                    exit 1
+                fi
+                use_existing_folder_cache
                 ;;
             *)
                 echo "Invalid cache option: $choice" >&2
