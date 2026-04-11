@@ -1331,17 +1331,28 @@ def start_ui():
     if xauthority:
         env["XAUTHORITY"] = xauthority
 
-    browser = config.get("UNLIM8TED_BROWSER", "chromium-browser")
+    configured_browser = config.get("UNLIM8TED_BROWSER", "")
+    browser = (
+        configured_browser
+        or shutil.which("chromium")
+        or shutil.which("chromium-browser")
+        or "chromium"
+    )
     browser_args = [
         browser,
+        "--kiosk",
+        "--start-fullscreen",
+        "--window-position=0,0",
         "--window-size=720,1560",
         "--no-sandbox",
+        "--ozone-platform=x11",
         f"--user-data-dir={CHROMIUM_PROFILE_DIR}",
         "--no-first-run",
         "--no-default-browser-check",
         "--disable-session-crashed-bubble",
         "--disable-infobars",
         "--disable-component-update",
+        "--disable-dev-shm-usage",
         "--check-for-update-interval=31536000",
         f"--app=http://localhost:{PORT}",
     ]

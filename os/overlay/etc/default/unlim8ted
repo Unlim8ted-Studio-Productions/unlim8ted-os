@@ -1,7 +1,8 @@
 # Runtime environment for Unlim8ted OS on CM4-NANO-C hardware
-UNLIM8TED_BROWSER=/usr/bin/chromium-browser
+UNLIM8TED_BROWSER=/usr/bin/chromium
 UNLIM8TED_DISPLAY=:0
 UNLIM8TED_XAUTHORITY=/root/.Xauthority
+UNLIM8TED_KIOSK_START_DELAY=1
 
 # Set these after confirming the compositor/X11 output names on device
 UNLIM8TED_WLR_OUTPUT=DSI-1

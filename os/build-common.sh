@@ -385,6 +385,20 @@ install_target_packages() {
     unbind_mount_chroot_support "$root_mount"
 }
 
+install_browser_compatibility() {
+    root_mount=$1
+    target_arch=$2
+
+    bind_mount_chroot_support "$root_mount"
+    copy_qemu_static_if_needed "$target_arch" "$root_mount"
+
+    run_in_chroot "$root_mount" "$target_arch" \
+        "if command -v chromium >/dev/null 2>&1 && ! command -v chromium-browser >/dev/null 2>&1; then ln -sf /usr/bin/chromium /usr/bin/chromium-browser; fi"
+
+    remove_qemu_static_if_present "$root_mount"
+    unbind_mount_chroot_support "$root_mount"
+}
+
 apply_overlay() {
     root_mount=$1
     boot_mount=$2
@@ -487,6 +501,7 @@ build_target() {
     boot_mount=$(printf '%s\n' "$mounts" | sed -n '2p')
 
     install_target_packages "$root_mount" "$target_arch" "$package_list"
+    install_browser_compatibility "$root_mount" "$target_arch"
     apply_overlay "$root_mount" "$boot_mount"
     enable_services "$root_mount" "$target_arch"
     write_build_metadata "$target_dir" "$output_name" "$base_image_url" "$package_list"
