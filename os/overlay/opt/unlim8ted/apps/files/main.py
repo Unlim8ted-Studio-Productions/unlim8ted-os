@@ -16,6 +16,9 @@ DEFAULT_STATE = {
     "path": "",
     "selected": "",
     "notice": "",
+    "query": "",
+    "sort": "name",
+    "view_mode": "list",
 }
 
 
@@ -50,13 +53,58 @@ def _save(context, value):
     context["services"]["accounts"].store.write("files_app", value)
 
 
-def _display_path(path, root_path):
-    current = os.path.abspath(path or root_path)
-    root = os.path.abspath(root_path)
-    if current == root:
-        return "Personal Storage"
-    relative = os.path.relpath(current, root)
-    return f"Personal Storage / {relative.replace(os.sep, ' / ')}"
+def _root_label(path, index=0):
+    path = os.path.abspath(path)
+    if path.endswith("/Files"):
+        return "Files"
+    if path.endswith("/unlim8ted") or path == "/home/unlim8ted":
+        return "Home"
+    if path == "/media":
+        return "Media"
+    if path == "/mnt":
+        return "Mounts"
+    if path.endswith("/boot/firmware"):
+        return "Boot"
+    return os.path.basename(path) or f"Root {index + 1}"
+
+
+def _display_path(path, roots):
+    current = os.path.abspath(path or (roots[0] if roots else "/"))
+    for index, root_path in enumerate(roots):
+        root = os.path.abspath(root_path)
+        try:
+            if os.path.commonpath([current, root]) != root:
+                continue
+        except ValueError:
+            continue
+        if current == root:
+            return _root_label(root, index)
+        relative = os.path.relpath(current, root)
+        return f"{_root_label(root, index)} / {relative.replace(os.sep, ' / ')}"
+    return current
+
+
+def _containing_root(path, roots):
+    current = os.path.abspath(path or (roots[0] if roots else "/"))
+    best = ""
+    for root_path in roots:
+        root = os.path.abspath(root_path)
+        try:
+            if os.path.commonpath([current, root]) == root:
+                if not best or len(root) > len(best):
+                    best = root
+        except ValueError:
+            continue
+    return best or (os.path.abspath(roots[0]) if roots else current)
+
+
+def _path_is_within(path, parent):
+    current = os.path.abspath(path)
+    root = os.path.abspath(parent)
+    try:
+        return os.path.commonpath([current, root]) == root
+    except ValueError:
+        return False
 
 
 def _format_bytes(size):
@@ -119,6 +167,7 @@ def get_app_payload(context):
     state = _state(context)
     files = context["services"]["files"]
     root_path = os.path.abspath(context["paths"]["user_files_dir"])
+    roots = list(getattr(files, "roots", []) or [root_path])
     listing = files.list_dir(state["path"])
     current_path = os.path.abspath(listing["path"]) if listing["path"] else root_path
     selected_path = state.get("selected", "")
@@ -129,10 +178,11 @@ def get_app_payload(context):
         _save(context, state)
 
     items = []
-    if current_path != root_path:
+    current_root = _containing_root(current_path, roots)
+    if current_path != current_root:
         items.append(
             {
-                "name": "Back",
+                "name": "..",
                 "kind": "nav",
                 "description": "Go up one level",
                 "action": "open_path",
@@ -140,7 +190,21 @@ def get_app_payload(context):
                 "meta": "Parent folder",
             }
         )
+    for index, root in enumerate(roots):
+        if os.path.abspath(root) == current_path:
+            continue
+        items.append(
+            {
+                "name": _root_label(root, index),
+                "kind": "root",
+                "description": root,
+                "action": "open_path",
+                "value": root,
+                "meta": "Location",
+            }
+        )
     for item in listing["items"][:96]:
+        extension = os.path.splitext(item["name"])[1].lower()
         meta = (
             "Folder"
             if item["kind"] == "dir"
@@ -154,6 +218,10 @@ def get_app_payload(context):
                 "action": "open_path" if item["kind"] == "dir" else "select_path",
                 "value": item["path"],
                 "meta": meta,
+                "extension": extension,
+                "size": int(item.get("size", 0)),
+                "size_label": _format_bytes(item.get("size", 0)),
+                "modified_at": item.get("modified_at", ""),
                 "selected": item["path"] == selected_path,
             }
         )
@@ -182,10 +250,14 @@ def get_app_payload(context):
     return {
         "view": "template",
         "title": "Files",
-        "subtitle": f"{len(listing['items'])} items in {_display_path(current_path, root_path)}",
+        "subtitle": f"{len(listing['items'])} items in {_display_path(current_path, roots)}",
         "path": listing["path"] or root_path,
-        "path_label": _display_path(listing["path"], root_path),
+        "path_label": _display_path(listing["path"], roots),
+        "roots": [{"label": _root_label(path, index), "path": path} for index, path in enumerate(roots)],
         "entries": items,
+        "query": state.get("query", ""),
+        "sort": state.get("sort", "name"),
+        "view_mode": state.get("view_mode", "list"),
         "preview": preview,
         "selected_path": selected_path,
         "selected_name": selected_details.get("name", "") if selected_details else "",
@@ -214,14 +286,23 @@ def handle_action(context, action, payload):
     elif action == "open_path":
         target = str(payload.get("value", "")).strip()
         if target:
-            state["path"] = target
+            listing = files.list_dir(target)
+            state["path"] = listing.get("path") or state["path"]
             selected = state.get("selected", "")
-            if selected and not str(selected).startswith(os.path.abspath(target)):
+            if selected and not _path_is_within(selected, state["path"]):
                 state["selected"] = ""
     elif action == "select_path":
         target = str(payload.get("value", "")).strip()
         if target:
             state["selected"] = target
+    elif action == "set_view_options":
+        state["query"] = str(payload.get("query", state.get("query", ""))).strip()
+        sort = str(payload.get("sort", state.get("sort", "name"))).strip()
+        view_mode = str(payload.get("view_mode", state.get("view_mode", "list"))).strip()
+        if sort in {"name", "date", "size", "type"}:
+            state["sort"] = sort
+        if view_mode in {"list", "grid"}:
+            state["view_mode"] = view_mode
     elif action == "save_file":
         target = str(payload.get("value", "") or state.get("selected", "")).strip()
         body = str(payload.get("body", ""))

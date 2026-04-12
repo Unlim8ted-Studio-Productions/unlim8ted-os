@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Unlim8ted Eight
+Description=ASCII-style boot animation that loads into an 8
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/unlim8ted-eight
+ScriptFile=/usr/share/plymouth/themes/unlim8ted-eight/unlim8ted-eight.script

@@ -32,23 +32,40 @@ VALID_APP_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 
 if platform.system() == "Windows":
     BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    STATE_DIR = os.path.join(BASE_DIR, "state")
     ENV_PATH = None
 else:
     BASE_DIR = "/opt/unlim8ted"
-    STATE_DIR = os.path.join(BASE_DIR, "state")
     ENV_PATH = "/etc/default/unlim8ted"
+
+def load_env_file(path):
+    values = {}
+    if not path or not os.path.exists(path):
+        return values
+
+    with open(path, "r", encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+ENV_CONFIG = load_env_file(ENV_PATH)
+STATE_DIR = ENV_CONFIG.get("UNLIM8TED_STATE_DIR", os.path.join(BASE_DIR, "state"))
+USER_STORAGE_DIR = ENV_CONFIG.get("UNLIM8TED_USER_STORAGE_DIR", STATE_DIR)
 
 UI_PATH = os.path.join(BASE_DIR, "ui", "index.html")
 APP_JS_PATH = os.path.join(BASE_DIR, "ui", "app.js")
 APPS_DIR = os.path.join(BASE_DIR, "apps")
 STATE_PATH = os.path.join(STATE_DIR, "system.json")
-CAPTURES_DIR = os.path.join(STATE_DIR, "captures")
-USER_FILES_DIR = os.path.join(STATE_DIR, "files")
+CAPTURES_DIR = ENV_CONFIG.get("UNLIM8TED_CAPTURES_DIR", os.path.join(USER_STORAGE_DIR, "Pictures", "Captures"))
+USER_FILES_DIR = ENV_CONFIG.get("UNLIM8TED_USER_FILES_DIR", os.path.join(USER_STORAGE_DIR, "Files"))
 PREVIEW_PATH = os.path.join(STATE_DIR, "camera-preview.jpg")
 REGISTRY_PATH = os.path.join(BASE_DIR, "commands", "registry.json")
 MEDIA_PREFIX = "/media/captures/"
-CHROMIUM_PROFILE_DIR = os.path.join(STATE_DIR, "chromium-profile")
+CHROMIUM_PROFILE_DIR = ENV_CONFIG.get("UNLIM8TED_CHROMIUM_PROFILE_DIR", os.path.join(STATE_DIR, "chromium-profile"))
 
 server_instance = None
 
@@ -93,21 +110,6 @@ def read_json(path, fallback):
 
 def is_valid_app_id(value):
     return bool(VALID_APP_ID.fullmatch(str(value or "")))
-
-
-def load_env_file(path):
-    values = {}
-    if not path or not os.path.exists(path):
-        return values
-
-    with open(path, "r", encoding="utf-8") as handle:
-        for raw_line in handle:
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            key, value = line.split("=", 1)
-            values[key.strip()] = value.strip().strip('"').strip("'")
-    return values
 
 
 def merge_dict(base, override):
@@ -288,10 +290,17 @@ class DeviceService:
         self.accounts = AccountsService(self.store)
         self.media = MediaService(self.store, CAPTURES_DIR)
         os.makedirs(USER_FILES_DIR, exist_ok=True)
-        self.files = FilesService([USER_FILES_DIR])
+        self.files = FilesService([
+            USER_STORAGE_DIR,
+            USER_FILES_DIR,
+            "/media",
+            "/mnt",
+            "/boot/firmware",
+        ])
         self.notifications = NotificationsService(self.store)
         self.companion = CompanionService(self.store)
         self.ui_process = None
+        self._network_cache = {"timestamp": 0, "status": {}}
         self._restore_hardware_state()
 
     def _restore_hardware_state(self):
@@ -331,18 +340,269 @@ class DeviceService:
     def remember_activity(self):
         self.system_state.state["last_interaction"] = time.time()
         self.system_state.save()
-        return self.get_state()
+        return self.get_state(live=False)
 
     def set_toggle(self, action, value=None):
         toggles = self.system_state.state["toggles"]
         if action not in toggles:
             return self.get_state()
-        toggles[action] = (not toggles[action]) if value is None else bool(value)
-        if action == "airplane" and toggles[action]:
-            toggles["wifi"] = False
-            toggles["bluetooth"] = False
+        next_value = (not toggles[action]) if value is None else bool(value)
+        if action == "wifi":
+            next_value = self.set_wifi_power(next_value).get("enabled", next_value)
+        elif action == "bluetooth":
+            next_value = self.set_bluetooth_power(next_value).get("enabled", next_value)
+        toggles[action] = next_value
+        if action == "airplane":
+            if next_value:
+                self.set_wifi_power(False)
+                self.set_bluetooth_power(False)
+                toggles["wifi"] = False
+                toggles["bluetooth"] = False
+            else:
+                self.set_wifi_power(True)
+                self.set_bluetooth_power(True)
+                toggles["wifi"] = True
+                toggles["bluetooth"] = True
         self.system_state.save()
         return self.get_state()
+
+    def _run_quiet(self, args, timeout=8):
+        ok, out, err = self.runner.run(args, timeout=timeout)
+        return {"ok": ok, "stdout": out, "stderr": err}
+
+    def _rfkill(self, radio, enabled):
+        if not shutil.which("rfkill"):
+            return {"ok": False, "stderr": "rfkill unavailable"}
+        action = "unblock" if enabled else "block"
+        return self._run_quiet(["rfkill", action, radio], timeout=5)
+
+    def set_wifi_power(self, enabled):
+        if platform.system() == "Windows":
+            return {"ok": True, "enabled": bool(enabled), "method": "windows-noop"}
+        result = self._rfkill("wifi", bool(enabled))
+        self._network_cache["timestamp"] = 0
+        if bool(enabled) and shutil.which("wpa_cli"):
+            self._run_quiet(["wpa_cli", "-i", "wlan0", "reconfigure"], timeout=5)
+        return {"ok": result["ok"], "enabled": bool(enabled), "method": "rfkill", "error": result.get("stderr", "")}
+
+    def set_bluetooth_power(self, enabled):
+        if platform.system() == "Windows":
+            return {"ok": True, "enabled": bool(enabled), "method": "windows-noop"}
+        rfkill_result = self._rfkill("bluetooth", bool(enabled))
+        if shutil.which("systemctl"):
+            self._run_quiet(["systemctl", "start" if enabled else "stop", "bluetooth"], timeout=8)
+        if shutil.which("bluetoothctl"):
+            self._run_quiet(["bluetoothctl", "power", "on" if enabled else "off"], timeout=8)
+        self._network_cache["timestamp"] = 0
+        return {"ok": rfkill_result["ok"], "enabled": bool(enabled), "method": "rfkill/bluetoothctl", "error": rfkill_result.get("stderr", "")}
+
+    def scan_wifi(self):
+        if platform.system() == "Windows":
+            return []
+        if shutil.which("nmcli"):
+            ok, out, _err = self.runner.run(["nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "dev", "wifi", "list"], timeout=12)
+            if ok:
+                networks = []
+                seen = set()
+                for line in out.splitlines():
+                    parts = line.split(":")
+                    ssid = (parts[0] if parts else "").strip()
+                    if not ssid or ssid in seen:
+                        continue
+                    seen.add(ssid)
+                    networks.append({"ssid": ssid, "signal": parts[1] if len(parts) > 1 else "", "security": parts[2] if len(parts) > 2 else ""})
+                return networks[:30]
+        if shutil.which("wpa_cli"):
+            self._run_quiet(["wpa_cli", "-i", "wlan0", "scan"], timeout=8)
+            time.sleep(1)
+            ok, out, _err = self.runner.run(["wpa_cli", "-i", "wlan0", "scan_results"], timeout=8)
+            if ok:
+                networks = []
+                seen = set()
+                for line in out.splitlines()[1:]:
+                    parts = line.split("\t")
+                    if len(parts) < 5:
+                        continue
+                    ssid = parts[4].strip()
+                    if not ssid or ssid in seen:
+                        continue
+                    seen.add(ssid)
+                    networks.append({"ssid": ssid, "signal": parts[2], "security": parts[3]})
+                return networks[:30]
+        return []
+
+    def connect_wifi(self, ssid, password=""):
+        ssid = str(ssid or "").strip()
+        password = str(password or "")
+        if not ssid:
+            return {"ok": False, "message": "SSID is required"}
+        self.set_wifi_power(True)
+        if platform.system() == "Windows":
+            return {"ok": True, "message": "windows-noop"}
+        if shutil.which("nmcli"):
+            args = ["nmcli", "dev", "wifi", "connect", ssid]
+            if password:
+                args.extend(["password", password])
+            ok, _out, err = self.runner.run(args, timeout=30)
+            return {"ok": ok, "message": err if not ok else f"Connected to {ssid}"}
+        if shutil.which("wpa_passphrase"):
+            try:
+                if password:
+                    completed = subprocess.run(
+                        ["wpa_passphrase", ssid, password],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        timeout=8,
+                        check=False,
+                    )
+                    if completed.returncode != 0:
+                        return {"ok": False, "message": completed.stderr.strip() or "wpa_passphrase failed"}
+                    network_block = completed.stdout
+                else:
+                    network_block = f'network={{\n    ssid="{ssid}"\n    key_mgmt=NONE\n}}\n'
+                os.makedirs("/etc/wpa_supplicant", exist_ok=True)
+                with open("/etc/wpa_supplicant/wpa_supplicant.conf", "w", encoding="utf-8") as handle:
+                    handle.write("ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\ncountry=US\n")
+                    handle.write(network_block)
+                os.chmod("/etc/wpa_supplicant/wpa_supplicant.conf", 0o600)
+                if shutil.which("systemctl"):
+                    self._run_quiet(["systemctl", "restart", "wpa_supplicant"], timeout=12)
+                    self._run_quiet(["systemctl", "restart", "dhcpcd"], timeout=12)
+                return {"ok": True, "message": f"Configured {ssid}"}
+            except OSError as exc:
+                return {"ok": False, "message": str(exc)}
+        return {"ok": False, "message": "No WiFi configuration tool is installed"}
+
+    def bluetooth_devices(self):
+        if platform.system() == "Windows" or not shutil.which("bluetoothctl"):
+            return []
+        ok, out, _err = self.runner.run(["bluetoothctl", "devices"], timeout=8)
+        if not ok:
+            return []
+        devices = []
+        for line in out.splitlines():
+            parts = line.split(" ", 2)
+            if len(parts) >= 3 and parts[0] == "Device":
+                devices.append({"address": parts[1], "name": parts[2]})
+        return devices[:40]
+
+    def connect_bluetooth(self, address):
+        address = str(address or "").strip()
+        if not address:
+            return {"ok": False, "message": "Bluetooth address is required"}
+        if not shutil.which("bluetoothctl"):
+            return {"ok": False, "message": "bluetoothctl unavailable"}
+        self.set_bluetooth_power(True)
+        self._run_quiet(["bluetoothctl", "trust", address], timeout=8)
+        ok, _out, err = self.runner.run(["bluetoothctl", "connect", address], timeout=20)
+        return {"ok": ok, "message": err if not ok else f"Connected {address}"}
+
+    def _rfkill_status(self):
+        status = {"wifi_enabled": True, "bluetooth_enabled": True}
+        if platform.system() == "Windows" or not shutil.which("rfkill"):
+            return status
+        ok, out, _err = self.runner.run(["rfkill", "-J"], timeout=2)
+        if not ok:
+            return status
+        try:
+            data = json.loads(out)
+        except (TypeError, ValueError):
+            return status
+        def blocked(value):
+            if isinstance(value, bool):
+                return value
+            return str(value or "").strip().lower() in {"blocked", "yes", "true", "1"}
+
+        for item in data.get("rfkilldevices", []):
+            kind = str(item.get("type", "")).lower()
+            is_blocked = blocked(item.get("soft")) or blocked(item.get("hard"))
+            if kind == "wlan":
+                status["wifi_enabled"] = not is_blocked
+            elif kind == "bluetooth":
+                status["bluetooth_enabled"] = not is_blocked
+        return status
+
+    def _network_status_uncached(self):
+        status = {
+            "connected": False,
+            "connection": "offline",
+            "interface": "",
+            "ssid": "",
+            "signal": 0,
+            "wifi_enabled": True,
+            "bluetooth_enabled": True,
+        }
+        status.update(self._rfkill_status())
+        if platform.system() == "Windows":
+            status.update({"connected": True, "connection": "windows"})
+            return status
+
+        if shutil.which("nmcli"):
+            ok, out, _err = self.runner.run(
+                ["nmcli", "-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "dev", "status"],
+                timeout=3,
+            )
+            if ok:
+                for line in out.splitlines():
+                    parts = line.split(":")
+                    if len(parts) < 4 or parts[2] != "connected":
+                        continue
+                    status["connected"] = True
+                    status["interface"] = parts[0]
+                    status["connection"] = parts[1]
+                    status["ssid"] = parts[3]
+                    if parts[1] == "wifi":
+                        break
+            if status["connected"] and status["connection"] == "wifi":
+                ok, out, _err = self.runner.run(["nmcli", "-t", "-f", "ACTIVE,SIGNAL", "dev", "wifi"], timeout=3)
+                if ok:
+                    for line in out.splitlines():
+                        parts = line.split(":")
+                        if len(parts) >= 2 and parts[0] == "yes":
+                            try:
+                                status["signal"] = int(parts[1])
+                            except ValueError:
+                                status["signal"] = 0
+                            break
+
+        if not status["connected"] and shutil.which("ip"):
+            ok, out, _err = self.runner.run(["ip", "route", "get", "1.1.1.1"], timeout=2)
+            if ok and " dev " in out:
+                match = re.search(r"\bdev\s+(\S+)", out)
+                iface = match.group(1) if match else ""
+                status.update({
+                    "connected": True,
+                    "connection": "ethernet" if iface.startswith(("eth", "en")) else "network",
+                    "interface": iface,
+                    "ssid": iface,
+                })
+
+        if status["connected"] and not status["ssid"] and shutil.which("iwgetid"):
+            ok, out, _err = self.runner.run(["iwgetid", "-r"], timeout=2)
+            if ok and out.strip():
+                status["ssid"] = out.strip()
+                status["connection"] = "wifi"
+        return status
+
+    def network_status(self, live=True):
+        now = time.time()
+        cached = dict(self._network_cache.get("status", {}))
+        if not live:
+            return cached or {
+                "connected": False,
+                "connection": "unknown",
+                "interface": "",
+                "ssid": "",
+                "signal": 0,
+                "wifi_enabled": self.system_state.state["toggles"].get("wifi", True),
+                "bluetooth_enabled": self.system_state.state["toggles"].get("bluetooth", True),
+            }
+        if now - float(self._network_cache.get("timestamp", 0)) < 5:
+            return cached
+        status = self._network_status_uncached()
+        self._network_cache = {"timestamp": now, "status": status}
+        return dict(status)
 
     def set_brightness(self, brightness):
         value = max(0.05, min(1.0, float(brightness)))
@@ -383,6 +643,59 @@ class DeviceService:
         ).start()
         return {"ok": True, "queued": True, "reason": reason}
 
+    def shutdown(self, reason="manual"):
+        self.system_state.state["last_sleep_reason"] = f"shutdown:{reason}"
+        self.system_state.state["sleeping"] = True
+        self.system_state.state["display_awake"] = False
+        self.system_state.save()
+        threading.Thread(
+            target=self._perform_shutdown,
+            args=(reason,),
+            daemon=True,
+        ).start()
+        return {"ok": True, "queued": True, "reason": reason}
+
+    def exit_kiosk(self, reason="terminal"):
+        threading.Thread(
+            target=self._perform_exit_kiosk,
+            args=(reason,),
+            daemon=True,
+        ).start()
+        return {"ok": True, "queued": True, "reason": reason}
+
+    def physical_keyboard_present(self):
+        override = str(self.config.get("UNLIM8TED_KEYBOARD_PRESENT", "")).strip().lower()
+        if override in {"1", "true", "yes", "on"}:
+            return True
+        if override in {"0", "false", "no", "off"}:
+            return False
+
+        by_id = "/dev/input/by-id"
+        try:
+            if os.path.isdir(by_id):
+                for name in os.listdir(by_id):
+                    lowered = name.lower()
+                    if "kbd" in lowered or "keyboard" in lowered:
+                        return True
+        except OSError:
+            pass
+
+        devices_path = "/proc/bus/input/devices"
+        try:
+            with open(devices_path, "r", encoding="utf-8", errors="ignore") as handle:
+                blocks = handle.read().split("\n\n")
+        except OSError:
+            return False
+
+        for block in blocks:
+            lowered = block.lower()
+            if "keyboard" not in lowered:
+                continue
+            if any(skip in lowered for skip in ("touchscreen", "mouse", "consumer control", "power button")):
+                continue
+            return True
+        return False
+
     def _perform_reboot(self, reason):
         time.sleep(0.25)
         if platform.system() == "Windows":
@@ -401,8 +714,65 @@ class DeviceService:
         except OSError as exc:
             log(f"[SYSTEM] Reboot failed: {exc}")
 
-    def get_state(self):
+    def _perform_shutdown(self, reason):
+        time.sleep(0.25)
+        if platform.system() == "Windows":
+            log(f"[SYSTEM] Shutdown requested on Windows: {reason}")
+            return
+
+        try:
+            subprocess.run(["sync"], timeout=10, check=False)
+        except (OSError, subprocess.SubprocessError) as exc:
+            log(f"[SYSTEM] sync before shutdown failed: {exc}")
+
+        shutdown_cmd = self.config.get("UNLIM8TED_SHUTDOWN_CMD", "").strip()
+        args = shlex.split(shutdown_cmd) if shutdown_cmd else ["systemctl", "poweroff"]
+        try:
+            subprocess.Popen(
+                args,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            log(f"[SYSTEM] Shutdown queued via {' '.join(args)}")
+        except OSError as exc:
+            log(f"[SYSTEM] Shutdown failed: {exc}")
+
+    def _perform_exit_kiosk(self, reason):
+        time.sleep(0.35)
+        log(f"[SYSTEM] Kiosk exit requested: {reason}")
+        if platform.system() == "Windows":
+            ui = self.ui_process
+            if ui and ui.poll() is None:
+                ui.terminate()
+            return
+
+        service_name = self.config.get("UNLIM8TED_SERVICE_NAME", "unlim8ted.service")
+        if shutil.which("systemctl"):
+            try:
+                subprocess.Popen(
+                    ["systemctl", "stop", service_name],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                return
+            except OSError as exc:
+                log(f"[SYSTEM] systemctl stop {service_name} failed: {exc}")
+
+        ui = self.ui_process
+        if ui and ui.poll() is None:
+            ui.terminate()
+
+    def get_state(self, live=True):
         state = self.system_state.public_state()
+        state["network"] = self.network_status(live=live)
+        state["toggles"]["wifi"] = bool(
+            state["network"].get("wifi_enabled", state["toggles"].get("wifi", True))
+        )
+        state["toggles"]["bluetooth"] = bool(
+            state["network"].get(
+                "bluetooth_enabled", state["toggles"].get("bluetooth", True)
+            )
+        )
         state["owner"] = self.accounts.state()["owner"]
         state["badges"] = self.notifications.badge_counts(
             self.comms, self.store.read("mail", {"mailboxes": {"inbox": []}})
@@ -506,6 +876,15 @@ class DeviceService:
         return payload
 
     def open_app(self, app):
+        if app == "terminal" and self.physical_keyboard_present():
+            return {
+                "ok": True,
+                "status": "exit_kiosk",
+                "exit_kiosk": self.exit_kiosk("terminal"),
+                "app": {"app_id": "terminal", "title": "Terminal"},
+                "system": self.get_state(live=False),
+            }
+
         payload = self.app_payload(app)
         if payload:
             return {
@@ -555,6 +934,28 @@ class DeviceService:
         return {"ok": True, "app": self.app_payload(app), "system": self.get_state()}
 
     def app_http(self, app, method, subpath, query=None, payload=None):
+        if app == "terminal" and method == "GET" and not subpath and self.physical_keyboard_present():
+            return {
+                "type": "json",
+                "status": 200,
+                "body": {
+                    "ok": True,
+                    "app": {
+                        "app_id": "terminal",
+                        "title": "Terminal",
+                        "view": "structured",
+                        "sections": [
+                            {
+                                "title": "Leaving Kiosk",
+                                "body": "Stopping the kiosk service. The console will be available on tty1.",
+                            }
+                        ],
+                    },
+                    "exit_kiosk": self.exit_kiosk("terminal"),
+                    "system": self.get_state(live=False),
+                },
+            }
+
         module, _manifest = self.app_contract(app)
         if not module:
             return {
@@ -626,6 +1027,8 @@ class DeviceService:
             return {"ok": True, "system": self.sleep(payload.get("reason", "manual"))}
         if action == "wake":
             return {"ok": True, "system": self.wake(payload.get("reason", "tap"))}
+        if action == "shutdown":
+            return {"ok": True, "shutdown": self.shutdown(payload.get("reason", "manual"))}
         if action in self.system_state.state["toggles"]:
             return {"ok": True, "system": self.set_toggle(action)}
         if action == "brightness":
@@ -1197,6 +1600,18 @@ body {{
             self._send_json({"ok": True, "reboot": device_service.reboot(data.get("reason", "manual"))})
             return
 
+        if path == "/api/system/shutdown":
+            if not self._authorize_api():
+                return
+            self._send_json({"ok": True, "shutdown": device_service.shutdown(data.get("reason", "manual"))})
+            return
+
+        if path == "/api/system/exit-kiosk":
+            if not self._authorize_api():
+                return
+            self._send_json({"ok": True, "exit_kiosk": device_service.exit_kiosk(data.get("reason", "manual"))})
+            return
+
         if path == "/api/system/activity":
             if not self._authorize_api():
                 return
@@ -1346,16 +1761,29 @@ def start_ui():
         "--window-size=720,1560",
         "--no-sandbox",
         "--ozone-platform=x11",
+        "--use-gl=egl",
+        "--ignore-gpu-blocklist",
+        "--enable-gpu-rasterization",
+        "--enable-zero-copy",
+        "--enable-native-gpu-memory-buffers",
         f"--user-data-dir={CHROMIUM_PROFILE_DIR}",
         "--no-first-run",
         "--no-default-browser-check",
         "--disable-session-crashed-bubble",
         "--disable-infobars",
+        "--disable-virtual-keyboard",
+        "--disable-features=VirtualKeyboard",
         "--disable-component-update",
         "--disable-dev-shm-usage",
         "--check-for-update-interval=31536000",
         f"--app=http://localhost:{PORT}",
     ]
+    machine = platform.machine().lower()
+    if machine in {"aarch64", "arm64"} or machine.startswith("arm"):
+        browser_args.insert(
+            -1,
+            "--user-agent=Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Unlim8tedOS/1.0",
+        )
     return subprocess.Popen(browser_args, env=env)
 
 
@@ -1368,6 +1796,7 @@ if __name__ == "__main__":
 
     time.sleep(1.5)
     ui = start_ui()
+    device_service.ui_process = ui
     if ui:
         ui.wait()
 

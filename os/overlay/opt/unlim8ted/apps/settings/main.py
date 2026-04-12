@@ -2,7 +2,7 @@
     return {
         "id": "settings",
         "title": "Settings",
-        "capabilities": ["account_access", "notifications"],
+        "capabilities": ["account_access", "notifications", "network", "bluetooth"],
         "routes": ["system"],
         "required_services": ["accounts", "notifications", "system"],
     }
@@ -10,6 +10,7 @@
 
 def _settings_payload(context):
     system = context["system"]
+    system_service = context["services"]["system"]
     owner = context["owner"]["name"]
     brightness = int(system["brightness"] * 100)
     idle_timeout = int(system["idle_timeout_sec"])
@@ -45,6 +46,9 @@ def _settings_payload(context):
                     "value": "Sleeping" if system.get("sleeping") else "Awake",
                 },
             ],
+            "wifi_networks": system_service.scan_wifi(),
+            "bluetooth_devices": system_service.bluetooth_devices(),
+            "notice": context["services"]["store"].read("settings_app", {}).get("notice", ""),
         },
     }
 
@@ -55,6 +59,9 @@ def get_app_payload(context):
 
 def handle_action(context, action, payload):
     system = context["services"]["system"]
+    store = context["services"]["store"]
+    app_state = store.read("settings_app", {}) or {}
+    app_state["notice"] = ""
     if action == "toggle_connectivity":
         key = str(payload.get("value", "")).strip()
         if key:
@@ -68,4 +75,13 @@ def handle_action(context, action, payload):
         if value.isdigit():
             system.system_state.state["idle_timeout_sec"] = max(10, min(600, int(value)))
             system.system_state.save()
+    elif action == "wifi_connect":
+        result = system.connect_wifi(payload.get("ssid", ""), payload.get("password", ""))
+        app_state["notice"] = result.get("message", "")
+    elif action == "bluetooth_connect":
+        result = system.connect_bluetooth(payload.get("address", ""))
+        app_state["notice"] = result.get("message", "")
+    elif action == "refresh_radios":
+        app_state["notice"] = "Radio list refreshed"
+    store.write("settings_app", app_state)
     return {"app": get_app_payload(context), "system": system.get_state()}

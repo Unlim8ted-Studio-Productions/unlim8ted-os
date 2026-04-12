@@ -10,6 +10,11 @@
       "endpoint": "/api/system/wake",
       "method": "POST"
     },
+    "shutdown": {
+      "description": "Safely sync storage and power off the phone",
+      "endpoint": "/api/system/shutdown",
+      "method": "POST"
+    },
     "brightness": {
       "description": "Set display brightness from 0.05 to 1.0",
       "endpoint": "/api/system/brightness",

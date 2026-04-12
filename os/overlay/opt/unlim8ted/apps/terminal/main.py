@@ -1,137 +1,244 @@
+import errno
 import os
+import shutil
+import struct
 import subprocess
+import threading
+import time
+
+try:
+    import fcntl
+    import pty
+    import select
+    import signal
+    import termios
+    PTY_AVAILABLE = True
+except ImportError:
+    PTY_AVAILABLE = False
 
 
 APP_ID = "terminal"
 TITLE = "Terminal"
 STATE_KEY = "terminal_app"
-MAX_OUTPUT_CHARS = 24000
-DEFAULT_STATE = {
-    "cwd": "/root",
-    "lines": [
-        {"kind": "system", "text": "Unlim8ted terminal ready. Commands run locally on this device."}
-    ],
-}
+MAX_BUFFER_CHARS = 60000
+
+_sessions = {}
+_lock = threading.Lock()
 
 
 def get_manifest():
     return {
         "id": APP_ID,
         "title": TITLE,
-        "capabilities": ["shell"],
-        "routes": ["run", "clear"],
+        "capabilities": ["shell", "pty"],
+        "routes": ["start", "poll", "input", "resize", "stop", "clear"],
         "required_services": ["store"],
     }
 
 
-def _store(context):
-    return context["services"]["store"]
+class PtySession:
+    def __init__(self, context):
+        self.context = context
+        self.cwd = _initial_cwd(context)
+        self.buffer = ""
+        self.offset = 0
+        self.last_activity = time.time()
+        self.closed = False
+        self.exit_status = None
+        self.master_fd = None
+        self.process = None
+        self._start()
 
+    def _start(self):
+        if not PTY_AVAILABLE:
+            raise RuntimeError("PTY terminal is only available on Unix-like systems")
+        self.master_fd, slave_fd = pty.openpty()
+        flags = fcntl.fcntl(self.master_fd, fcntl.F_GETFL)
+        fcntl.fcntl(self.master_fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
-def _state(context):
-    state = _store(context).read(STATE_KEY, dict(DEFAULT_STATE)) or {}
-    state.setdefault("cwd", DEFAULT_STATE["cwd"])
-    state.setdefault("lines", list(DEFAULT_STATE["lines"]))
-    if not os.path.isdir(state["cwd"]):
-        state["cwd"] = "/root" if os.path.isdir("/root") else "/"
-    return state
+        env = os.environ.copy()
+        env.setdefault("TERM", "xterm-256color")
+        env.setdefault("SHELL", _shell_path())
+        env.setdefault("HOME", os.path.expanduser("~") or "/root")
+        env.setdefault("USER", os.environ.get("USER", "root"))
 
-
-def _save(context, state):
-    state["lines"] = state.get("lines", [])[-80:]
-    _store(context).write(STATE_KEY, state)
-
-
-def _append(state, kind, text):
-    if text is None:
-        text = ""
-    text = str(text)
-    if len(text) > MAX_OUTPUT_CHARS:
-        text = text[-MAX_OUTPUT_CHARS:]
-        text = "[output truncated]\n" + text
-    state.setdefault("lines", []).append({"kind": kind, "text": text})
-
-
-def _resolve_cwd(current, value):
-    target = os.path.expanduser(str(value or "").strip() or "~")
-    if not os.path.isabs(target):
-        target = os.path.join(current, target)
-    target = os.path.abspath(target)
-    return target if os.path.isdir(target) else None
-
-
-def _run_command(state, command):
-    command = str(command or "").strip()
-    if not command:
-        return
-
-    _append(state, "command", f"{state['cwd']} $ {command}")
-
-    if command == "clear":
-        state["lines"] = []
-        return
-
-    if command == "pwd":
-        _append(state, "output", state["cwd"])
-        return
-
-    if command.startswith("cd"):
-        parts = command.split(maxsplit=1)
-        target = _resolve_cwd(state["cwd"], parts[1] if len(parts) > 1 else "~")
-        if target:
-            state["cwd"] = target
-            _append(state, "output", state["cwd"])
-        else:
-            _append(state, "error", "cd: no such directory")
-        return
-
-    env = os.environ.copy()
-    env.setdefault("TERM", "xterm-256color")
-    env.setdefault("HOME", "/root")
-
-    try:
-        result = subprocess.run(
-            ["/bin/sh", "-lc", command],
-            cwd=state["cwd"],
+        shell = _shell_path()
+        shell_args = [shell, "-l"] if os.path.basename(shell) in {"bash", "zsh", "fish"} else [shell]
+        self.process = subprocess.Popen(
+            shell_args,
+            stdin=slave_fd,
+            stdout=slave_fd,
+            stderr=slave_fd,
+            cwd=self.cwd,
             env=env,
-            text=True,
-            capture_output=True,
-            timeout=30,
+            preexec_fn=os.setsid,
+            close_fds=True,
         )
-    except subprocess.TimeoutExpired as exc:
-        output = (exc.stdout or "") + (exc.stderr or "")
-        if output:
-            _append(state, "output", output)
-        _append(state, "error", "command timed out after 30 seconds")
-        return
-    except OSError as exc:
-        _append(state, "error", str(exc))
-        return
+        os.close(slave_fd)
+        self.resize(24, 80)
 
-    if result.stdout:
-        _append(state, "output", result.stdout.rstrip("\n"))
-    if result.stderr:
-        _append(state, "error", result.stderr.rstrip("\n"))
-    if result.returncode:
-        _append(state, "status", f"exit {result.returncode}")
+    def read_available(self):
+        if self.closed:
+            return ""
+        chunks = []
+        while True:
+            try:
+                ready, _, _ = select.select([self.master_fd], [], [], 0)
+                if not ready:
+                    break
+                data = os.read(self.master_fd, 8192)
+                if not data:
+                    self._mark_closed()
+                    break
+                chunks.append(data.decode("utf-8", errors="replace"))
+            except OSError as exc:
+                if exc.errno in (errno.EAGAIN, errno.EIO):
+                    if self.process.poll() is not None:
+                        self._mark_closed()
+                    break
+                raise
+        if chunks:
+            self.last_activity = time.time()
+            self.buffer += "".join(chunks)
+            if len(self.buffer) > MAX_BUFFER_CHARS:
+                drop = len(self.buffer) - MAX_BUFFER_CHARS
+                self.buffer = self.buffer[drop:]
+                self.offset += drop
+        elif self.process.poll() is not None:
+            self._mark_closed()
+        return "".join(chunks)
+
+    def write(self, data):
+        if self.closed:
+            return False
+        self.last_activity = time.time()
+        os.write(self.master_fd, str(data or "").encode("utf-8", errors="ignore"))
+        return True
+
+    def resize(self, rows, cols):
+        if self.closed:
+            return
+        rows = max(8, min(200, int(rows or 24)))
+        cols = max(20, min(320, int(cols or 80)))
+        packed = struct.pack("HHHH", rows, cols, 0, 0)
+        fcntl.ioctl(self.master_fd, termios.TIOCSWINSZ, packed)
+        try:
+            os.killpg(os.getpgid(self.process.pid), signal.SIGWINCH)
+        except OSError:
+            pass
+
+    def stop(self):
+        if self.closed:
+            return
+        try:
+            os.killpg(os.getpgid(self.process.pid), signal.SIGHUP)
+        except OSError:
+            pass
+        self._mark_closed()
+
+    def _mark_closed(self):
+        if self.closed:
+            return
+        self.closed = True
+        self.exit_status = self.process.poll()
+        try:
+            os.close(self.master_fd)
+        except OSError:
+            pass
+
+    def snapshot(self, since=0):
+        self.read_available()
+        since = max(0, int(since or 0))
+        start = max(since, self.offset)
+        relative = start - self.offset
+        return {
+            "ok": True,
+            "output": self.buffer[relative:],
+            "offset": self.offset + len(self.buffer),
+            "base_offset": self.offset,
+            "closed": self.closed,
+            "exit_status": self.exit_status,
+            "cwd": self.cwd,
+        }
+
+
+def _shell_path():
+    return os.environ.get("SHELL") or shutil.which("bash") or shutil.which("sh") or "/bin/sh"
+
+
+def _initial_cwd(context):
+    store = context["services"]["store"]
+    state = store.read(STATE_KEY, {"cwd": "/root"}) or {}
+    cwd = state.get("cwd") or "/root"
+    return cwd if os.path.isdir(cwd) else "/"
+
+
+def _session(context):
+    key = context["app_id"]
+    with _lock:
+        session = _sessions.get(key)
+        if not session or session.closed:
+            session = PtySession(context)
+            _sessions[key] = session
+        return session
 
 
 def get_app_payload(context):
-    state = _state(context)
+    system = context["services"].get("system")
+    keyboard_present = (
+        system.physical_keyboard_present()
+        if system and hasattr(system, "physical_keyboard_present")
+        else False
+    )
     return {
         "view": "template",
         "title": TITLE,
-        "subtitle": f"Shell at {state['cwd']}",
-        "cwd": state["cwd"],
-        "lines": state.get("lines", []),
+        "subtitle": "Touch shell fallback" if not keyboard_present else "Interactive local shell",
+        "cwd": _initial_cwd(context),
+        "terminal": {"pty": True, "keyboard_present": keyboard_present},
     }
 
 
 def handle_action(context, action, payload):
-    state = _state(context)
-    if action == "run":
-        _run_command(state, payload.get("command", ""))
-    elif action == "clear":
-        state["lines"] = []
-    _save(context, state)
+    session = _session(context)
+    if action == "clear":
+        session.buffer = ""
+        session.offset = 0
+    elif action == "stop":
+        session.stop()
     return {"app": get_app_payload(context), "system": context["system"]}
+
+
+def handle_http(context, request):
+    subpath = request.get("subpath", "")
+    payload = request.get("payload", {}) or {}
+    session = _session(context)
+
+    if subpath in {"start", "poll"}:
+        rows = payload.get("rows")
+        cols = payload.get("cols")
+        if rows and cols:
+            session.resize(rows, cols)
+        return {"body": session.snapshot(payload.get("offset", 0))}
+
+    if subpath == "input":
+        session.write(payload.get("data", ""))
+        return {"body": session.snapshot(payload.get("offset", 0))}
+
+    if subpath == "resize":
+        session.resize(payload.get("rows", 24), payload.get("cols", 80))
+        return {"body": {"ok": True}}
+
+    if subpath == "clear":
+        session.buffer = ""
+        session.offset = 0
+        return {"body": session.snapshot(0)}
+
+    if subpath == "stop":
+        session.stop()
+        return {"body": session.snapshot(payload.get("offset", 0))}
+
+    return {
+        "status": 404,
+        "body": {"ok": False, "code": "route_not_found", "message": f"Unknown terminal route: {subpath}"},
+    }

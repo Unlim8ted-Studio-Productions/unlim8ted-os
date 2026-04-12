@@ -1,0 +1,22 @@
+[Unit]
+Description=Unlim8ted OS First Boot Package Install
+After=network.target systemd-user-sessions.service
+Before=unlim8ted.service getty@tty1.service
+Wants=network.target
+Conflicts=getty@tty1.service
+ConditionPathExists=!/var/lib/unlim8ted/packages-installed
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/unlim8ted-firstboot
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYReset=yes
+TTYVHangup=no
+RemainAfterExit=yes
+ExecStart=/opt/unlim8ted/bin/firstboot-install.sh
+
+[Install]
+WantedBy=multi-user.target

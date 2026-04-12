@@ -117,6 +117,19 @@
             min-height: 42px; border-radius: 18px; border: 1px solid rgba(220, 233, 255, 0.12); background: rgba(255, 255, 255, 0.06);
             color: rgba(247, 249, 255, 0.94); font-size: 13px; font-weight: 700;
         }
+        .settings-radio-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+        .settings-select,
+        .settings-input {
+            width: 100%; min-height: 42px; border-radius: 8px; border: 1px solid rgba(220, 233, 255, 0.12);
+            background: rgba(8, 13, 24, 0.72); color: rgba(247, 249, 255, 0.96); padding: 0 12px; font: inherit;
+        }
+        .settings-radio-list { display: grid; gap: 8px; }
+        .settings-bt-device {
+            min-height: 46px; border-radius: 8px; border: 1px solid rgba(220, 233, 255, 0.12); background: rgba(255, 255, 255, 0.06);
+            color: rgba(247, 249, 255, 0.96); display: grid; gap: 3px; text-align: left; padding: 8px 12px;
+        }
+        .settings-bt-device span { font-size: 14px; font-weight: 720; }
+        .settings-bt-device small { color: rgba(201, 214, 243, 0.7); }
         .settings-chip.active { background: linear-gradient(135deg, rgba(136, 203, 255, 0.9), rgba(161, 145, 255, 0.88)); color: #08101f; box-shadow: 0 12px 24px rgba(125, 165, 255, 0.22); }
         .settings-badge-count { min-width: 30px; height: 30px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 760; }
         .settings-empty { padding: 18px; font-size: 13px; line-height: 1.5; color: rgba(201, 214, 243, 0.7); }

@@ -3,6 +3,11 @@ UNLIM8TED_BROWSER=/usr/bin/chromium
 UNLIM8TED_DISPLAY=:0
 UNLIM8TED_XAUTHORITY=/root/.Xauthority
 UNLIM8TED_KIOSK_START_DELAY=1
+UNLIM8TED_STATE_DIR=/var/lib/unlim8ted
+UNLIM8TED_USER_STORAGE_DIR=/home/unlim8ted
+UNLIM8TED_USER_FILES_DIR=/home/unlim8ted/Files
+UNLIM8TED_CAPTURES_DIR=/home/unlim8ted/Pictures/Captures
+UNLIM8TED_CHROMIUM_PROFILE_DIR=/var/lib/unlim8ted/chromium-profile
 
 # Set these after confirming the compositor/X11 output names on device
 UNLIM8TED_WLR_OUTPUT=DSI-1

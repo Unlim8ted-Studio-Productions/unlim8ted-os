@@ -15,9 +15,10 @@ window.Unlim8tedAppClients.settings = (() => {
 
     async function sendAction(action, value) {
         if (!currentCtx) return;
+        const payload = value && typeof value === 'object' && !Array.isArray(value) ? value : { value };
         const response = await currentCtx.requestJson('/api/apps/settings/action', {
             method: 'POST',
-            body: JSON.stringify({ action, payload: { value } })
+            body: JSON.stringify({ action, payload })
         });
         if (response?.app) {
             currentCtx.payload = response.app;
@@ -54,16 +55,43 @@ window.Unlim8tedAppClients.settings = (() => {
         `).join('');
     }
 
-    function togglesMarkup(toggles) {
-        return toggles.map((item) => `
+    function togglesMarkup(toggles, state) {
+        return `
+            ${toggles.map((item) => `
             <button type="button" class="settings-toggle-row ${item.enabled ? 'active' : ''}" data-settings-toggle="${currentCtx.escapeHtml(item.id)}">
                 <div>
                     <div class="settings-row-title">${currentCtx.escapeHtml(item.label || item.id || '')}</div>
-                    <div class="settings-row-copy">${item.enabled ? 'Enabled and ready to use.' : 'Currently turned off.'}</div>
+                    <div class="settings-row-copy">${item.id === 'wifi' ? 'Controls the WiFi radio.' : item.id === 'bluetooth' ? 'Controls the Bluetooth radio.' : item.enabled ? 'Enabled and ready to use.' : 'Currently turned off.'}</div>
                 </div>
                 <div class="settings-toggle-pill"></div>
             </button>
-        `).join('');
+            `).join('')}
+            <div class="settings-display-block">
+                <div class="settings-row-overline">WiFi</div>
+                <form id="settingsWifiForm" class="settings-radio-form">
+                    <select class="settings-select" name="ssid">
+                        <option value="">Choose a network</option>
+                        ${(state.wifi_networks || []).map((item) => `
+                            <option value="${currentCtx.escapeHtml(item.ssid || '')}">${currentCtx.escapeHtml(item.ssid || '')}${item.signal ? ` (${currentCtx.escapeHtml(item.signal)}%)` : ''}</option>
+                        `).join('')}
+                    </select>
+                    <input class="settings-input" name="password" type="password" autocomplete="current-password" placeholder="Password" />
+                    <button class="settings-chip" type="submit">Connect</button>
+                    <button class="settings-chip" type="button" data-settings-refresh-radios="true">Refresh</button>
+                </form>
+            </div>
+            <div class="settings-display-block">
+                <div class="settings-row-overline">Bluetooth</div>
+                <div class="settings-radio-list">
+                    ${(state.bluetooth_devices || []).map((item) => `
+                        <button type="button" class="settings-bt-device" data-settings-bt-address="${currentCtx.escapeHtml(item.address || '')}">
+                            <span>${currentCtx.escapeHtml(item.name || item.address || '')}</span>
+                            <small>${currentCtx.escapeHtml(item.address || '')}</small>
+                        </button>
+                    `).join('') || '<div class="settings-empty">No paired Bluetooth devices found.</div>'}
+                </div>
+            </div>
+        `;
     }
 
     function displayMarkup(brightness, idleTimeout) {
@@ -113,6 +141,25 @@ window.Unlim8tedAppClients.settings = (() => {
             button.addEventListener('click', () => sendAction('toggle_connectivity', button.dataset.settingsToggle || ''));
         });
 
+        currentCtx.appBody.querySelector('#settingsWifiForm')?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            sendAction('wifi_connect', {
+                ssid: String(form.get('ssid') || ''),
+                password: String(form.get('password') || '')
+            });
+        });
+
+        currentCtx.appBody.querySelector('[data-settings-refresh-radios]')?.addEventListener('click', () => {
+            sendAction('refresh_radios', '');
+        });
+
+        currentCtx.appBody.querySelectorAll('[data-settings-bt-address]').forEach((button) => {
+            button.addEventListener('click', () => sendAction('bluetooth_connect', {
+                address: button.dataset.settingsBtAddress || ''
+            }));
+        });
+
         currentCtx.appBody.querySelectorAll('[data-timeout-value]').forEach((button) => {
             button.addEventListener('click', () => sendAction('set_idle_timeout', button.dataset.timeoutValue || ''));
         });
@@ -141,11 +188,11 @@ window.Unlim8tedAppClients.settings = (() => {
         const display = currentCtx.appBody.querySelector('#settingsDisplayGroup');
         const badges = currentCtx.appBody.querySelector('#settingsBadgesGroup');
 
-        if (ownerLine) ownerLine.textContent = `${owner}'s device, controls, and current system state.`;
+        if (ownerLine) ownerLine.textContent = state.notice || `${owner}'s device, controls, and current system state.`;
         if (sleepState) sleepState.textContent = state.sleeping ? 'Sleeping' : 'Awake';
         if (profile) profile.innerHTML = profileMarkup(owner, state.sleeping);
         if (stats) stats.innerHTML = deviceMarkup(state.device || []);
-        if (toggles) toggles.innerHTML = togglesMarkup(state.toggles || []);
+        if (toggles) toggles.innerHTML = togglesMarkup(state.toggles || [], state);
         if (display) display.innerHTML = displayMarkup(state.brightness || 68, state.idle_timeout_sec || 45);
         if (badges) badges.innerHTML = badgesMarkup(state.badges || []);
 

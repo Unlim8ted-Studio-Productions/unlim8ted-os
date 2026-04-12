@@ -34,7 +34,10 @@ const state = {
     pageDragMoved: false,
     suppressAppClick: false,
     keyboardVisible: false,
-    debugVisible: false
+    debugVisible: false,
+    viewportHeight: 0,
+    hardwareKeyboardSeen: false,
+    performanceMode: false
 };
 
 const lockscreen = document.getElementById('lockscreen');
@@ -70,11 +73,27 @@ const brightnessRange = document.getElementById('brightnessRange');
 const brightnessValue = document.getElementById('brightnessValue');
 const sleepButton = document.getElementById('sleepButton');
 const restartButton = document.getElementById('restartButton');
+const shutdownButton = document.getElementById('shutdownButton');
 const sleepScreen = document.getElementById('sleepScreen');
 const sleepTime = document.getElementById('sleepTime');
+const networkStatusLabel = document.getElementById('networkStatusLabel');
+const networkIcons = Array.from(document.querySelectorAll('#statusNetworkIcon, #ccNetworkIcon'));
 const toggles = Array.from(document.querySelectorAll('.toggle'));
 
 closeAppBtn.textContent = '×';
+
+function shouldUsePerformanceMode() {
+    const ua = navigator.userAgent || '';
+    const platform = navigator.platform || '';
+    return /Linux/i.test(ua) && /(arm|aarch64|armv7|armv8)/i.test(`${ua} ${platform}`);
+}
+
+function setPerformanceMode(enabled) {
+    state.performanceMode = Boolean(enabled);
+    os?.classList.toggle('cm4-performance', state.performanceMode);
+}
+
+setPerformanceMode(shouldUsePerformanceMode());
 
 const appTitles = {
     phone: 'Phone',
@@ -180,6 +199,7 @@ function setKeyboardVisible(visible) {
     state.keyboardVisible = visible;
     keyboardLayer?.classList.toggle('visible', visible);
     keyboardLayer?.setAttribute('aria-hidden', String(!visible));
+    stabilizeViewport();
     if (!visible) {
         keyboardState.glidePoints = [];
         if (keyboardGlidePath) keyboardGlidePath.innerHTML = '';
@@ -189,13 +209,40 @@ function setKeyboardVisible(visible) {
 function focusKeyboardTarget(target) {
     if (!isTextEntryTarget(target)) return;
     keyboardState.target = target;
-    setKeyboardVisible(true);
+    try {
+        target.focus?.({ preventScroll: true });
+    } catch (_error) {
+        target.focus?.();
+    }
+    if (!state.hardwareKeyboardSeen || target.dataset.forceSoftKeyboard === 'true') {
+        setKeyboardVisible(true);
+    }
+    window.setTimeout(stabilizeViewport, 0);
     updateKeyboardPredictions();
 }
 
 function blurKeyboardTarget() {
     keyboardState.target = null;
     setKeyboardVisible(false);
+}
+
+function baseViewportHeight() {
+    const screenHeight = Number(window.screen?.height || 0);
+    const innerHeight = Number(window.innerHeight || 0);
+    return Math.max(screenHeight, innerHeight, 1);
+}
+
+function stabilizeViewport() {
+    const current = Number(window.innerHeight || 0);
+    if (!state.viewportHeight) {
+        state.viewportHeight = baseViewportHeight();
+    } else if (!state.keyboardVisible && current > state.viewportHeight) {
+        state.viewportHeight = current;
+    }
+    root.style.setProperty('--os-viewport-height', `${state.viewportHeight}px`);
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 }
 
 function currentTextValue() {
@@ -352,6 +399,21 @@ function decodeGlideWord(path) {
 
 function commitKeyboardKey(key) {
     if (!keyboardState.target) return;
+    if (keyboardState.target.dataset.terminalInput === 'true') {
+        const data = {
+            backspace: '\x7f',
+            space: ' ',
+            enter: '\r'
+        }[key] || (/^[a-z',.]$/.test(key) ? key : '');
+        if (data) {
+            keyboardState.target.dispatchEvent(new CustomEvent('terminal-input', {
+                bubbles: true,
+                detail: { data }
+            }));
+        }
+        if (key === 'done') return blurKeyboardTarget();
+        return;
+    }
     if (key === 'backspace') return deleteBackward();
     if (key === 'space') return replaceSelection(' ');
     if (key === 'enter') return replaceSelection('\n');
@@ -590,6 +652,11 @@ function updateTime() {
 function setPanelProgress(progress) {
     const clamped = Math.max(0, Math.min(1, progress));
     root.style.setProperty('--panel-progress', clamped.toFixed(4));
+    if (state.performanceMode) {
+        homeShell.style.transform = `translateY(${clamped * 10}px)`;
+        homeShell.style.filter = '';
+        return;
+    }
     homeShell.style.transform = `translateY(${clamped * 18}px) scale(${1 - clamped * 0.035})`;
     homeShell.style.filter = `blur(${clamped * 1.4}px)`;
 }
@@ -665,6 +732,7 @@ function applySystemState(system) {
         const action = toggle.dataset.action;
         toggle.classList.toggle('active', !!system.toggles?.[action]);
     });
+    applyNetworkState(system.network || {});
     document.querySelectorAll('.app').forEach((app) => {
         const appId = app.dataset.app;
         const count = Number(system.badges?.[appId] || 0);
@@ -696,6 +764,23 @@ function applySystemState(system) {
     os.classList.toggle('sleeping', state.sleeping);
     sleepScreen.classList.toggle('visible', state.sleeping);
     sleepScreen.setAttribute('aria-hidden', String(!state.sleeping));
+}
+
+function applyNetworkState(network) {
+    const connected = Boolean(network.connected);
+    const type = String(network.connection || '').toLowerCase();
+    const signal = Number(network.signal || 0);
+    const label = connected
+        ? (network.ssid || network.interface || (type === 'ethernet' ? 'Ethernet' : 'Connected'))
+        : (network.wifi_enabled === false ? 'Wi-Fi off' : 'Offline');
+    if (networkStatusLabel) networkStatusLabel.textContent = label;
+    networkIcons.forEach((icon) => {
+        icon.classList.toggle('off', !connected);
+        icon.classList.toggle('ethernet', connected && type === 'ethernet');
+        icon.classList.toggle('weak', connected && type === 'wifi' && signal > 0 && signal < 45);
+        icon.setAttribute('title', label);
+        icon.setAttribute('aria-label', label);
+    });
 }
 
 async function syncSystemState() {
@@ -776,6 +861,21 @@ async function rebootSystem(reason = 'manual') {
         });
     } catch (_error) {
         // The request may drop as the backend exits during reboot.
+    }
+}
+
+async function shutdownSystem(reason = 'manual') {
+    stopCameraPreview(true);
+    blurKeyboardTarget();
+    lockDevice();
+    closeControlCenter();
+    try {
+        await requestJson('/api/system/shutdown', {
+            method: 'POST',
+            body: JSON.stringify({ reason })
+        });
+    } catch (_error) {
+        // The request may drop as the backend powers off.
     }
 }
 
@@ -1260,6 +1360,10 @@ function isInteractiveElement(target) {
     return !!target?.closest?.('button, input, textarea, select, a, [data-app-action], [data-app-form]');
 }
 
+function isTerminalKeyEvent(event) {
+    return state.appId === 'terminal' && !!event.target?.closest?.('#appBody');
+}
+
 function snapToPage(index) {
     if (!pages) return;
     const maxIndex = Math.max(0, dots.length - 1);
@@ -1332,6 +1436,10 @@ function attachSystemGestures() {
 }
 
 function bindShellUi() {
+    stabilizeViewport();
+    window.addEventListener('resize', stabilizeViewport, { passive: true });
+    window.visualViewport?.addEventListener?.('resize', stabilizeViewport, { passive: true });
+    window.visualViewport?.addEventListener?.('scroll', stabilizeViewport, { passive: true });
     renderKeyboardLayout();
     document.querySelectorAll('.app').forEach((button) => {
         button.addEventListener('click', async () => {
@@ -1365,6 +1473,7 @@ function bindShellUi() {
 
     sleepButton?.addEventListener('click', () => sleepSystem('button'));
     restartButton?.addEventListener('click', () => rebootSystem('button'));
+    shutdownButton?.addEventListener('click', () => shutdownSystem('button'));
     closeAppBtn?.addEventListener('click', () => closeApp());
     ccBackdrop?.addEventListener('click', () => closeControlCenter());
     topConfigHandle?.addEventListener('click', () => openControlCenter());
@@ -1492,11 +1601,24 @@ function bindShellUi() {
     keyboardLayer?.addEventListener('pointercancel', endKeyboardPointer);
 
     document.addEventListener('keydown', (event) => {
+        if (!isTerminalKeyEvent(event)) return;
+        if (event.key === 'Escape' || event.ctrlKey || event.metaKey || event.altKey) {
+            event.preventDefault();
+        }
+    }, true);
+
+    document.addEventListener('keydown', (event) => {
+        if (!keyboardLayer?.contains(event.target) && event.isTrusted && event.key.length) {
+            state.hardwareKeyboardSeen = true;
+            if (state.keyboardVisible && isTextEntryTarget(event.target)) setKeyboardVisible(false);
+        }
         if (state.sleeping) {
             wakeSystem('key');
             return;
         }
-        noteActivity(true);
+        noteActivity(false);
+        if (isTerminalKeyEvent(event)) return;
+        const typingTarget = isTextEntryTarget(event.target);
         if (event.key === 'Escape') {
             if (state.appSwitcherOpen) {
                 closeAppSwitcher();
@@ -1510,6 +1632,7 @@ function bindShellUi() {
                 closeControlCenter();
             }
         }
+        if (typingTarget) return;
         if (event.key.toLowerCase() === 'p') {
             sleepSystem('power-key');
         }

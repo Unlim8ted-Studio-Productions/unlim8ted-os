@@ -7,6 +7,7 @@
     <title>Unlim8ted OS</title>
     <style>
         :root {
+            --os-viewport-height: 100vh;
             --bg0: #040611;
             --bg1: #0a1020;
             --bg2: #111a31;
@@ -48,7 +49,7 @@
         html,
         body {
             width: 100%;
-            height: 100%;
+            height: var(--os-viewport-height);
             overflow: hidden;
             background: #000;
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -56,6 +57,8 @@
         }
 
         body {
+            position: fixed;
+            inset: 0;
             overscroll-behavior: none;
             font-family: "Segoe UI Variable Text", "SF Pro Display", Aptos, "Trebuchet MS", sans-serif;
         }
@@ -63,6 +66,7 @@
         .os {
             position: fixed;
             inset: 0;
+            height: var(--os-viewport-height);
             overflow: hidden;
             background:
                 radial-gradient(900px 700px at 14% 10%, rgba(131, 182, 255, 0.22), transparent 58%),
@@ -129,6 +133,89 @@
             to {
                 transform: translate3d(2%, 1.5%, 0) scale(1.08);
             }
+        }
+
+        .os.cm4-performance {
+            --shadow-xl: 0 12px 28px rgba(0, 0, 0, 0.34);
+            --shadow-lg: 0 8px 18px rgba(0, 0, 0, 0.28);
+            --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.22);
+            background: linear-gradient(180deg, #17213e 0%, #0a1020 52%, #040611 100%);
+        }
+
+        .os.cm4-performance .aurora,
+        .os.cm4-performance .mesh,
+        .os.cm4-performance .grain,
+        .os.cm4-performance .ribs {
+            display: none;
+        }
+
+        .os.cm4-performance *,
+        .os.cm4-performance *::before,
+        .os.cm4-performance *::after {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            filter: none !important;
+            animation: none !important;
+            scroll-behavior: auto !important;
+        }
+
+        .os.cm4-performance .screen {
+            transition-duration: 220ms, 160ms;
+            will-change: transform;
+        }
+
+        .os.cm4-performance .home-shell {
+            transition: transform 120ms ease;
+            will-change: transform;
+        }
+
+        .os.cm4-performance .app-icon,
+        .os.cm4-performance .dock,
+        .os.cm4-performance .tile,
+        .os.cm4-performance .slider,
+        .os.cm4-performance .mini-card,
+        .os.cm4-performance .app-view,
+        .os.cm4-performance .switcher-card,
+        .os.cm4-performance .content-card {
+            box-shadow: none !important;
+        }
+
+        .os.cm4-performance .dock,
+        .os.cm4-performance .cc-backdrop,
+        .os.cm4-performance .tile,
+        .os.cm4-performance .slider,
+        .os.cm4-performance .mini-card,
+        .os.cm4-performance .app-view,
+        .os.cm4-performance .switcher-card,
+        .os.cm4-performance .content-card,
+        .os.cm4-performance .keyboard-key,
+        .os.cm4-performance .keyboard-tray-btn,
+        .os.cm4-performance .keyboard-suggestion {
+            background-image: none !important;
+        }
+
+        .os.cm4-performance .app-view {
+            background: rgba(8, 12, 24, 0.98);
+            transform: translate3d(0, 104%, 0);
+            transition: transform 180ms ease, opacity 120ms ease;
+        }
+
+        .os.cm4-performance .app-view.open {
+            transform: translate3d(0, 0, 0);
+        }
+
+        .os.cm4-performance .keyboard-layer {
+            background: rgba(6, 10, 17, 0.96);
+            transition: transform 140ms ease, opacity 100ms ease;
+        }
+
+        .os.cm4-performance .app-icon,
+        .os.cm4-performance .app,
+        .os.cm4-performance .toggle,
+        .os.cm4-performance .nav-btn,
+        .os.cm4-performance .keyboard-key {
+            transition: none !important;
+            will-change: auto !important;
         }
 
         .statusbar {
@@ -231,6 +318,46 @@
             background: rgba(240, 247, 255, 0.95);
             border: none;
             border-radius: 999px;
+        }
+
+        .wifi.off {
+            opacity: 0.38;
+        }
+
+        .wifi.ethernet::before,
+        .wifi.ethernet::after,
+        .wifi.ethernet span {
+            display: none;
+        }
+
+        .wifi.ethernet {
+            width: 17px;
+            height: 12px;
+            border: 1.8px solid rgba(240, 247, 255, 0.95);
+            border-radius: 3px;
+        }
+
+        .wifi.ethernet::before {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 7px;
+            height: 4px;
+            transform: translateX(-50%);
+            border: 0;
+            border-left: 1.8px solid rgba(240, 247, 255, 0.95);
+            border-right: 1.8px solid rgba(240, 247, 255, 0.95);
+            border-radius: 0;
+        }
+
+        .wifi.weak::before {
+            opacity: 0.25;
+        }
+
+        .wifi.weak::after {
+            opacity: 0.5;
         }
 
         .battery {
@@ -1146,7 +1273,7 @@
         }
 
         .keyboard-layer {
-            position: absolute;
+            position: fixed;
             left: 0;
             right: 0;
             bottom: 0;
@@ -1838,7 +1965,7 @@
                 </button>
             </div>
             <div class="sb-right">
-                <div class="wifi"><span></span></div>
+                <div class="wifi" id="statusNetworkIcon"><span></span></div>
                 <div class="battery">
                     <div class="battery-level"></div>
                 </div>
@@ -2285,9 +2412,9 @@
                             <div class="tile small">
                                 <div>
                                     <div class="tile-title">Network</div>
-                                    <div class="tile-sub">Unlim8ted Link</div>
+                                    <div class="tile-sub" id="networkStatusLabel">Checking link</div>
                                 </div>
-                                <div class="wifi"><span></span></div>
+                                <div class="wifi" id="ccNetworkIcon"><span></span></div>
                             </div>
                         </div>
                     </div>
@@ -2313,6 +2440,10 @@
                         <button class="action-btn" id="restartButton" type="button">
                             <div class="action-title">Restart</div>
                             <div class="action-sub">Do a full OS reboot and reload the shell from cold boot</div>
+                        </button>
+                        <button class="action-btn" id="shutdownButton" type="button">
+                            <div class="action-title">Shut Down</div>
+                            <div class="action-sub">Sync storage and power off before unplugging the device</div>
                         </button>
                         <button class="action-btn" id="sleepButton" type="button">
                             <div class="action-title">Sleep</div>

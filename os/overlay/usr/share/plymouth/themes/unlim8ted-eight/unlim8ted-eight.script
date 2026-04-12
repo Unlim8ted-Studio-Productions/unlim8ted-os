@@ -1,0 +1,196 @@
+screen_width = Window.GetWidth();
+screen_height = Window.GetHeight();
+
+fg_r = 0.52;
+fg_g = 0.90;
+fg_b = 1.00;
+hot_r = 0.62;
+hot_g = 1.00;
+hot_b = 0.78;
+dim_r = 0.18;
+dim_g = 0.27;
+dim_b = 0.34;
+
+row_left = (screen_width / 2) - 138;
+row_top = (screen_height / 2) - 112;
+line_height = 22;
+
+brand = Sprite();
+brand.SetImage(Image.Text("UNLIM8TED OS", hot_r, hot_g, hot_b));
+brand.SetPosition((screen_width / 2) - 92, (screen_height / 2) - 176, 100);
+
+status = Sprite();
+status.SetPosition((screen_width / 2) - 112, (screen_height / 2) + 154, 100);
+
+bar_bg = Sprite();
+bar_bg.SetImage(Image.Text("[                                ]", dim_r, dim_g, dim_b));
+bar_bg.SetPosition((screen_width / 2) - 150, (screen_height / 2) + 188, 100);
+
+bar = Sprite();
+bar.SetPosition((screen_width / 2) - 139, (screen_height / 2) + 188, 101);
+
+r0 = Sprite(); r0.SetPosition(row_left, row_top + (0 * line_height), 100);
+r1 = Sprite(); r1.SetPosition(row_left, row_top + (1 * line_height), 100);
+r2 = Sprite(); r2.SetPosition(row_left, row_top + (2 * line_height), 100);
+r3 = Sprite(); r3.SetPosition(row_left, row_top + (3 * line_height), 100);
+r4 = Sprite(); r4.SetPosition(row_left, row_top + (4 * line_height), 100);
+r5 = Sprite(); r5.SetPosition(row_left, row_top + (5 * line_height), 100);
+r6 = Sprite(); r6.SetPosition(row_left, row_top + (6 * line_height), 100);
+r7 = Sprite(); r7.SetPosition(row_left, row_top + (7 * line_height), 100);
+r8 = Sprite(); r8.SetPosition(row_left, row_top + (8 * line_height), 100);
+r9 = Sprite(); r9.SetPosition(row_left, row_top + (9 * line_height), 100);
+r10 = Sprite(); r10.SetPosition(row_left, row_top + (10 * line_height), 100);
+
+boot_progress = 0.0;
+
+fun set_rows(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) {
+    pulse = Math.Sin(Plymouth.GetTime() * 5.0);
+    rr = fg_r + (pulse * 0.08);
+    gg = fg_g + (pulse * 0.04);
+    bb = fg_b;
+    r0.SetImage(Image.Text(a0, rr, gg, bb));
+    r1.SetImage(Image.Text(a1, rr, gg, bb));
+    r2.SetImage(Image.Text(a2, rr, gg, bb));
+    r3.SetImage(Image.Text(a3, rr, gg, bb));
+    r4.SetImage(Image.Text(a4, rr, gg, bb));
+    r5.SetImage(Image.Text(a5, rr, gg, bb));
+    r6.SetImage(Image.Text(a6, rr, gg, bb));
+    r7.SetImage(Image.Text(a7, rr, gg, bb));
+    r8.SetImage(Image.Text(a8, rr, gg, bb));
+    r9.SetImage(Image.Text(a9, rr, gg, bb));
+    r10.SetImage(Image.Text(a10, rr, gg, bb));
+}
+
+fun draw(progress) {
+    stage = Math.Int(progress * 8.0);
+    if (stage < 1) {
+        set_rows(
+            "      ........      ",
+            "   ....      ....   ",
+            "  ...          ...  ",
+            "  ...          ...  ",
+            "   ....      ....   ",
+            "      ........      ",
+            "   ....      ....   ",
+            "  ...          ...  ",
+            "  ...          ...  ",
+            "   ....      ....   ",
+            "      ........      "
+        );
+        bar_text = "==";
+    } else if (stage < 2) {
+        set_rows(
+            "      8888....      ",
+            "   8888      ....   ",
+            "  888          ...  ",
+            "  ...          ...  ",
+            "   ....      ....   ",
+            "      ........      ",
+            "   ....      ....   ",
+            "  ...          ...  ",
+            "  ...          ...  ",
+            "   ....      ....   ",
+            "      ........      "
+        );
+        bar_text = "======";
+    } else if (stage < 3) {
+        set_rows(
+            "      88888888      ",
+            "   8888      8888   ",
+            "  888          888  ",
+            "  888          ...  ",
+            "   8888      ....   ",
+            "      8888....      ",
+            "   ....      ....   ",
+            "  ...          ...  ",
+            "  ...          ...  ",
+            "   ....      ....   ",
+            "      ........      "
+        );
+        bar_text = "==========";
+    } else if (stage < 4) {
+        set_rows(
+            "      88888888      ",
+            "   8888      8888   ",
+            "  888          888  ",
+            "  888          888  ",
+            "   8888      8888   ",
+            "      88888888      ",
+            "   8888      ....   ",
+            "  888          ...  ",
+            "  ...          ...  ",
+            "   ....      ....   ",
+            "      ........      "
+        );
+        bar_text = "==============";
+    } else if (stage < 5) {
+        set_rows(
+            "      88888888      ",
+            "   8888      8888   ",
+            "  888          888  ",
+            "  888          888  ",
+            "   8888      8888   ",
+            "      88888888      ",
+            "   8888      8888   ",
+            "  888          888  ",
+            "  888          ...  ",
+            "   8888      ....   ",
+            "      8888....      "
+        );
+        bar_text = "==================";
+    } else {
+        set_rows(
+            "      88888888      ",
+            "   8888      8888   ",
+            "  888          888  ",
+            "  888          888  ",
+            "   8888      8888   ",
+            "      88888888      ",
+            "   8888      8888   ",
+            "  888          888  ",
+            "  888          888  ",
+            "   8888      8888   ",
+            "      88888888      "
+        );
+        if (stage < 6) {
+            bar_text = "======================";
+        } else if (stage < 7) {
+            bar_text = "==========================";
+        } else {
+            bar_text = "================================";
+        }
+    }
+    bar.SetImage(Image.Text(bar_text, hot_r, hot_g, hot_b));
+    status.SetImage(Image.Text("BOOTING " + Math.Int(progress * 100.0) + "%", fg_r, fg_g, fg_b));
+}
+
+fun refresh_callback() {
+    animated = Math.Min(0.98, boot_progress + ((Math.Sin(Plymouth.GetTime() * 1.7) + 1.0) * 0.015));
+    draw(animated);
+}
+
+fun boot_progress_callback(duration, progress) {
+    boot_progress = Math.Max(boot_progress, progress);
+    draw(boot_progress);
+}
+
+fun display_normal_callback() {
+    Window.SetBackgroundTopColor(0.015, 0.015, 0.035);
+    Window.SetBackgroundBottomColor(0.0, 0.0, 0.0);
+    draw(0.08);
+}
+
+fun display_password_callback(prompt, bullets) {
+    status.SetImage(Image.Text(prompt + " " + bullets, fg_r, fg_g, fg_b));
+}
+
+fun display_message_callback(message) {
+    status.SetImage(Image.Text(message, fg_r, fg_g, fg_b));
+}
+
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetBootProgressFunction(boot_progress_callback);
+Plymouth.SetRefreshFunction(refresh_callback);
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayQuestionFunction(display_password_callback);
+Plymouth.SetMessageFunction(display_message_callback);
