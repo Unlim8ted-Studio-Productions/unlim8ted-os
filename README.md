@@ -13,9 +13,9 @@
 <tr>
 
 <td width="50%">
-  <a href="https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/3d/render.mkv">
+  <a href="https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/docs/assets/render.mkv">
   <img
-    src="./3d/render.gif"
+    src="./docs/assets/render.gif"
     width="100%"
   />
 </a>
@@ -23,7 +23,7 @@
 
 <td width="50%">
   <img
-    src="./3d/Components.gif"
+    src="./docs/assets/Components.gif"
     width="100%"
   />
 </td>
