@@ -7,16 +7,27 @@
 <img src="https://img.shields.io/badge/3D-1f2937?style=for-the-badge">
 <img src="https://img.shields.io/badge/Active_Development-4c1d95?style=for-the-badge">
 
-<a href="./3d/render.mkv">
+
+
+<table>
+<tr>
+
+<td width="50%">
+  <img
+    src="https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/3d/render.gif"
+    width="100%"
+  />
+</td>
+
+<td width="50%">
   <img
     src="https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/3d/Components.gif"
-    width="90%"
+    width="100%"
   />
-</a>
+</td>
 
-<br>
-
-<sub>Open render video</sub>
+</tr>
+</table>
 
 </div>
 
