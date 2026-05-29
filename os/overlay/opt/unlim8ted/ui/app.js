@@ -879,6 +879,21 @@ async function shutdownSystem(reason = 'manual') {
     }
 }
 
+async function exitKiosk(reason = 'keyboard') {
+    stopCameraPreview(true);
+    blurKeyboardTarget();
+    lockDevice();
+    closeControlCenter();
+    try {
+        await requestJson('/api/system/exit-kiosk', {
+            method: 'POST',
+            body: JSON.stringify({ reason })
+        });
+    } catch (_error) {
+        // The request may drop as the backend stops the kiosk service.
+    }
+}
+
 async function runAppAction(action, payload = {}) {
     if (!state.appId || state.appId === 'camera') return;
     noteActivity(true);
@@ -1633,6 +1648,11 @@ function bindShellUi() {
             }
         }
         if (typingTarget) return;
+        if (event.key.toLowerCase() === 'q') {
+            event.preventDefault();
+            exitKiosk('keyboard-q');
+            return;
+        }
         if (event.key.toLowerCase() === 'p') {
             sleepSystem('power-key');
         }

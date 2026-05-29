@@ -52,23 +52,18 @@ Required host tools:
 - `unzip`
 - `xz-utils`
 
+Additional requirement for CM4 DSI1 boot overlay generation:
+
+- `p7zip-full`
+- `device-tree-compiler`
+
 Additional requirement when building the CM4 image on an `x86_64` host:
 
 - `qemu-aarch64-static`
 
-The build script mounts the image, installs packages with `apt`, copies the overlay, and enables `unlim8ted.service`. It does not work from plain Windows PowerShell.
+The build script mounts the image, installs packages with `apt`, copies the overlay, and enables `unlim8ted.service`.
 
-## Editing a CM4 Card from Windows
-
-If the card is plugged into a Windows machine, use the Windows helper to browse and edit its Linux partitions through WSL:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\os\edit-card-windows.ps1
-```
-
-You can also double-click `os\edit-card-windows.cmd`.
-
-The helper opens as Administrator because `wsl --mount` needs elevated access to physical disks. It lists removable/USB/SD disks, mounts the selected partition through WSL, opens the mounted path in Windows Explorer, and has an `Eject` button that syncs WSL, unmounts the disk, and offlines it in Windows.
+## CM4 Card Layout
 
 Default Unlim8ted card partitions:
 
@@ -76,7 +71,9 @@ Default Unlim8ted card partitions:
 - `2 - rootfs ext4` is the OS filesystem with `/opt/unlim8ted`.
 - `1 - bootfs FAT` is the Raspberry Pi boot partition.
 
-Only use `Show all disks` if the card reader does not report itself as removable. Check the disk number carefully before mounting or ejecting.
+The boot files must be on the real FAT `bootfs` partition. An empty `rootfs\boot\firmware` directory is normal when `bootfs` is not mounted there.
+
+For the Waveshare DSI1 + double-camera CM4 setup, `build.sh` downloads Waveshare's `CM4_dt_blob.7z`, compiles `dt-blob-disp1-double_cam.dts`, and installs `dt-blob.bin` into `bootfs` while applying the overlay. Set `UNLIM8TED_CM4_DSI1_DT_BLOB=0` to skip this.
 
 ## Build Script
 
@@ -105,7 +102,7 @@ Cache/work options for image builds:
 - On Linux, use the repo-local `build/` directory, or select an external device/partition.
 - If you select an external cache device or partition, the script formats it as ext4 after requiring an explicit `FORMAT` confirmation.
 - The interactive script automatically runs `sync` and unmounts that external cache device when the build exits.
-- You can select an existing mounted folder such as `/mnt/o/unlim8ted-build-cache`; this does not format anything and works with Windows-mounted drives.
+- You can select an existing mounted folder; this does not format anything.
 
 Common commands:
 

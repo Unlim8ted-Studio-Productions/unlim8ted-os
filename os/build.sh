@@ -1,4 +1,4 @@
-#!/bin/sh
+﻿#!/bin/sh
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -35,6 +35,9 @@ UNLIM8TED_CM4_IMAGE_GROW_MB="${UNLIM8TED_CM4_IMAGE_GROW_MB:-12288}"
 UNLIM8TED_CM4_ROOT_SIZE_GIB="${UNLIM8TED_CM4_ROOT_SIZE_GIB:-32}"
 UNLIM8TED_CM4_BOOT_SIZE_MIB="${UNLIM8TED_CM4_BOOT_SIZE_MIB:-512}"
 UNLIM8TED_CM4_ROOT_SIZE_MIB="${UNLIM8TED_CM4_ROOT_SIZE_MIB:-9728}"
+UNLIM8TED_CM4_DSI1_DT_BLOB="${UNLIM8TED_CM4_DSI1_DT_BLOB:-1}"
+UNLIM8TED_CM4_DT_BLOB_URL="${UNLIM8TED_CM4_DT_BLOB_URL:-https://files.waveshare.com/upload/4/41/CM4_dt_blob.7z}"
+UNLIM8TED_CM4_DT_BLOB_DTS="${UNLIM8TED_CM4_DT_BLOB_DTS:-dt-blob-disp1-double_cam.dts}"
 
 
 sanitize_path() {
@@ -92,7 +95,7 @@ partition_number() {
 require_linux_host() {
     host_kernel=$(uname -s)
     if [ "$host_kernel" != "Linux" ]; then
-        echo "These build scripts must run from Linux or WSL, not directly from Windows PowerShell." >&2
+        echo "These build scripts must run from Linux or WSL." >&2
         exit 1
     fi
 }
@@ -839,6 +842,53 @@ apply_overlay() {
             sudo rsync -rt --no-owner --no-group --no-perms "$UNLIM8TED_OVERLAY_DIR/boot/" "$boot_mount/"
         fi
     fi
+
+    configure_cm4_dsi1_dt_blob "$boot_mount"
+}
+
+configure_cm4_dsi1_dt_blob() {
+    boot_mount=$1
+    [ -n "$boot_mount" ] || return
+    [ -d "$boot_mount" ] || return
+
+    case "$(printf '%s' "$UNLIM8TED_CM4_DSI1_DT_BLOB" | tr '[:upper:]' '[:lower:]')" in
+        0 | false | no | off)
+            return
+            ;;
+    esac
+
+    if [ ! -f "$boot_mount/start.elf" ] && [ ! -f "$boot_mount/start4.elf" ] && [ ! -f "$boot_mount/firmware/start.elf" ] && [ ! -f "$boot_mount/firmware/start4.elf" ]; then
+        return
+    fi
+
+    if [ -f "$UNLIM8TED_OVERLAY_DIR/boot/dt-blob.bin" ]; then
+        sudo install -m 0644 "$UNLIM8TED_OVERLAY_DIR/boot/dt-blob.bin" "$boot_mount/dt-blob.bin"
+        return
+    fi
+
+    require_command curl
+    require_command 7z
+    require_command dtc
+
+    dt_blob_archive="$UNLIM8TED_BASE_IMAGE_DIR/CM4_dt_blob.7z"
+    dt_blob_work="$UNLIM8TED_BUILD_DIR/cm4-dt-blob"
+    dt_blob_output="$dt_blob_work/dt-blob.bin"
+
+    mkdir -p "$UNLIM8TED_BASE_IMAGE_DIR" "$dt_blob_work"
+    download_file "$UNLIM8TED_CM4_DT_BLOB_URL" "$dt_blob_archive"
+    rm -rf "$dt_blob_work/source"
+    mkdir -p "$dt_blob_work/source"
+    7z x -y "$dt_blob_archive" "-o$dt_blob_work/source" >/dev/null
+
+    dt_blob_dts=$(find "$dt_blob_work/source" -name "$UNLIM8TED_CM4_DT_BLOB_DTS" -type f | head -n 1)
+    if [ -z "$dt_blob_dts" ]; then
+        echo "Could not find $UNLIM8TED_CM4_DT_BLOB_DTS in $dt_blob_archive" >&2
+        exit 1
+    fi
+
+    dtc -I dts -O dtb -o "$dt_blob_output" "$dt_blob_dts"
+    sudo install -m 0644 "$dt_blob_output" "$boot_mount/dt-blob.bin"
+    echo "Installed Waveshare CM4 DSI1 double-camera dt-blob.bin to bootfs." >&2
 }
 
 configure_plymouth() {
@@ -1171,39 +1221,12 @@ is_wsl() {
     grep -qi microsoft /proc/version 2>/dev/null
 }
 
-show_windows_drive_mounts() {
-    if ! is_wsl; then
-        return
-    fi
-
-    echo
-    echo "Windows drive mounts visible to WSL:"
-    awk '
-        $2 ~ /^\/mnt\/[A-Za-z]$/ {
-            drive = toupper(substr($2, 6, 1)) ":"
-            printf "  %-3s -> %s\n", drive, $2
-        }
-    ' /proc/mounts
-}
-
-show_windows_volumes() {
-    if ! is_wsl || ! command -v powershell.exe >/dev/null 2>&1; then
-        return
-    fi
-
-    echo
-    echo "Windows volumes:"
-    powershell.exe -NoProfile -Command 'Get-Volume | Where-Object DriveLetter | Sort-Object DriveLetter | ForEach-Object { "{0}:  {1,-12} {2,-10} {3}" -f $_.DriveLetter, $_.FileSystemLabel, $_.FileSystem, $_.DriveType }' 2>/dev/null | tr -d '\r' || true
-}
-
 list_devices() {
     sanitize_path
     require_linux_host
     require_command lsblk
     echo "Linux block devices:"
     lsblk -o NAME,SIZE,TYPE,FSTYPE,LABEL,PARTLABEL,MODEL,VENDOR,SERIAL,TRAN,MOUNTPOINTS
-    show_windows_drive_mounts
-    show_windows_volumes
 }
 
 require_block_device() {
@@ -1322,13 +1345,10 @@ set_work_dir() {
 
 use_existing_folder_cache() {
     echo
-    show_windows_drive_mounts
-    show_windows_volumes
-    echo
     echo "Enter an existing mounted folder path. No formatting will be performed."
     echo "Examples:"
-    echo "  /mnt/o/unlim8ted-build-cache"
-    echo "  /mnt/e/unlim8ted-build-cache"
+    echo "  /mnt/unlim8ted-build-cache"
+    echo "  /media/$USER/unlim8ted-build-cache"
     folder=$(prompt "Cache folder: ")
 
     if [ -z "$folder" ]; then
@@ -2181,14 +2201,14 @@ run_interactive() {
 }
 
 main() {
-    if [ "$(uname -s)" != "Linux" ]; then
-        echo "Run this script from Linux or WSL." >&2
-        exit 1
-    fi
-
     command_name=${1:-interactive}
     if [ "$#" -gt 0 ]; then
         shift
+    fi
+
+    if [ "$(uname -s)" != "Linux" ]; then
+        echo "Run this script from Linux or WSL." >&2
+        exit 1
     fi
 
     case "$command_name" in
@@ -2226,6 +2246,3 @@ main() {
 }
 
 main "$@"
-
-
-
