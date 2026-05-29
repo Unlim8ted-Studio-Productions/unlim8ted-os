@@ -13,10 +13,12 @@
 <tr>
 
 <td width="50%">
+  <a href="./3d/render.mkv">
   <img
-    src="https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/3d/render.gif"
+    src="./3d/render.gif"
     width="100%"
   />
+</a>
 </td>
 
 <td width="50%">
