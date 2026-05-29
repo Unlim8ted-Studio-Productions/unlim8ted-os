@@ -15,7 +15,7 @@
 <td width="50%">
   <a href="https://raw.githubusercontent.com/Unlim8ted-Studio-Productions/unlim8ted-phone/refs/heads/main/docs/assets/render.mkv">
   <img
-    src="./docs/assets/render.gif"
+    src="./docs/assets/render_transparent.gif"
     width="100%"
   />
 </a>
