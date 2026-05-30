@@ -154,15 +154,15 @@ These files are preserved strictly for reference purposes and should not be used
 
 <a href="./docs/">Documentation</a>
 
-<br><br>
+
 
 <a href="./os/">OS Source</a>
 
-<br><br>
+
 
 <a href="./3d/">3D Files</a>
 
-<br><br>
+
 
 <a href="./pcb/">Archived PCB Files</a>
 
@@ -173,9 +173,5 @@ These files are preserved strictly for reference purposes and should not be used
 <div align="center">
 
 <h3>Unlim8ted Studios</h3>
-
-<p>
-Hardware • Embedded Systems • OS Development • Industrial Design
-</p>
 
 </div>
