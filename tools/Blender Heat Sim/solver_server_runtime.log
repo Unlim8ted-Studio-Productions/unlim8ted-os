@@ -1,0 +1,9 @@
+[2026-05-31 14:14:46] starting solver server host=127.0.0.1 port=8765 python='O:\trellis2\trellis2_env\python.exe'
+[2026-05-31 14:14:46] solver server ready
+[2026-05-31 14:14:52] solver server interrupted
+[2026-05-31 14:14:52] solver server stopped
+[2026-05-31 14:18:37] starting solver server host=127.0.0.1 port=8765 python='O:\trellis2\trellis2_env\python.exe'
+[2026-05-31 14:18:39] solver dependencies missing errors={'sfepy': "No module named 'sfepy'"}
+[2026-05-31 14:18:39] solver server ready
+[2026-05-31 14:18:43] solver server interrupted
+[2026-05-31 14:18:43] solver server stopped

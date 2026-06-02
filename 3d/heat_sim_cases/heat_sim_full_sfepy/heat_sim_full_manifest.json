@@ -1,0 +1,996 @@
+{
+  "case_name": "heat_sim_full",
+  "ambient_temperature_c": 25.0,
+  "load_factor": 0.5,
+  "timestep_s": 0.5,
+  "duration_s": 120.0,
+  "parts": [
+    {
+      "index": 1,
+      "name": "Back Cover",
+      "tag": "back_cover",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.030611109906155228,
+      "volume_m3": 6.233341159084172e-06,
+      "bbox_min": [
+        -0.05657923221588135,
+        -0.04302495718002319,
+        0.047948531806468964
+      ],
+      "bbox_max": [
+        0.02035815455019474,
+        0.12315275520086288,
+        0.059565987437963486
+      ],
+      "center": [
+        -0.01811053976416588,
+        0.040063899010419846,
+        0.053757257759571075
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl"
+    },
+    {
+      "index": 2,
+      "name": "Back Cover Camera Bump",
+      "tag": "back_cover_camera_bump",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.003663602945602981,
+      "volume_m3": 4.112274952519203e-06,
+      "bbox_min": [
+        -0.03441474586725235,
+        -0.03745826333761215,
+        0.05874384939670563
+      ],
+      "bbox_max": [
+        -0.0022598281502723694,
+        -0.005303342826664448,
+        0.06890576332807541
+      ],
+      "center": [
+        -0.01833728700876236,
+        -0.021380802616477013,
+        0.06382480263710022
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover_camera_bump.stl"
+    },
+    {
+      "index": 3,
+      "name": "Baseboard",
+      "tag": "baseboard",
+      "material_label": "PCB FR4",
+      "material_key": "PCB_FR4",
+      "conductivity": 0.30000001192092896,
+      "density": 1850.0,
+      "specific_heat": 1200.0,
+      "emissivity": 0.8999999761581421,
+      "power_w": 0.5249999910593033,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 7.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.013576563354543826,
+      "volume_m3": 7.766114966759628e-06,
+      "bbox_min": [
+        -0.04777344688773155,
+        -0.04159963130950928,
+        0.0465676486492157
+      ],
+      "bbox_max": [
+        0.00724400207400322,
+        -0.0001412574201822281,
+        0.0691215842962265
+      ],
+      "center": [
+        -0.020264722406864166,
+        -0.020870443433523178,
+        0.0578446164727211
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/baseboard.stl"
+    },
+    {
+      "index": 4,
+      "name": "CM4",
+      "tag": "cm4",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.03356930590437923,
+      "volume_m3": 3.070103531335852e-06,
+      "bbox_min": [
+        -0.04791257530450821,
+        -0.041609205305576324,
+        0.042307958006858826
+      ],
+      "bbox_max": [
+        0.0070874132215976715,
+        -0.0016021933406591415,
+        0.04709477350115776
+      ],
+      "center": [
+        -0.02041258104145527,
+        -0.021605700254440308,
+        0.04470136761665344
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/cm4.stl"
+    },
+    {
+      "index": 5,
+      "name": "Battery Holder",
+      "tag": "battery_holder",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.009853479988499118,
+      "volume_m3": 2.5974558576327027e-06,
+      "bbox_min": [
+        -0.04654635116457939,
+        -0.00036200834438204765,
+        0.046822819858789444
+      ],
+      "bbox_max": [
+        0.014736304059624672,
+        0.06379888206720352,
+        0.05274800956249237
+      ],
+      "center": [
+        -0.015905022621154785,
+        0.03171843662858009,
+        0.04978541284799576
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery_holder.stl"
+    },
+    {
+      "index": 6,
+      "name": "3mm.004",
+      "tag": "part6_3mm_004",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608171873381032e-05,
+      "volume_m3": 2.4683128286917794e-08,
+      "bbox_min": [
+        -0.04511832818388939,
+        0.05847186595201492,
+        0.04990483075380325
+      ],
+      "bbox_max": [
+        -0.0401187501847744,
+        0.06347165256738663,
+        0.05440483242273331
+      ],
+      "center": [
+        -0.042618539184331894,
+        0.060971759259700775,
+        0.05215483158826828
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part6_3mm_004.stl"
+    },
+    {
+      "index": 7,
+      "name": "3mm.005",
+      "tag": "part7_3mm_005",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608172235774827e-05,
+      "volume_m3": 2.4683129213727573e-08,
+      "bbox_min": [
+        0.003958295099437237,
+        0.05847186595201492,
+        0.04990483075380325
+      ],
+      "bbox_max": [
+        0.008957872167229652,
+        0.06347165256738663,
+        0.05440483242273331
+      ],
+      "center": [
+        0.006458083633333445,
+        0.060971759259700775,
+        0.05215483158826828
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part7_3mm_005.stl"
+    },
+    {
+      "index": 8,
+      "name": "3mm.006",
+      "tag": "part8_3mm_006",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608172032354561e-05,
+      "volume_m3": 2.4683127148617434e-08,
+      "bbox_min": [
+        0.0038754267152398825,
+        0.0004969199653714895,
+        0.04990483075380325
+      ],
+      "bbox_max": [
+        0.008875004015862942,
+        0.005496707744896412,
+        0.05440483242273331
+      ],
+      "center": [
+        0.006375215481966734,
+        0.0029968139715492725,
+        0.05215483158826828
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part8_3mm_006.stl"
+    },
+    {
+      "index": 9,
+      "name": "3mm.007",
+      "tag": "part9_3mm_007",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608171712265987e-05,
+      "volume_m3": 2.468312640611337e-08,
+      "bbox_min": [
+        -0.04511317238211632,
+        0.0004969199653714895,
+        0.04990483075380325
+      ],
+      "bbox_max": [
+        -0.04011359438300133,
+        0.005496707744896412,
+        0.05440483242273331
+      ],
+      "center": [
+        -0.04261338338255882,
+        0.0029968139715492725,
+        0.05215483158826828
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part9_3mm_007.stl"
+    },
+    {
+      "index": 10,
+      "name": "Battery",
+      "tag": "battery",
+      "material_label": "Aluminum 6061",
+      "material_key": "ALUMINUM_6061",
+      "conductivity": 167.0,
+      "density": 2700.0,
+      "specific_heat": 896.0,
+      "emissivity": 0.09000000357627869,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.007664129254408181,
+      "volume_m3": 2.244366776891969e-05,
+      "bbox_min": [
+        -0.03603479266166687,
+        0.006572242826223373,
+        0.04742726683616638
+      ],
+      "bbox_max": [
+        0.01276674959808588,
+        0.0575743094086647,
+        0.05642727017402649
+      ],
+      "center": [
+        -0.011634021997451782,
+        0.03207327425479889,
+        0.051927268505096436
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery.stl"
+    },
+    {
+      "index": 11,
+      "name": "Bottom Cover",
+      "tag": "bottom_cover",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.0034925627919385055,
+      "volume_m3": 1.3758725600683179e-06,
+      "bbox_min": [
+        -0.05677521228790283,
+        0.1134234070777893,
+        0.03830000013113022
+      ],
+      "bbox_max": [
+        0.020337006077170372,
+        0.12396690249443054,
+        0.057871341705322266
+      ],
+      "center": [
+        -0.018219102174043655,
+        0.11869515478610992,
+        0.04808567091822624
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bottom_cover.stl"
+    },
+    {
+      "index": 12,
+      "name": "Bttery Holder.001",
+      "tag": "bttery_holder_001",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.007716405877131536,
+      "volume_m3": 4.665243516363058e-06,
+      "bbox_min": [
+        -0.05613940581679344,
+        0.07355552911758423,
+        0.04663689434528351
+      ],
+      "bbox_max": [
+        0.019639795646071434,
+        0.12316813319921494,
+        0.047888826578855515
+      ],
+      "center": [
+        -0.01824980601668358,
+        0.09836183488368988,
+        0.04726286232471466
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bttery_holder_001.stl"
+    },
+    {
+      "index": 13,
+      "name": "Display",
+      "tag": "display",
+      "material_label": "Waveshare 6.25 DSI Display",
+      "material_key": "DSI_DISPLAY",
+      "conductivity": 3.200000047683716,
+      "density": 2400.0,
+      "specific_heat": 900.0,
+      "emissivity": 0.9200000166893005,
+      "power_w": 2.2999999821186066,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 7.0,
+      "contact_h": 1800.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.06871483933792044,
+      "volume_m3": 4.600914296517819e-05,
+      "bbox_min": [
+        -0.055521152913570404,
+        -0.03603526949882507,
+        0.03832746669650078
+      ],
+      "bbox_max": [
+        0.019205907359719276,
+        0.1231447383761406,
+        0.052438147366046906
+      ],
+      "center": [
+        -0.01815762370824814,
+        0.04355473443865776,
+        0.04538280516862869
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display.stl"
+    },
+    {
+      "index": 14,
+      "name": "Display Power 5v",
+      "tag": "display_power_5v",
+      "material_label": "FPC Ribbon Cable",
+      "material_key": "FPC_CABLE",
+      "conductivity": 0.800000011920929,
+      "density": 1450.0,
+      "specific_heat": 1100.0,
+      "emissivity": 0.9200000166893005,
+      "power_w": 0.08500000275671482,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 1200.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.00014661625358591834,
+      "volume_m3": 1.331184018445025e-08,
+      "bbox_min": [
+        -0.05639505758881569,
+        -0.014432955533266068,
+        0.04694835841655731
+      ],
+      "bbox_max": [
+        0.0015667565166950226,
+        0.021689705550670624,
+        0.05750465765595436
+      ],
+      "center": [
+        -0.027414150536060333,
+        0.003628375008702278,
+        0.05222650617361069
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_5v.stl"
+    },
+    {
+      "index": 15,
+      "name": "Display Power GND",
+      "tag": "display_power_gnd",
+      "material_label": "FPC Ribbon Cable",
+      "material_key": "FPC_CABLE",
+      "conductivity": 0.800000011920929,
+      "density": 1450.0,
+      "specific_heat": 1100.0,
+      "emissivity": 0.9200000166893005,
+      "power_w": 0.08500000275671482,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 1200.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.00014584552624441471,
+      "volume_m3": 1.3518221751891388e-08,
+      "bbox_min": [
+        -0.05473804473876953,
+        -0.013072393834590912,
+        0.047170720994472504
+      ],
+      "bbox_max": [
+        0.0006930213421583176,
+        0.023765549063682556,
+        0.056783366948366165
+      ],
+      "center": [
+        -0.027022510766983032,
+        0.005346577614545822,
+        0.051977045834064484
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_gnd.stl"
+    },
+    {
+      "index": 16,
+      "name": "DSI Cable",
+      "tag": "dsi_cable",
+      "material_label": "FPC Ribbon Cable",
+      "material_key": "FPC_CABLE",
+      "conductivity": 0.800000011920929,
+      "density": 1450.0,
+      "specific_heat": 1100.0,
+      "emissivity": 0.9200000166893005,
+      "power_w": 0.08500000275671482,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 1200.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.001099135054843714,
+      "volume_m3": 2.890282632747565e-08,
+      "bbox_min": [
+        -0.02448250539600849,
+        -0.043613918125629425,
+        0.04063253849744797
+      ],
+      "bbox_max": [
+        -0.013104020617902279,
+        0.002865677000954747,
+        0.0541069433093071
+      ],
+      "center": [
+        -0.018793262541294098,
+        -0.020374121144413948,
+        0.04736974090337753
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/dsi_cable.stl"
+    },
+    {
+      "index": 17,
+      "name": "JST Lipo Connector",
+      "tag": "jst_lipo_connector",
+      "material_label": "FPC Ribbon Cable",
+      "material_key": "FPC_CABLE",
+      "conductivity": 0.800000011920929,
+      "density": 1450.0,
+      "specific_heat": 1100.0,
+      "emissivity": 0.9200000166893005,
+      "power_w": 0.08500000275671482,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 1200.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.0006527532045197404,
+      "volume_m3": 2.209716828047416e-07,
+      "bbox_min": [
+        -0.048096295446157455,
+        0.05203324928879738,
+        0.044401057064533234
+      ],
+      "bbox_max": [
+        -0.004889750853180885,
+        0.11947781592607498,
+        0.054140329360961914
+      ],
+      "center": [
+        -0.026493024080991745,
+        0.08575553447008133,
+        0.049270693212747574
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/jst_lipo_connector.stl"
+    },
+    {
+      "index": 18,
+      "name": "Lipo ChargerBooster",
+      "tag": "lipo_chargerbooster",
+      "material_label": "PCB FR4",
+      "material_key": "PCB_FR4",
+      "conductivity": 0.30000001192092896,
+      "density": 1850.0,
+      "specific_heat": 1200.0,
+      "emissivity": 0.8999999761581421,
+      "power_w": 0.8000000007450581,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2200.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.005973343473556089,
+      "volume_m3": 2.345664291537025e-06,
+      "bbox_min": [
+        -0.027008837088942528,
+        0.07347811758518219,
+        0.048650484532117844
+      ],
+      "bbox_max": [
+        -0.000536174513399601,
+        0.11649306118488312,
+        0.05645453929901123
+      ],
+      "center": [
+        -0.013772506266832352,
+        0.09498558938503265,
+        0.052552513778209686
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/lipo_chargerbooster.stl"
+    },
+    {
+      "index": 19,
+      "name": "Main Case",
+      "tag": "main_case",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.025100497694992903,
+      "volume_m3": 9.18018196240458e-06,
+      "bbox_min": [
+        -0.05676892399787903,
+        -0.0432436540722847,
+        0.037306029349565506
+      ],
+      "bbox_max": [
+        0.020330268889665604,
+        0.12315275520086288,
+        0.05787115916609764
+      ],
+      "center": [
+        -0.018219327554106712,
+        0.03995455056428909,
+        0.047588594257831573
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/main_case.stl"
+    },
+    {
+      "index": 20,
+      "name": "Plane",
+      "tag": "plane",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.005955256439638618,
+      "volume_m3": 2.0489066192816312e-06,
+      "bbox_min": [
+        -0.05504344403743744,
+        -0.041043721139431,
+        0.0419628880918026
+      ],
+      "bbox_max": [
+        0.01923026703298092,
+        -0.0012071244418621063,
+        0.044817376881837845
+      ],
+      "center": [
+        -0.017906587570905685,
+        -0.021125422790646553,
+        0.04339013248682022
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/plane.stl"
+    },
+    {
+      "index": 21,
+      "name": "3mm",
+      "tag": "part21_3mm",
+      "material_label": "Steel Screw",
+      "material_key": "STEEL_SCREW",
+      "conductivity": 16.200000762939453,
+      "density": 7850.0,
+      "specific_heat": 490.0,
+      "emissivity": 0.550000011920929,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.60817218606702e-05,
+      "volume_m3": 2.4683123839816626e-08,
+      "bbox_min": [
+        -0.02648419886827469,
+        0.07480300217866898,
+        0.04662160575389862
+      ],
+      "bbox_max": [
+        -0.0214846208691597,
+        0.07980278879404068,
+        0.051121607422828674
+      ],
+      "center": [
+        -0.023984409868717194,
+        0.07730289548635483,
+        0.04887160658836365
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part21_3mm.stl"
+    },
+    {
+      "index": 22,
+      "name": "3mm.001",
+      "tag": "part22_3mm_001",
+      "material_label": "Steel Screw",
+      "material_key": "STEEL_SCREW",
+      "conductivity": 16.200000762939453,
+      "density": 7850.0,
+      "specific_heat": 490.0,
+      "emissivity": 0.550000011920929,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608171891968941e-05,
+      "volume_m3": 2.4683123618818034e-08,
+      "bbox_min": [
+        -0.026628421619534492,
+        0.10237962007522583,
+        0.04662160575389862
+      ],
+      "bbox_max": [
+        -0.021628843620419502,
+        0.10737940669059753,
+        0.051121607422828674
+      ],
+      "center": [
+        -0.024128632619976997,
+        0.10487951338291168,
+        0.04887160658836365
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part22_3mm_001.stl"
+    },
+    {
+      "index": 23,
+      "name": "3mm.002",
+      "tag": "part23_3mm_002",
+      "material_label": "Steel Screw",
+      "material_key": "STEEL_SCREW",
+      "conductivity": 16.200000762939453,
+      "density": 7850.0,
+      "specific_heat": 490.0,
+      "emissivity": 0.550000011920929,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608172106123156e-05,
+      "volume_m3": 2.4683123487640173e-08,
+      "bbox_min": [
+        -0.00606817752122879,
+        0.10237827152013779,
+        0.04662160575389862
+      ],
+      "bbox_max": [
+        -0.001068600220605731,
+        0.10737805813550949,
+        0.051121607422828674
+      ],
+      "center": [
+        -0.0035683889873325825,
+        0.10487816482782364,
+        0.04887160658836365
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part23_3mm_002.stl"
+    },
+    {
+      "index": 24,
+      "name": "3mm.003",
+      "tag": "part24_3mm_003",
+      "material_label": "Steel Screw",
+      "material_key": "STEEL_SCREW",
+      "conductivity": 16.200000762939453,
+      "density": 7850.0,
+      "specific_heat": 490.0,
+      "emissivity": 0.550000011920929,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 8.608172018099124e-05,
+      "volume_m3": 2.4683123887879622e-08,
+      "bbox_min": [
+        -0.006088780239224434,
+        0.07484178245067596,
+        0.04662160575389862
+      ],
+      "bbox_max": [
+        -0.0010892029386013746,
+        0.07984156906604767,
+        0.051121607422828674
+      ],
+      "center": [
+        -0.003588991705328226,
+        0.07734167575836182,
+        0.04887160658836365
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part24_3mm_003.stl"
+    },
+    {
+      "index": 25,
+      "name": "Type C Port Entrance",
+      "tag": "type_c_port_entrance",
+      "material_label": "PLA",
+      "material_key": "PLA",
+      "conductivity": 0.12999999523162842,
+      "density": 1240.0,
+      "specific_heat": 1800.0,
+      "emissivity": 0.9399999976158142,
+      "power_w": 0.0,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 2500.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.0006739422740258891,
+      "volume_m3": 6.280816394310913e-08,
+      "bbox_min": [
+        -0.026410263031721115,
+        0.11614987254142761,
+        0.04788042604923248
+      ],
+      "bbox_max": [
+        -0.013309227302670479,
+        0.12359120696783066,
+        0.05472596362233162
+      ],
+      "center": [
+        -0.01985974609851837,
+        0.11987054347991943,
+        0.0513031929731369
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/type_c_port_entrance.stl"
+    },
+    {
+      "index": 26,
+      "name": "TypeA->C Power Only Cable",
+      "tag": "typea_c_power_only_cable",
+      "material_label": "FPC Ribbon Cable",
+      "material_key": "FPC_CABLE",
+      "conductivity": 0.800000011920929,
+      "density": 1450.0,
+      "specific_heat": 1100.0,
+      "emissivity": 0.9200000166893005,
+      "power_w": 0.08500000275671482,
+      "initial_temp_c": 25.0,
+      "fixed_temperature": false,
+      "fixed_temperature_c": 25.0,
+      "convection_h": 8.0,
+      "contact_h": 1200.0,
+      "override_thickness": false,
+      "thickness_m": 0.0010000000474974513,
+      "area_m2": 0.00104704167103975,
+      "volume_m3": 8.333535536492983e-07,
+      "bbox_min": [
+        -0.020140238106250763,
+        -0.0013440840411931276,
+        0.05064123868942261
+      ],
+      "bbox_max": [
+        0.015266107395291328,
+        0.07760203629732132,
+        0.055014364421367645
+      ],
+      "center": [
+        -0.0024370653554797173,
+        0.03812897577881813,
+        0.052827801555395126
+      ],
+      "mesh_path": "O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/typea_c_power_only_cable.stl"
+    }
+  ],
+  "voxel_shape": [
+    53,
+    113,
+    23
+  ],
+  "voxel_cell_size_m": [
+    0.0014836484333500266,
+    0.0014962904388085008,
+    0.0014485024148598313
+  ],
+  "bbox_min": [
+    -0.057525213807821274,
+    -0.04436391964554787,
+    0.036556027829647064
+  ],
+  "bbox_max": [
+    0.021108154207468033,
+    0.12471690028905869,
+    0.06987158209085464
+  ],
+  "cell_size": [
+    0.0014836484333500266,
+    0.0014962904388085008,
+    0.0014485024148598313
+  ]
+}

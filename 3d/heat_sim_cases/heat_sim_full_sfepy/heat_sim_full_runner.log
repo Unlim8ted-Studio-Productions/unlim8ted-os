@@ -1,0 +1,584 @@
+runner started
+requested pitch=0.004
+effective pitch=0.004
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl
+mesh loaded Back Cover faces=3451 vertices=1707
+voxelizing Back Cover pitch=0.004
+runner started
+requested pitch=0.004
+effective pitch=0.004
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl
+mesh loaded Back Cover faces=3451 vertices=1707
+voxelizing Back Cover pitch=0.004 using bbox occupancy
+voxelized Back Cover bbox_voxels=4515
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover_camera_bump.stl
+mesh loaded Back Cover Camera Bump faces=7480 vertices=3369
+voxelizing Back Cover Camera Bump pitch=0.004 using bbox occupancy
+voxelized Back Cover Camera Bump bbox_voxels=500
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/baseboard.stl
+mesh loaded Baseboard faces=209380 vertices=109455
+voxelizing Baseboard pitch=0.004 using bbox occupancy
+voxelized Baseboard bbox_voxels=1664
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/cm4.stl
+mesh loaded CM4 faces=2201527 vertices=1144607
+voxelizing CM4 pitch=0.004 using bbox occupancy
+voxelized CM4 bbox_voxels=576
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery_holder.stl
+mesh loaded Battery Holder faces=1168 vertices=578
+voxelizing Battery Holder pitch=0.004 using bbox occupancy
+voxelized Battery Holder bbox_voxels=1296
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part6_3mm_004.stl
+mesh loaded 3mm.004 faces=9524 vertices=4764
+voxelizing 3mm.004 pitch=0.004 using bbox occupancy
+voxelized 3mm.004 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part7_3mm_005.stl
+mesh loaded 3mm.005 faces=9524 vertices=4764
+voxelizing 3mm.005 pitch=0.004 using bbox occupancy
+voxelized 3mm.005 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part8_3mm_006.stl
+mesh loaded 3mm.006 faces=9524 vertices=4764
+voxelizing 3mm.006 pitch=0.004 using bbox occupancy
+voxelized 3mm.006 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part9_3mm_007.stl
+mesh loaded 3mm.007 faces=9524 vertices=4764
+voxelizing 3mm.007 pitch=0.004 using bbox occupancy
+voxelized 3mm.007 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery.stl
+mesh loaded Battery faces=24 vertices=16
+voxelizing Battery pitch=0.004 using bbox occupancy
+voxelized Battery bbox_voxels=840
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bottom_cover.stl
+mesh loaded Bottom Cover faces=2808 vertices=1404
+voxelizing Bottom Cover pitch=0.004 using bbox occupancy
+voxelized Bottom Cover bbox_voxels=735
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bttery_holder_001.stl
+mesh loaded Bttery Holder.001 faces=1354 vertices=725
+voxelizing Bttery Holder.001 pitch=0.004 using bbox occupancy
+voxelized Bttery Holder.001 bbox_voxels=588
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display.stl
+mesh loaded Display faces=116933 vertices=61643
+voxelizing Display pitch=0.004 using bbox occupancy
+voxelized Display bbox_voxels=4305
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_5v.stl
+mesh loaded Display Power 5v faces=1782 vertices=898
+voxelizing Display Power 5v pitch=0.004 using bbox occupancy
+voxelized Display Power 5v bbox_voxels=880
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_gnd.stl
+mesh loaded Display Power GND faces=1788 vertices=896
+voxelizing Display Power GND pitch=0.004 using bbox occupancy
+voxelized Display Power GND bbox_voxels=960
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/dsi_cable.stl
+mesh loaded DSI Cable faces=164 vertices=86
+voxelizing DSI Cable pitch=0.004 using bbox occupancy
+voxelized DSI Cable bbox_voxels=325
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/jst_lipo_connector.stl
+mesh loaded JST Lipo Connector faces=1033 vertices=522
+voxelizing JST Lipo Connector pitch=0.004 using bbox occupancy
+voxelized JST Lipo Connector bbox_voxels=1170
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/lipo_chargerbooster.stl
+mesh loaded Lipo ChargerBooster faces=476312 vertices=238968
+voxelizing Lipo ChargerBooster pitch=0.004 using bbox occupancy
+voxelized Lipo ChargerBooster bbox_voxels=351
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/main_case.stl
+mesh loaded Main Case faces=2019 vertices=1183
+voxelizing Main Case pitch=0.004 using bbox occupancy
+voxelized Main Case bbox_voxels=6321
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/plane.stl
+mesh loaded Plane faces=2389 vertices=1171
+voxelizing Plane pitch=0.004 using bbox occupancy
+voxelized Plane bbox_voxels=756
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part21_3mm.stl
+mesh loaded 3mm faces=9524 vertices=4764
+voxelizing 3mm pitch=0.004 using bbox occupancy
+voxelized 3mm bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part22_3mm_001.stl
+mesh loaded 3mm.001 faces=9524 vertices=4764
+voxelizing 3mm.001 pitch=0.004 using bbox occupancy
+voxelized 3mm.001 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part23_3mm_002.stl
+mesh loaded 3mm.002 faces=9524 vertices=4764
+voxelizing 3mm.002 pitch=0.004 using bbox occupancy
+voxelized 3mm.002 bbox_voxels=36
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part24_3mm_003.stl
+mesh loaded 3mm.003 faces=9524 vertices=4764
+voxelizing 3mm.003 pitch=0.004 using bbox occupancy
+voxelized 3mm.003 bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/type_c_port_entrance.stl
+mesh loaded Type C Port Entrance faces=2098 vertices=1026
+voxelizing Type C Port Entrance pitch=0.004 using bbox occupancy
+voxelized Type C Port Entrance bbox_voxels=72
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/typea_c_power_only_cable.stl
+mesh loaded TypeA->C Power Only Cable faces=1012 vertices=512
+voxelizing TypeA->C Power Only Cable pitch=0.004 using bbox occupancy
+voxelized TypeA->C Power Only Cable bbox_voxels=726
+mesh written O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy\heat_sim_full.mesh
+runner failed: required missing: ['ebc_[0-9]+|ebcs|dgebc_[0-9]+|dgebcs|dgepbc_[0-9]+|dgepbcs']
+Traceback (most recent call last):
+  File "o:\unlim8ted-phone\3d\heat_sim_cases\heat_sim_full_sfepy\heat_sim_full_sfepy_run.py", line 159, in <module>
+    solve_pde(os.path.join(case_dir, "heat_sim_full_sfepy_problem.py"))
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\applications\pde_solver_app.py", line 34, in solve_pde
+    conf = ProblemConf.from_file(conf, required, other,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 379, in from_file
+    obj = ProblemConf(define_dict, funmod=funmod, filename=filename,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 426, in __init__
+    self.setup(funmod=funmod, filename=filename,
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 437, in setup
+    self.validate(required=required, other=other)
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 483, in validate
+    raise ValueError('required missing: %s' % required_missing)
+ValueError: required missing: ['ebc_[0-9]+|ebcs|dgebc_[0-9]+|dgebcs|dgepbc_[0-9]+|dgepbcs']
+
+runner started
+requested pitch=0.004
+effective pitch=0.004
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl
+mesh loaded Back Cover faces=3451 vertices=1707
+voxelizing Back Cover pitch=0.004 using bbox occupancy
+voxelized Back Cover bbox_voxels=4515
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover_camera_bump.stl
+mesh loaded Back Cover Camera Bump faces=7480 vertices=3369
+voxelizing Back Cover Camera Bump pitch=0.004 using bbox occupancy
+voxelized Back Cover Camera Bump bbox_voxels=500
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/baseboard.stl
+mesh loaded Baseboard faces=209380 vertices=109455
+voxelizing Baseboard pitch=0.004 using bbox occupancy
+voxelized Baseboard bbox_voxels=1664
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/cm4.stl
+mesh loaded CM4 faces=2201527 vertices=1144607
+voxelizing CM4 pitch=0.004 using bbox occupancy
+voxelized CM4 bbox_voxels=576
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery_holder.stl
+mesh loaded Battery Holder faces=1168 vertices=578
+voxelizing Battery Holder pitch=0.004 using bbox occupancy
+voxelized Battery Holder bbox_voxels=1296
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part6_3mm_004.stl
+mesh loaded 3mm.004 faces=9524 vertices=4764
+voxelizing 3mm.004 pitch=0.004 using bbox occupancy
+voxelized 3mm.004 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part7_3mm_005.stl
+mesh loaded 3mm.005 faces=9524 vertices=4764
+voxelizing 3mm.005 pitch=0.004 using bbox occupancy
+voxelized 3mm.005 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part8_3mm_006.stl
+mesh loaded 3mm.006 faces=9524 vertices=4764
+voxelizing 3mm.006 pitch=0.004 using bbox occupancy
+voxelized 3mm.006 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part9_3mm_007.stl
+mesh loaded 3mm.007 faces=9524 vertices=4764
+voxelizing 3mm.007 pitch=0.004 using bbox occupancy
+voxelized 3mm.007 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery.stl
+mesh loaded Battery faces=24 vertices=16
+voxelizing Battery pitch=0.004 using bbox occupancy
+voxelized Battery bbox_voxels=840
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bottom_cover.stl
+mesh loaded Bottom Cover faces=2808 vertices=1404
+voxelizing Bottom Cover pitch=0.004 using bbox occupancy
+voxelized Bottom Cover bbox_voxels=735
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bttery_holder_001.stl
+mesh loaded Bttery Holder.001 faces=1354 vertices=725
+voxelizing Bttery Holder.001 pitch=0.004 using bbox occupancy
+voxelized Bttery Holder.001 bbox_voxels=588
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display.stl
+mesh loaded Display faces=116933 vertices=61643
+voxelizing Display pitch=0.004 using bbox occupancy
+voxelized Display bbox_voxels=4305
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_5v.stl
+mesh loaded Display Power 5v faces=1782 vertices=898
+voxelizing Display Power 5v pitch=0.004 using bbox occupancy
+voxelized Display Power 5v bbox_voxels=880
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_gnd.stl
+mesh loaded Display Power GND faces=1788 vertices=896
+voxelizing Display Power GND pitch=0.004 using bbox occupancy
+voxelized Display Power GND bbox_voxels=960
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/dsi_cable.stl
+mesh loaded DSI Cable faces=164 vertices=86
+voxelizing DSI Cable pitch=0.004 using bbox occupancy
+voxelized DSI Cable bbox_voxels=325
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/jst_lipo_connector.stl
+mesh loaded JST Lipo Connector faces=1033 vertices=522
+voxelizing JST Lipo Connector pitch=0.004 using bbox occupancy
+voxelized JST Lipo Connector bbox_voxels=1170
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/lipo_chargerbooster.stl
+mesh loaded Lipo ChargerBooster faces=476312 vertices=238968
+voxelizing Lipo ChargerBooster pitch=0.004 using bbox occupancy
+voxelized Lipo ChargerBooster bbox_voxels=351
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/main_case.stl
+mesh loaded Main Case faces=2019 vertices=1183
+voxelizing Main Case pitch=0.004 using bbox occupancy
+voxelized Main Case bbox_voxels=6321
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/plane.stl
+mesh loaded Plane faces=2389 vertices=1171
+voxelizing Plane pitch=0.004 using bbox occupancy
+voxelized Plane bbox_voxels=756
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part21_3mm.stl
+mesh loaded 3mm faces=9524 vertices=4764
+voxelizing 3mm pitch=0.004 using bbox occupancy
+voxelized 3mm bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part22_3mm_001.stl
+mesh loaded 3mm.001 faces=9524 vertices=4764
+voxelizing 3mm.001 pitch=0.004 using bbox occupancy
+voxelized 3mm.001 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part23_3mm_002.stl
+mesh loaded 3mm.002 faces=9524 vertices=4764
+voxelizing 3mm.002 pitch=0.004 using bbox occupancy
+voxelized 3mm.002 bbox_voxels=36
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part24_3mm_003.stl
+mesh loaded 3mm.003 faces=9524 vertices=4764
+voxelizing 3mm.003 pitch=0.004 using bbox occupancy
+voxelized 3mm.003 bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/type_c_port_entrance.stl
+mesh loaded Type C Port Entrance faces=2098 vertices=1026
+voxelizing Type C Port Entrance pitch=0.004 using bbox occupancy
+voxelized Type C Port Entrance bbox_voxels=72
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/typea_c_power_only_cable.stl
+mesh loaded TypeA->C Power Only Cable faces=1012 vertices=512
+voxelizing TypeA->C Power Only Cable pitch=0.004 using bbox occupancy
+voxelized TypeA->C Power Only Cable bbox_voxels=726
+mesh written O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy\heat_sim_full.mesh
+runner started
+requested pitch=0.0014836484333500266
+effective pitch=0.004
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl
+mesh loaded Back Cover triangles=3451
+voxelizing Back Cover pitch=0.004 using bbox occupancy
+voxelized Back Cover bbox_voxels=4515
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover_camera_bump.stl
+mesh loaded Back Cover Camera Bump triangles=7480
+voxelizing Back Cover Camera Bump pitch=0.004 using bbox occupancy
+voxelized Back Cover Camera Bump bbox_voxels=500
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/baseboard.stl
+mesh loaded Baseboard triangles=209380
+voxelizing Baseboard pitch=0.004 using bbox occupancy
+voxelized Baseboard bbox_voxels=1664
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/cm4.stl
+mesh loaded CM4 triangles=2201527
+voxelizing CM4 pitch=0.004 using bbox occupancy
+voxelized CM4 bbox_voxels=576
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery_holder.stl
+mesh loaded Battery Holder triangles=1168
+voxelizing Battery Holder pitch=0.004 using bbox occupancy
+voxelized Battery Holder bbox_voxels=1296
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part6_3mm_004.stl
+mesh loaded 3mm.004 triangles=9524
+voxelizing 3mm.004 pitch=0.004 using bbox occupancy
+voxelized 3mm.004 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part7_3mm_005.stl
+mesh loaded 3mm.005 triangles=9524
+voxelizing 3mm.005 pitch=0.004 using bbox occupancy
+voxelized 3mm.005 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part8_3mm_006.stl
+mesh loaded 3mm.006 triangles=9524
+voxelizing 3mm.006 pitch=0.004 using bbox occupancy
+voxelized 3mm.006 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part9_3mm_007.stl
+mesh loaded 3mm.007 triangles=9524
+voxelizing 3mm.007 pitch=0.004 using bbox occupancy
+voxelized 3mm.007 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery.stl
+mesh loaded Battery triangles=24
+voxelizing Battery pitch=0.004 using bbox occupancy
+voxelized Battery bbox_voxels=840
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bottom_cover.stl
+mesh loaded Bottom Cover triangles=2808
+voxelizing Bottom Cover pitch=0.004 using bbox occupancy
+voxelized Bottom Cover bbox_voxels=735
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bttery_holder_001.stl
+mesh loaded Bttery Holder.001 triangles=1354
+voxelizing Bttery Holder.001 pitch=0.004 using bbox occupancy
+voxelized Bttery Holder.001 bbox_voxels=588
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display.stl
+mesh loaded Display triangles=116933
+voxelizing Display pitch=0.004 using bbox occupancy
+voxelized Display bbox_voxels=4305
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_5v.stl
+mesh loaded Display Power 5v triangles=1782
+voxelizing Display Power 5v pitch=0.004 using bbox occupancy
+voxelized Display Power 5v bbox_voxels=880
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_gnd.stl
+mesh loaded Display Power GND triangles=1788
+voxelizing Display Power GND pitch=0.004 using bbox occupancy
+voxelized Display Power GND bbox_voxels=960
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/dsi_cable.stl
+mesh loaded DSI Cable triangles=164
+voxelizing DSI Cable pitch=0.004 using bbox occupancy
+voxelized DSI Cable bbox_voxels=325
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/jst_lipo_connector.stl
+mesh loaded JST Lipo Connector triangles=1033
+voxelizing JST Lipo Connector pitch=0.004 using bbox occupancy
+voxelized JST Lipo Connector bbox_voxels=1170
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/lipo_chargerbooster.stl
+mesh loaded Lipo ChargerBooster triangles=476312
+voxelizing Lipo ChargerBooster pitch=0.004 using bbox occupancy
+voxelized Lipo ChargerBooster bbox_voxels=351
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/main_case.stl
+mesh loaded Main Case triangles=2019
+voxelizing Main Case pitch=0.004 using bbox occupancy
+voxelized Main Case bbox_voxels=6321
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/plane.stl
+mesh loaded Plane triangles=2389
+voxelizing Plane pitch=0.004 using bbox occupancy
+voxelized Plane bbox_voxels=756
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part21_3mm.stl
+mesh loaded 3mm triangles=9524
+voxelizing 3mm pitch=0.004 using bbox occupancy
+voxelized 3mm bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part22_3mm_001.stl
+mesh loaded 3mm.001 triangles=9524
+voxelizing 3mm.001 pitch=0.004 using bbox occupancy
+voxelized 3mm.001 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part23_3mm_002.stl
+mesh loaded 3mm.002 triangles=9524
+voxelizing 3mm.002 pitch=0.004 using bbox occupancy
+voxelized 3mm.002 bbox_voxels=36
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part24_3mm_003.stl
+mesh loaded 3mm.003 triangles=9524
+voxelizing 3mm.003 pitch=0.004 using bbox occupancy
+voxelized 3mm.003 bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/type_c_port_entrance.stl
+mesh loaded Type C Port Entrance triangles=2098
+voxelizing Type C Port Entrance pitch=0.004 using bbox occupancy
+voxelized Type C Port Entrance bbox_voxels=72
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/typea_c_power_only_cable.stl
+mesh loaded TypeA->C Power Only Cable triangles=1012
+voxelizing TypeA->C Power Only Cable pitch=0.004 using bbox occupancy
+voxelized TypeA->C Power Only Cable bbox_voxels=726
+mesh written O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy\heat_sim_full.mesh
+runner failed: required missing: ['ebc_[0-9]+|ebcs|dgebc_[0-9]+|dgebcs|dgepbc_[0-9]+|dgepbcs']
+Traceback (most recent call last):
+  File "o:\unlim8ted-phone\3d\heat_sim_cases\heat_sim_full_sfepy\heat_sim_full_sfepy_run.py", line 147, in <module>
+    problem, state = solve_pde(os.path.join(case_dir, "heat_sim_full_sfepy_problem.py"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\applications\pde_solver_app.py", line 34, in solve_pde
+    conf = ProblemConf.from_file(conf, required, other,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 379, in from_file
+    obj = ProblemConf(define_dict, funmod=funmod, filename=filename,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 426, in __init__
+    self.setup(funmod=funmod, filename=filename,
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 437, in setup
+    self.validate(required=required, other=other)
+  File "C:\Users\gusan\miniconda3\envs\heatsim-solver\Lib\site-packages\sfepy\base\conf.py", line 483, in validate
+    raise ValueError('required missing: %s' % required_missing)
+ValueError: required missing: ['ebc_[0-9]+|ebcs|dgebc_[0-9]+|dgebcs|dgepbc_[0-9]+|dgepbcs']
+
+runner started
+requested pitch=0.0014836484333500266
+effective pitch=0.004
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl
+mesh loaded Back Cover triangles=3451
+voxelizing Back Cover pitch=0.004 using bbox occupancy
+voxelized Back Cover bbox_voxels=4515
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover_camera_bump.stl
+mesh loaded Back Cover Camera Bump triangles=7480
+voxelizing Back Cover Camera Bump pitch=0.004 using bbox occupancy
+voxelized Back Cover Camera Bump bbox_voxels=500
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/baseboard.stl
+mesh loaded Baseboard triangles=209380
+voxelizing Baseboard pitch=0.004 using bbox occupancy
+voxelized Baseboard bbox_voxels=1664
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/cm4.stl
+mesh loaded CM4 triangles=2201527
+voxelizing CM4 pitch=0.004 using bbox occupancy
+voxelized CM4 bbox_voxels=576
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery_holder.stl
+mesh loaded Battery Holder triangles=1168
+voxelizing Battery Holder pitch=0.004 using bbox occupancy
+voxelized Battery Holder bbox_voxels=1296
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part6_3mm_004.stl
+mesh loaded 3mm.004 triangles=9524
+voxelizing 3mm.004 pitch=0.004 using bbox occupancy
+voxelized 3mm.004 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part7_3mm_005.stl
+mesh loaded 3mm.005 triangles=9524
+voxelizing 3mm.005 pitch=0.004 using bbox occupancy
+voxelized 3mm.005 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part8_3mm_006.stl
+mesh loaded 3mm.006 triangles=9524
+voxelizing 3mm.006 pitch=0.004 using bbox occupancy
+voxelized 3mm.006 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part9_3mm_007.stl
+mesh loaded 3mm.007 triangles=9524
+voxelizing 3mm.007 pitch=0.004 using bbox occupancy
+voxelized 3mm.007 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery.stl
+mesh loaded Battery triangles=24
+voxelizing Battery pitch=0.004 using bbox occupancy
+voxelized Battery bbox_voxels=840
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bottom_cover.stl
+mesh loaded Bottom Cover triangles=2808
+voxelizing Bottom Cover pitch=0.004 using bbox occupancy
+voxelized Bottom Cover bbox_voxels=735
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bttery_holder_001.stl
+mesh loaded Bttery Holder.001 triangles=1354
+voxelizing Bttery Holder.001 pitch=0.004 using bbox occupancy
+voxelized Bttery Holder.001 bbox_voxels=588
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display.stl
+mesh loaded Display triangles=116933
+voxelizing Display pitch=0.004 using bbox occupancy
+voxelized Display bbox_voxels=4305
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_5v.stl
+mesh loaded Display Power 5v triangles=1782
+voxelizing Display Power 5v pitch=0.004 using bbox occupancy
+voxelized Display Power 5v bbox_voxels=880
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_gnd.stl
+mesh loaded Display Power GND triangles=1788
+voxelizing Display Power GND pitch=0.004 using bbox occupancy
+voxelized Display Power GND bbox_voxels=960
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/dsi_cable.stl
+mesh loaded DSI Cable triangles=164
+voxelizing DSI Cable pitch=0.004 using bbox occupancy
+voxelized DSI Cable bbox_voxels=325
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/jst_lipo_connector.stl
+mesh loaded JST Lipo Connector triangles=1033
+voxelizing JST Lipo Connector pitch=0.004 using bbox occupancy
+voxelized JST Lipo Connector bbox_voxels=1170
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/lipo_chargerbooster.stl
+mesh loaded Lipo ChargerBooster triangles=476312
+voxelizing Lipo ChargerBooster pitch=0.004 using bbox occupancy
+voxelized Lipo ChargerBooster bbox_voxels=351
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/main_case.stl
+mesh loaded Main Case triangles=2019
+voxelizing Main Case pitch=0.004 using bbox occupancy
+voxelized Main Case bbox_voxels=6321
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/plane.stl
+mesh loaded Plane triangles=2389
+voxelizing Plane pitch=0.004 using bbox occupancy
+voxelized Plane bbox_voxels=756
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part21_3mm.stl
+mesh loaded 3mm triangles=9524
+voxelizing 3mm pitch=0.004 using bbox occupancy
+voxelized 3mm bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part22_3mm_001.stl
+mesh loaded 3mm.001 triangles=9524
+voxelizing 3mm.001 pitch=0.004 using bbox occupancy
+voxelized 3mm.001 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part23_3mm_002.stl
+mesh loaded 3mm.002 triangles=9524
+voxelizing 3mm.002 pitch=0.004 using bbox occupancy
+voxelized 3mm.002 bbox_voxels=36
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part24_3mm_003.stl
+mesh loaded 3mm.003 triangles=9524
+voxelizing 3mm.003 pitch=0.004 using bbox occupancy
+voxelized 3mm.003 bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/type_c_port_entrance.stl
+mesh loaded Type C Port Entrance triangles=2098
+voxelizing Type C Port Entrance pitch=0.004 using bbox occupancy
+voxelized Type C Port Entrance bbox_voxels=72
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/typea_c_power_only_cable.stl
+mesh loaded TypeA->C Power Only Cable triangles=1012
+voxelizing TypeA->C Power Only Cable pitch=0.004 using bbox occupancy
+voxelized TypeA->C Power Only Cable bbox_voxels=726
+mesh written O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy\heat_sim_full.mesh
+runner started
+requested pitch=0.0014836484333500266
+effective pitch=0.004
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover.stl
+mesh loaded Back Cover triangles=3451
+voxelizing Back Cover pitch=0.004 using bbox occupancy
+voxelized Back Cover bbox_voxels=4515
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/back_cover_camera_bump.stl
+mesh loaded Back Cover Camera Bump triangles=7480
+voxelizing Back Cover Camera Bump pitch=0.004 using bbox occupancy
+voxelized Back Cover Camera Bump bbox_voxels=500
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/baseboard.stl
+mesh loaded Baseboard triangles=209380
+voxelizing Baseboard pitch=0.004 using bbox occupancy
+voxelized Baseboard bbox_voxels=1664
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/cm4.stl
+mesh loaded CM4 triangles=2201527
+voxelizing CM4 pitch=0.004 using bbox occupancy
+voxelized CM4 bbox_voxels=576
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery_holder.stl
+mesh loaded Battery Holder triangles=1168
+voxelizing Battery Holder pitch=0.004 using bbox occupancy
+voxelized Battery Holder bbox_voxels=1296
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part6_3mm_004.stl
+mesh loaded 3mm.004 triangles=9524
+voxelizing 3mm.004 pitch=0.004 using bbox occupancy
+voxelized 3mm.004 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part7_3mm_005.stl
+mesh loaded 3mm.005 triangles=9524
+voxelizing 3mm.005 pitch=0.004 using bbox occupancy
+voxelized 3mm.005 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part8_3mm_006.stl
+mesh loaded 3mm.006 triangles=9524
+voxelizing 3mm.006 pitch=0.004 using bbox occupancy
+voxelized 3mm.006 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part9_3mm_007.stl
+mesh loaded 3mm.007 triangles=9524
+voxelizing 3mm.007 pitch=0.004 using bbox occupancy
+voxelized 3mm.007 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/battery.stl
+mesh loaded Battery triangles=24
+voxelizing Battery pitch=0.004 using bbox occupancy
+voxelized Battery bbox_voxels=840
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bottom_cover.stl
+mesh loaded Bottom Cover triangles=2808
+voxelizing Bottom Cover pitch=0.004 using bbox occupancy
+voxelized Bottom Cover bbox_voxels=735
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/bttery_holder_001.stl
+mesh loaded Bttery Holder.001 triangles=1354
+voxelizing Bttery Holder.001 pitch=0.004 using bbox occupancy
+voxelized Bttery Holder.001 bbox_voxels=588
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display.stl
+mesh loaded Display triangles=116933
+voxelizing Display pitch=0.004 using bbox occupancy
+voxelized Display bbox_voxels=4305
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_5v.stl
+mesh loaded Display Power 5v triangles=1782
+voxelizing Display Power 5v pitch=0.004 using bbox occupancy
+voxelized Display Power 5v bbox_voxels=880
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/display_power_gnd.stl
+mesh loaded Display Power GND triangles=1788
+voxelizing Display Power GND pitch=0.004 using bbox occupancy
+voxelized Display Power GND bbox_voxels=960
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/dsi_cable.stl
+mesh loaded DSI Cable triangles=164
+voxelizing DSI Cable pitch=0.004 using bbox occupancy
+voxelized DSI Cable bbox_voxels=325
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/jst_lipo_connector.stl
+mesh loaded JST Lipo Connector triangles=1033
+voxelizing JST Lipo Connector pitch=0.004 using bbox occupancy
+voxelized JST Lipo Connector bbox_voxels=1170
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/lipo_chargerbooster.stl
+mesh loaded Lipo ChargerBooster triangles=476312
+voxelizing Lipo ChargerBooster pitch=0.004 using bbox occupancy
+voxelized Lipo ChargerBooster bbox_voxels=351
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/main_case.stl
+mesh loaded Main Case triangles=2019
+voxelizing Main Case pitch=0.004 using bbox occupancy
+voxelized Main Case bbox_voxels=6321
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/plane.stl
+mesh loaded Plane triangles=2389
+voxelizing Plane pitch=0.004 using bbox occupancy
+voxelized Plane bbox_voxels=756
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part21_3mm.stl
+mesh loaded 3mm triangles=9524
+voxelizing 3mm pitch=0.004 using bbox occupancy
+voxelized 3mm bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part22_3mm_001.stl
+mesh loaded 3mm.001 triangles=9524
+voxelizing 3mm.001 pitch=0.004 using bbox occupancy
+voxelized 3mm.001 bbox_voxels=27
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part23_3mm_002.stl
+mesh loaded 3mm.002 triangles=9524
+voxelizing 3mm.002 pitch=0.004 using bbox occupancy
+voxelized 3mm.002 bbox_voxels=36
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/part24_3mm_003.stl
+mesh loaded 3mm.003 triangles=9524
+voxelizing 3mm.003 pitch=0.004 using bbox occupancy
+voxelized 3mm.003 bbox_voxels=48
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/type_c_port_entrance.stl
+mesh loaded Type C Port Entrance triangles=2098
+voxelizing Type C Port Entrance pitch=0.004 using bbox occupancy
+voxelized Type C Port Entrance bbox_voxels=72
+loading mesh O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy/meshes/typea_c_power_only_cable.stl
+mesh loaded TypeA->C Power Only Cable triangles=1012
+voxelizing TypeA->C Power Only Cable pitch=0.004 using bbox occupancy
+voxelized TypeA->C Power Only Cable bbox_voxels=726
+mesh written O:/unlim8ted-phone/3d/heat_sim_cases/heat_sim_full_sfepy\heat_sim_full.mesh
+calling solve_pde
