@@ -2,8 +2,12 @@
 // Battery_Holder.scad
 //
 // Existing geometry preserved.
-// Only the two cut placements are changed to match the second
-// layout after the existing final 90-degree rotation.
+//
+// Only change:
+//   - Pocket expanded along visible X axis on BOTH ends.
+//   - Side opposite big opening moved outward by 0.427618 mm.
+//   - Big-opening-side pocket wall moved outward by 4.3 mm.
+//   - Cut positions remain unchanged.
 //
 // Units: mm
 // ============================================================
@@ -45,6 +49,12 @@ original_pocket_y1 =  original_pocket_d / 2;
 pocket_wall_push_out = 1.60;
 short_opening_side_wall_move = 16.0;
 
+// Additional expansion along the VISIBLE X axis.
+// Because the completed model is rotated 90 degrees,
+// visible X is controlled here by the unrotated Y boundaries.
+opposite_big_opening_x_extension = 0.427618;
+big_opening_x_extension = 4.3;
+
 expanded_pocket_x0 = original_pocket_x0 - pocket_wall_push_out;
 expanded_pocket_x1 = original_pocket_x1 + pocket_wall_push_out;
 
@@ -55,8 +65,19 @@ expanded_pocket_y1 = original_pocket_y1 + pocket_wall_push_out;
 pocket_x0 = expanded_pocket_x0;
 pocket_x1 = expanded_pocket_x1;
 
-pocket_y0 = expanded_pocket_y0;
-pocket_y1 = expanded_pocket_y1 - short_opening_side_wall_move;
+// Side opposite the big opening:
+// moves outward 0.427618 mm along visible X.
+pocket_y0 =
+    expanded_pocket_y0
+    - opposite_big_opening_x_extension;
+
+// Big-opening side:
+// moves outward 4.3 mm along visible X while retaining
+// the existing shortened-wall relationship.
+pocket_y1 =
+    expanded_pocket_y1
+    - short_opening_side_wall_move
+    + big_opening_x_extension;
 
 pocket_w = pocket_x1 - pocket_x0;
 pocket_d = pocket_y1 - pocket_y0;
@@ -114,17 +135,15 @@ final_overall_d = overall_w;
 // SMALL BOTTOM OPENING — TARGET FINAL-VIEW POSITION
 // ============================================================
 //
-// This opening is defined where it needs to appear AFTER the
-// existing 90-degree final rotation, then converted backward
-// into the unrotated coordinates used by the model.
+// Cut placement unchanged from your current script.
 // ============================================================
 
 small_final_opening_w = 9.17705;
 
-// Final visible placement: bottom edge, toward right screw hole.
+// Existing custom placement retained.
 small_final_opening_right =
     hole_x - hardware_r - opening_to_hardware_gap
-    + small_opening_shift_along_edge-5;
+    + small_opening_shift_along_edge - 5;
 
 small_final_opening_left =
     small_final_opening_right - small_final_opening_w;
@@ -154,8 +173,7 @@ small_opening_d =
 // LARGE LEFT OPENING — TARGET FINAL-VIEW POSITION
 // ============================================================
 //
-// Final visible placement: left edge, toward upper-left area.
-// Converted backward into the existing unrotated model space.
+// Cut placement unchanged from your current script.
 // ============================================================
 
 large_final_opening_d = 11.9299;
@@ -170,10 +188,11 @@ large_final_opening_bottom =
 large_final_opening_left =
     -final_overall_w / 2 - 0.10;
 
+// Existing custom cut depth retained.
 large_final_opening_right =
     -hole_x + hardware_r + opening_to_hardware_gap
     + tray_wall_t
-    + large_opening_into_pocket+10;
+    + large_opening_into_pocket + 10;
 
 // Convert final rectangle back through rotate([0,0,90]).
 
