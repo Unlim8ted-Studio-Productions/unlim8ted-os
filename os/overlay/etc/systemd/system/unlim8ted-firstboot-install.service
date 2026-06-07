@@ -1,0 +1,23 @@
+[Unit]
+Description=Unlim8ted First Boot Install
+After=local-fs.target
+Before=getty@tty1.service unlim8ted.service
+Conflicts=getty@tty1.service
+ConditionPathExists=/opt/unlim8ted/bin/firstboot-install.sh
+
+[Service]
+Type=simple
+Environment=TERM=linux
+TimeoutStartSec=infinity
+TTYPath=/dev/tty1
+StandardInput=tty-force
+StandardOutput=journal+console
+StandardError=journal+console
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=no
+ExecStart=/opt/unlim8ted/bin/firstboot-install.sh
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

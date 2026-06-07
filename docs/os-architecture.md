@@ -4,10 +4,9 @@
 
 Unlim8ted OS in this repository is an image-customization workflow rather than a full distribution source tree. It starts from upstream base images, installs the required packages, applies the repo overlay, and enables the kiosk runtime.
 
-There are two supported targets:
+There is one supported target:
 
 - `cm4`: Raspberry Pi OS Lite 64-bit based image for the device
-- `x86_64`: Debian 12 amd64 based image for desktop or VM testing
 
 ## Boot and runtime flow
 
@@ -90,19 +89,32 @@ The CM4 image layout also reserves a separate `storage` partition mounted at `/h
 
 ## Build workflow summary
 
-`os/build.sh` supports:
+`os/build.sh` now supports one provisioning flow only:
 
-- normal image builds
-- direct CM4 flashing/building to SD or USB media
-- deferred first-boot package install builds
-- full overlay reapply
-- runtime hotpatch copy
-- repair and continue flows for interrupted CM4 provisioning
+- flash the pinned Raspberry Pi OS Lite base image to an SD or USB device
+- resize the root partition to a fixed size
+- create a `storage` partition for `/home/unlim8ted`
+- apply the tracked overlay
+- suppress Raspberry Pi OS first-run setup
+- boot into `tty1` root autologin
+- run `firstboot-install.sh` on the device after network is available
 
-The script also handles the Waveshare DSI1 `dt-blob.bin` workflow used by the current display and camera baseline.
+The deferred first-boot script installs packages on the target device instead of preinstalling them during image creation.
+
+Current first-boot behavior:
+
+- `tty1` autologins root
+- `firstboot-install.sh` prompts for network access if needed and waits indefinitely
+- on failure, the script opens an interactive recovery shell on `tty1`
+- if the system is otherwise ready, a simple `reboot` may be enough to continue cleanly on the next boot
+
+The image also seeds a default local user for Raspberry Pi OS first-run setup suppression:
+
+- username: `unlim8ted`
+- password: `unlim8ted`
 
 ## Practical caveats
 
 - The build script must run from Linux or WSL, not native Windows.
 - Several apps are intentionally local-state implementations rather than fully integrated phone services.
-- The hotpatch path in `build.sh` assumes a subset of app files can be copied without reinstalling packages.
+- Package installation now happens on first boot, so network availability on the device is part of provisioning.

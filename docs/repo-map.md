@@ -12,7 +12,7 @@
 
 This is the active software side of the project.
 
-- `build.sh`: single build entrypoint for image creation, direct CM4 flashing, deferred first-boot installs, overlay reapply, hotpatch, repair, and continue flows
+- `build.sh`: single-purpose CM4 deferred flasher that writes the base image, applies the overlay, and leaves package installation to first boot on the device
 - `overlay/boot/config.txt`: tracked Raspberry Pi boot configuration for the Waveshare DSI panel and camera setup
 - `overlay/etc/default/unlim8ted`: runtime environment variables for display, storage, captures, and Chromium profile paths
 - `overlay/etc/systemd/system/unlim8ted.service`: kiosk systemd service that launches `xinit`

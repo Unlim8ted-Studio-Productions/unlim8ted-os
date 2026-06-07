@@ -6,6 +6,7 @@
 # final module is not IMX219 on CAM0.
 camera_auto_detect=0
 dtoverlay=imx219,i2c_vc,cam0=on
+auto_initramfs=1
 
 # Force the USB controller into host mode so keyboards, mice, and other test
 # peripherals enumerate reliably on the CM4 carrier.

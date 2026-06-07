@@ -23,7 +23,7 @@ The `pcb/` tree remains useful reference material, but it is no longer the activ
 
 ## Important repo realities
 
-- The main software entrypoint is `os/build.sh`, not a full Buildroot tree.
+- The main software entrypoint is `os/build.sh`, which now only handles the deferred CM4 flash-and-first-boot flow rather than acting as a general image builder.
 - The device UI is a local web app served by a Python backend on port `8080`.
 - The app set is mostly local-first and stateful, with several apps backed by JSON files under the runtime state directory.
 - Some Blender source may live outside the pushed repository; the tracked tree primarily preserves exports and reference assets.
