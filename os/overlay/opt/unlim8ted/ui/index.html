@@ -397,19 +397,23 @@
 
         .lockscreen {
             z-index: 20;
-            display: grid;
-            place-items: center;
+            display: block;
             padding: 80px 24px calc(32px + var(--safe-bottom));
             touch-action: none;
         }
 
         .lock-content {
-            width: 100%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(100%, 320px);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            transform: translateY(-6%);
+            justify-content: center;
+            text-align: center;
+            transform: translate(-50%, calc(-50% - 18px));
         }
 
         .lock-date {
@@ -2500,7 +2504,8 @@
         <div class="branding">Unlim8ted Studios</div>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="./embed-bridge.js"></script>
+    <script src="./app.js"></script>
 </body>
 
 </html>

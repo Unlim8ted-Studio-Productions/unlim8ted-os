@@ -10,7 +10,7 @@ This directory now builds Unlim8ted OS by customizing official upstream Linux im
 
 ## Base Images
 
-- CM4 uses the official Raspberry Pi OS Lite 64-bit image alias from Raspberry Pi downloads.
+- CM4 now defaults to the official Raspberry Pi OS Lite 64-bit image `2026-04-21-raspios-trixie-arm64-lite.img.xz`. This is the April 21, 2026 Raspberry Pi OS Lite release for Raspberry Pi 4 / CM4 class hardware.
 - `x86_64` uses the official Debian 12 amd64 generic cloud image. That keeps Chromium available as a normal apt package and is straightforward to boot under QEMU or other desktop virtualization.
 
 ## Included software
@@ -19,15 +19,11 @@ Both targets install kiosk-oriented packages with `apt`, then apply the repo ove
 
 - `systemd` from the base image
 - `python3`
-- `chromium`
+- `Chromium`
 - Bluetooth support
 - Wi-Fi support
 - Xorg and `xinit`
 - `openbox`
-
-CM4 also installs:
-
-- `libcamera-apps`
 
 The overlay still provides the kiosk startup path:
 
@@ -57,9 +53,9 @@ Additional requirement for CM4 DSI1 boot overlay generation:
 - `p7zip-full`
 - `device-tree-compiler`
 
-Additional requirement when building the CM4 image on an `x86_64` host:
+Additional requirement when building the default CM4 image on an `x86_64` host:
 
-- `qemu-aarch64-static`
+- `qemu-arm-static`
 
 The build script mounts the image, installs packages with `apt`, copies the overlay, and enables `unlim8ted.service`.
 
@@ -73,7 +69,9 @@ Default Unlim8ted card partitions:
 
 The boot files must be on the real FAT `bootfs` partition. An empty `rootfs\boot\firmware` directory is normal when `bootfs` is not mounted there.
 
-For the Waveshare DSI1 + double-camera CM4 setup, `build.sh` downloads Waveshare's `CM4_dt_blob.7z`, compiles `dt-blob-disp1-double_cam.dts`, and installs `dt-blob.bin` into `bootfs` while applying the overlay. Set `UNLIM8TED_CM4_DSI1_DT_BLOB=0` to skip this.
+For the Waveshare DSI1 + double-camera CM4 setup, `build.sh` can optionally install `dt-blob.bin` into `bootfs`. By default it builds that file from Waveshare's `dt-blob-disp1-double_cam.dts`, which can affect camera and HDMI behavior. The build script does not copy `.dts` files into `bootfs`; set `UNLIM8TED_CM4_DSI1_DT_BLOB=1` to enable `dt-blob.bin` generation, or place a prebuilt `overlay/boot/dt-blob.bin` in the repo to override the generated path.
+
+The tracked boot overlay also forces `dtoverlay=dwc2,dr_mode=host` so USB input devices enumerate in host mode during CM4 testing.
 
 ## Build Script
 
@@ -117,11 +115,14 @@ bash os/build.sh image --arch cm4 --grow-mb 12288
 # Build directly onto a CM4 SD/USB device.
 bash os/build.sh image --arch cm4 --direct-device /dev/sdi
 
-# Deferred CM4 build: flash base OS, apply overlay, install packages on first boot.
+# Deferred CM4 build: flash the pinned stock OS, resize rootfs, apply overlay, install packages on first boot.
 bash os/build.sh deferred --device /dev/sdi
 
-# Override the default CM4 layout (boot/root sizes in MiB):
-bash os/build.sh deferred --device /dev/sdi --boot-size-mib 512 --root-size-mib 9728
+# Override the deferred CM4 rootfs target size.
+bash os/build.sh deferred --device /dev/sdi --root-size-mib 9728
+
+# Seed first-boot Wi-Fi credentials during a deferred build.
+bash os/build.sh deferred --device /dev/sdi --wifi-ssid "MyWiFi" --wifi-password "secret" --wifi-country US
 
 # Reapply the complete overlay to an existing CM4 card without package installs.
 bash os/build.sh overlay --device /dev/sdi
@@ -129,7 +130,7 @@ bash os/build.sh overlay --device /dev/sdi
 # Copy only the current runtime hotpatch files. Package install: never.
 bash os/build.sh hotpatch --device /dev/sdi
 
-# If your partitions are nonstandard, you can map them explicitly:
+# If your partitions are nonstandard, you can map them explicitly.
 bash os/build.sh overlay --device /dev/sdi --boot-part /dev/sdi1 --root-part /dev/sdi2 --storage-part /dev/sdi3
 bash os/build.sh hotpatch --device /dev/sdi --boot-part /dev/sdi1 --root-part /dev/sdi2 --storage-part /dev/sdi3
 
@@ -140,13 +141,13 @@ bash os/build.sh repair --device /dev/sdi --size-gib 32
 # Continue a failed CM4 package install without resizing partitions.
 bash os/build.sh continue --device /dev/sdi
 
-# Skip resizing during repair when the layout is already correct:
+# Skip resizing during repair when the layout is already correct.
 bash os/build.sh repair --device /dev/sdi --no-resize --boot-part /dev/sdi1 --root-part /dev/sdi2 --storage-part /dev/sdi3
 ```
 
 Direct CM4 device builds flash Raspberry Pi OS directly to the selected SD/USB device, calculate the OS root partition size from the selected package set plus a 5 GiB buffer, create a separate `storage` partition from the remaining space, then install packages and the overlay on that device. If the selected CM4 device already has `bootfs` and `rootfs` partitions, the script reuses it and continues customization instead of rewriting the base image.
 
-Deferred CM4 builds fully rewrite the selected device, set `rootfs` to 10GiB by default, create `LABEL=storage` from the remaining space, apply the overlay, and skip host-side package installation. On first boot, tty1 prompts for network access, installs the CM4 package set on the Pi, cleans apt/temp files, enables `unlim8ted.service`, and starts the kiosk.
+Deferred CM4 builds now flash the pinned stock Raspberry Pi OS Lite image directly to the selected device, expand `rootfs` to 10GiB by default, create `LABEL=storage` from the remaining space, apply the overlay, and skip host-side package installation. If the build is running interactively, the script offers an optional Wi-Fi SSID/password prompt and writes those credentials into the first-boot environment file. On first boot, the autologin root shell on `tty1` uses any build-provided Wi-Fi profile first, then prompts for network access if needed, installs the CM4 package set on the Pi, cleans apt/temp files, enables `unlim8ted.service`, and starts the kiosk.
 
 Overlay and hotpatch modes never install packages:
 
@@ -161,6 +162,7 @@ Optional environment variables:
 - `UNLIM8TED_BASE_IMAGE_DIR=...` sets the base image cache directory.
 - `UNLIM8TED_IMAGE_GROW_MB=512` adds extra space to the image before resizing the root filesystem.
 - `UNLIM8TED_CM4_PACKAGES=...` overrides the apt package list for CM4.
+- `UNLIM8TED_CM4_DSI1_DT_BLOB=1` enables optional Waveshare `dt-blob.bin` generation during overlay application.
 - `UNLIM8TED_X86_64_PACKAGES=...` overrides the apt package list for `x86_64`.
 
 ## Output

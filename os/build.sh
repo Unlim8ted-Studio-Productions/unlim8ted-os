@@ -1,4 +1,4 @@
-﻿#!/bin/sh
+#!/bin/sh
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -21,10 +21,10 @@ UNLIM8TED_OVERLAY_DIR="${UNLIM8TED_OVERLAY_DIR:-$UNLIM8TED_OS_DIR/overlay}"
 UNLIM8TED_BASE_IMAGE_DIR="${UNLIM8TED_BASE_IMAGE_DIR:-$UNLIM8TED_WORK_DIR/base-images}"
 UNLIM8TED_BUILD_DIR="${UNLIM8TED_BUILD_DIR:-$UNLIM8TED_WORK_DIR/work}"
 
-UNLIM8TED_CM4_IMAGE_URL="${UNLIM8TED_CM4_IMAGE_URL:-https://downloads.raspberrypi.org/raspios_lite_arm64_latest}"
+UNLIM8TED_CM4_IMAGE_URL="${UNLIM8TED_CM4_IMAGE_URL:-https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2026-04-21/2026-04-21-raspios-trixie-arm64-lite.img.xz}"
 UNLIM8TED_X86_64_IMAGE_URL="${UNLIM8TED_X86_64_IMAGE_URL:-https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.raw}"
 
-UNLIM8TED_CM4_ARCHIVE_NAME="${UNLIM8TED_CM4_ARCHIVE_NAME:-raspios_lite_arm64_latest.img.xz}"
+UNLIM8TED_CM4_ARCHIVE_NAME="${UNLIM8TED_CM4_ARCHIVE_NAME:-2026-04-21-raspios-trixie-arm64-lite.img.xz}"
 UNLIM8TED_X86_64_ARCHIVE_NAME="${UNLIM8TED_X86_64_ARCHIVE_NAME:-debian-12-generic-amd64.raw}"
 
 UNLIM8TED_CM4_PACKAGES="${UNLIM8TED_CM4_PACKAGES:-python3 chromium libcamera-apps bluez wpasupplicant xserver-xorg xinit x11-xserver-utils xserver-xorg-input-libinput keyboard-configuration usbutils openbox mesa-utils dbus-x11 fonts-dejavu-core plymouth plymouth-themes}"
@@ -33,9 +33,8 @@ UNLIM8TED_X86_64_PACKAGES="${UNLIM8TED_X86_64_PACKAGES:-python3 chromium bluez w
 UNLIM8TED_IMAGE_GROW_MB="${UNLIM8TED_IMAGE_GROW_MB:-0}"
 UNLIM8TED_CM4_IMAGE_GROW_MB="${UNLIM8TED_CM4_IMAGE_GROW_MB:-12288}"
 UNLIM8TED_CM4_ROOT_SIZE_GIB="${UNLIM8TED_CM4_ROOT_SIZE_GIB:-32}"
-UNLIM8TED_CM4_BOOT_SIZE_MIB="${UNLIM8TED_CM4_BOOT_SIZE_MIB:-512}"
 UNLIM8TED_CM4_ROOT_SIZE_MIB="${UNLIM8TED_CM4_ROOT_SIZE_MIB:-9728}"
-UNLIM8TED_CM4_DSI1_DT_BLOB="${UNLIM8TED_CM4_DSI1_DT_BLOB:-1}"
+UNLIM8TED_CM4_DSI1_DT_BLOB="${UNLIM8TED_CM4_DSI1_DT_BLOB:-0}"
 UNLIM8TED_CM4_DT_BLOB_URL="${UNLIM8TED_CM4_DT_BLOB_URL:-https://files.waveshare.com/upload/4/41/CM4_dt_blob.7z}"
 UNLIM8TED_CM4_DT_BLOB_DTS="${UNLIM8TED_CM4_DT_BLOB_DTS:-dt-blob-disp1-double_cam.dts}"
 
@@ -216,7 +215,7 @@ unmount_block_device_tree() {
     {
         findmnt -rn -S "$block_device" -o TARGET 2>/dev/null || true
         lsblk -rnpo MOUNTPOINTS "$block_device" | awk 'NF { print }' || true
-        for partition in "${block_device}"p* "${block_device}"[0-9]*; do
+        for partition in $(list_child_partitions "$block_device"); do
             if [ -b "$partition" ]; then
                 findmnt -rn -S "$partition" -o TARGET 2>/dev/null || true
                 lsblk -rnpo MOUNTPOINTS "$partition" | awk 'NF { print }' || true
@@ -228,11 +227,17 @@ unmount_block_device_tree() {
     done
 
     sudo umount "$block_device" 2>/dev/null || true
-    for partition in "${block_device}"p* "${block_device}"[0-9]*; do
+    for partition in $(list_child_partitions "$block_device"); do
         if [ -b "$partition" ]; then
             sudo umount "$partition" 2>/dev/null || true
         fi
     done
+}
+
+list_child_partitions() {
+    block_device=$1
+
+    lsblk -lnpo NAME "$block_device" 2>/dev/null | awk -v dev="$block_device" '$1 != dev { print $1 }'
 }
 
 find_partition_by_fstype() {
@@ -250,7 +255,7 @@ find_partition_by_fstype() {
         return
     fi
 
-    for partition in "${loop_device}"p* "${loop_device}"[0-9]*; do
+    for partition in $(list_child_partitions "$loop_device"); do
         if [ ! -b "$partition" ]; then
             continue
         fi
@@ -272,7 +277,8 @@ find_partition_by_label() {
         return
     fi
 
-    for partition in "${loop_device}"p* "${loop_device}"[0-9]*; do
+    for partition in $(list_child_partitions "$loop_device"); do
+
         if [ ! -b "$partition" ]; then
             continue
         fi
@@ -287,6 +293,7 @@ find_partition_by_label() {
 
 find_root_partition() {
     loop_device=$1
+    fallback=
 
     if [ -n "${UNLIM8TED_PARTITION_DEVICE:-}" ] && [ "$loop_device" = "$UNLIM8TED_PARTITION_DEVICE" ]; then
         if [ -n "${UNLIM8TED_ROOT_PART_OVERRIDE:-}" ]; then
@@ -310,6 +317,12 @@ find_root_partition() {
             return
         fi
     done
+
+    fallback=$(list_child_partitions "$loop_device" | tail -n 1 || true)
+    if [ -n "$fallback" ] && [ -b "$fallback" ]; then
+        printf '%s\n' "$fallback"
+        return
+    fi
 }
 
 find_boot_partition() {
@@ -415,55 +428,6 @@ create_storage_partition_on_device() {
         storage_partition=$(lsblk -rnpo NAME "$block_device" | tail -n 1)
     fi
     sudo mkfs.ext4 -F -L storage "$storage_partition"
-}
-
-create_partition_layout_on_device() {
-    block_device=$1
-    boot_size_mib=$2
-    root_size_mib=$3
-
-    case "$boot_size_mib" in
-        *[!0-9]* | "")
-            echo "boot size must be a positive integer MiB." >&2
-            exit 1
-            ;;
-    esac
-    case "$root_size_mib" in
-        *[!0-9]* | "")
-            echo "root size must be a positive integer MiB." >&2
-            exit 1
-            ;;
-    esac
-    if [ "$boot_size_mib" -lt 128 ]; then
-        echo "boot size looks too small: ${boot_size_mib}MiB" >&2
-        exit 1
-    fi
-    if [ "$root_size_mib" -lt 2048 ]; then
-        echo "root size looks too small: ${root_size_mib}MiB" >&2
-        exit 1
-    fi
-
-    unmount_block_device_tree "$block_device"
-    sudo parted -s "$block_device" mklabel msdos
-    sudo parted -s "$block_device" mkpart primary fat32 1MiB "${boot_size_mib}MiB"
-    sudo parted -s "$block_device" mkpart primary ext4 "${boot_size_mib}MiB" "$((boot_size_mib + root_size_mib))MiB"
-    sudo parted -s "$block_device" mkpart primary ext4 "$((boot_size_mib + root_size_mib))MiB" 100%
-    sudo partprobe "$block_device" 2>/dev/null || true
-    sleep 3
-
-    boot_part=$(lsblk -rnpo NAME "$block_device" | awk 'NR==2 { print; exit }')
-    root_part=$(lsblk -rnpo NAME "$block_device" | awk 'NR==3 { print; exit }')
-    storage_part=$(lsblk -rnpo NAME "$block_device" | awk 'NR==4 { print; exit }')
-
-    if [ -z "$boot_part" ] || [ -z "$root_part" ] || [ -z "$storage_part" ]; then
-        echo "Could not resolve new partition paths on $block_device" >&2
-        lsblk -f "$block_device" >&2 || true
-        exit 1
-    fi
-
-    sudo mkfs.vfat -F 32 -n bootfs "$boot_part"
-    sudo mkfs.ext4 -F -L rootfs "$root_part"
-    sudo mkfs.ext4 -F -L storage "$storage_part"
 }
 
 device_has_base_os() {
@@ -837,9 +801,15 @@ apply_overlay() {
 
     if [ -d "$UNLIM8TED_OVERLAY_DIR/boot" ] && [ -n "$boot_mount" ] && [ -d "$boot_mount" ]; then
         if [ -d "$UNLIM8TED_OVERLAY_DIR/boot/firmware" ] && [ -d "$boot_mount/firmware" ]; then
-            sudo rsync -rt --no-owner --no-group --no-perms "$UNLIM8TED_OVERLAY_DIR/boot/firmware/" "$boot_mount/firmware/"
+            sudo rsync -rt --no-owner --no-group --no-perms \
+                --exclude 'dt-blob.bin' \
+                --exclude '*.dts' \
+                "$UNLIM8TED_OVERLAY_DIR/boot/firmware/" "$boot_mount/firmware/"
         else
-            sudo rsync -rt --no-owner --no-group --no-perms "$UNLIM8TED_OVERLAY_DIR/boot/" "$boot_mount/"
+            sudo rsync -rt --no-owner --no-group --no-perms \
+                --exclude 'dt-blob.bin' \
+                --exclude '*.dts' \
+                "$UNLIM8TED_OVERLAY_DIR/boot/" "$boot_mount/"
         fi
     fi
 
@@ -875,7 +845,8 @@ configure_cm4_dsi1_dt_blob() {
     dt_blob_output="$dt_blob_work/dt-blob.bin"
 
     mkdir -p "$UNLIM8TED_BASE_IMAGE_DIR" "$dt_blob_work"
-    download_file "$UNLIM8TED_CM4_DT_BLOB_URL" "$dt_blob_archive"
+    download_file "$UNLIM8TED_CM
+    4_DT_BLOB_URL" "$dt_blob_archive"
     rm -rf "$dt_blob_work/source"
     mkdir -p "$dt_blob_work/source"
     7z x -y "$dt_blob_archive" "-o$dt_blob_work/source" >/dev/null
@@ -888,7 +859,7 @@ configure_cm4_dsi1_dt_blob() {
 
     dtc -I dts -O dtb -o "$dt_blob_output" "$dt_blob_dts"
     sudo install -m 0644 "$dt_blob_output" "$boot_mount/dt-blob.bin"
-    echo "Installed Waveshare CM4 DSI1 double-camera dt-blob.bin to bootfs." >&2
+    echo "Installed optional Waveshare CM4 dt-blob.bin to bootfs." >&2
 }
 
 configure_plymouth() {
@@ -939,6 +910,120 @@ configure_boot_splash() {
     if [ "$next" != "$current" ]; then
         printf '%s\n' "$next" | sudo tee "$cmdline_path" >/dev/null
     fi
+}
+
+configure_tty1_firstboot_login() {
+    root_mount=$1
+
+    sudo mkdir -p "$root_mount/root"
+    if [ -f "$root_mount/root/.profile" ] && [ ! -f "$root_mount/root/.bash_profile" ]; then
+        cat <<'EOF' | sudo tee "$root_mount/root/.bash_profile" >/dev/null
+if [ -f /root/.profile ]; then
+    . /root/.profile
+fi
+EOF
+    fi
+
+    shadow_path=$root_mount/etc/shadow
+    if [ -f "$shadow_path" ]; then
+        sudo awk -F: 'BEGIN { OFS=FS }
+            $1 == "root" {
+                if ($2 ~ /^[!*]/) {
+                    $2 = ""
+                }
+            }
+            { print }
+        ' "$shadow_path" | sudo tee "$shadow_path.tmp" >/dev/null
+        sudo mv "$shadow_path.tmp" "$shadow_path"
+        sudo chmod 600 "$shadow_path"
+    fi
+
+    passwd_path=$root_mount/etc/passwd
+    if [ -f "$passwd_path" ]; then
+        sudo awk -F: 'BEGIN { OFS=FS }
+            $1 == "root" {
+                if ($7 == "" || $7 == "/usr/sbin/nologin" || $7 == "/sbin/nologin") {
+                    $7 = "/bin/bash"
+                }
+            }
+            { print }
+        ' "$passwd_path" | sudo tee "$passwd_path.tmp" >/dev/null
+        sudo mv "$passwd_path.tmp" "$passwd_path"
+        sudo chmod 644 "$passwd_path"
+    fi
+}
+
+configure_raspberry_pi_bootstrap() {
+    root_mount=$1
+    boot_mount=$2
+    target_arch=$3
+
+    for firstrun_path in "$boot_mount/firstrun.sh" "$boot_mount/firmware/firstrun.sh"; do
+        if [ -n "$boot_mount" ] && [ -f "$firstrun_path" ]; then
+            sudo rm -f "$firstrun_path"
+        fi
+    done
+
+    cmdline_path=
+    for candidate in "$boot_mount/cmdline.txt" "$boot_mount/firmware/cmdline.txt"; do
+        if [ -f "$candidate" ]; then
+            cmdline_path=$candidate
+            break
+        fi
+    done
+    if [ -n "$cmdline_path" ]; then
+        current_cmdline=$(sudo sed -n '1p' "$cmdline_path")
+        sanitized_cmdline=$(printf '%s\n' "$current_cmdline" | awk '
+            {
+                for (i = 1; i <= NF; i++) {
+                    token = $i
+                    if (token ~ /^systemd\.run=/) {
+                        continue
+                    }
+                    if (token ~ /^systemd\.run_success_action=/) {
+                        continue
+                    }
+                    if (token ~ /^init=.*firstboot/) {
+                        continue
+                    }
+                    kept[++count] = token
+                }
+            }
+            END {
+                for (i = 1; i <= count; i++) {
+                    printf "%s%s", kept[i], (i < count ? " " : "\n")
+                }
+            }
+        ')
+        if [ -n "$sanitized_cmdline" ] && [ "$sanitized_cmdline" != "$current_cmdline" ]; then
+            printf '%s\n' "$sanitized_cmdline" | sudo tee "$cmdline_path" >/dev/null
+        fi
+    fi
+
+    sudo mkdir -p "$root_mount/etc/systemd/system"
+    for unit in userconfig.service systemd-firstboot.service; do
+        sudo ln -sfn /dev/null "$root_mount/etc/systemd/system/$unit"
+    done
+
+    bind_mount_chroot_support "$root_mount"
+    copy_qemu_static_if_needed "$target_arch" "$root_mount"
+
+    run_in_chroot "$root_mount" "$target_arch" '
+        set -eu
+        if ! awk -F: '"'"'$3 >= 1000 && $1 != "nobody" { found=1 } END { exit(found ? 0 : 1) }'"'"' /etc/passwd; then
+            useradd -m -s /bin/bash unlim8ted
+            for group in adm audio video input render netdev plugdev bluetooth dialout sudo tty; do
+                if getent group "$group" >/dev/null 2>&1; then
+                    usermod -a -G "$group" unlim8ted || true
+                fi
+            done
+        fi
+        systemctl enable getty@tty1.service >/dev/null 2>&1 || true
+        systemctl set-default multi-user.target >/dev/null 2>&1 || true
+    '
+
+    remove_qemu_static_if_present "$root_mount"
+    unbind_mount_chroot_support "$root_mount"
 }
 
 setup_storage_mount() {
@@ -1056,7 +1141,9 @@ build_target() {
     install_target_packages "$root_mount" "$target_arch" "$package_list" "$target_name"
     install_browser_compatibility "$root_mount" "$target_arch"
     apply_overlay "$root_mount" "$boot_mount"
+    configure_raspberry_pi_bootstrap "$root_mount" "$boot_mount" "$target_arch"
     configure_boot_splash "$boot_mount"
+    configure_tty1_firstboot_login "$root_mount"
     configure_plymouth "$root_mount" "$target_arch"
     setup_storage_mount "$root_mount"
     enable_services "$root_mount" "$target_arch"
@@ -1146,7 +1233,9 @@ build_target_on_device() {
     install_target_packages "$root_mount" "$target_arch" "$package_list" "$target_name"
     install_browser_compatibility "$root_mount" "$target_arch"
     apply_overlay "$root_mount" "$boot_mount"
+    configure_raspberry_pi_bootstrap "$root_mount" "$boot_mount" "$target_arch"
     configure_boot_splash "$boot_mount"
+    configure_tty1_firstboot_login "$root_mount"
     configure_plymouth "$root_mount" "$target_arch"
     setup_storage_mount "$root_mount"
     enable_services "$root_mount" "$target_arch"
@@ -1191,7 +1280,7 @@ usage() {
 Usage:
   bash os/build.sh
   bash os/build.sh image --arch cm4|x86_64 [--direct-device /dev/sdX] [--grow-mb N]
-  bash os/build.sh deferred --device /dev/sdX [--boot-size-mib N] [--root-size-mib N | --root-size-gib N]
+  bash os/build.sh deferred --device /dev/sdX [--root-size-mib N | --root-size-gib N] [--wifi-ssid NAME --wifi-password PASS --wifi-country CC]
   bash os/build.sh overlay --device /dev/sdX [--boot-part /dev/sdX1 --root-part /dev/sdX2 --storage-part /dev/sdX3]
   bash os/build.sh hotpatch --device /dev/sdX [--boot-part /dev/sdX1 --root-part /dev/sdX2 --storage-part /dev/sdX3]
   bash os/build.sh repair --device /dev/sdX [--add-mb N | --size-gib N | --no-resize] [--boot-part /dev/sdX1 --root-part /dev/sdX2 --storage-part /dev/sdX3]
@@ -1215,6 +1304,39 @@ prompt() {
     printf '%s' "$1" >&2
     read -r REPLY
     printf '%s\n' "$REPLY"
+}
+
+prompt_secret() {
+    printf '%s' "$1" >&2
+    stty -echo 2>/dev/null || true
+    read -r REPLY
+    stty echo 2>/dev/null || true
+    printf '\n' >&2
+    printf '%s\n' "$REPLY"
+}
+
+shell_quote() {
+    printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+write_firstboot_env() {
+    root_mount=$1
+    package_list=$2
+    wifi_ssid=${3:-}
+    wifi_password=${4:-}
+    wifi_country=${5:-}
+
+    sudo mkdir -p "$root_mount/etc/default"
+    {
+        printf 'UNLIM8TED_FIRSTBOOT_PACKAGES=%s\n' "$(shell_quote "$package_list")"
+        if [ -n "$wifi_ssid" ]; then
+            printf 'UNLIM8TED_FIRSTBOOT_WIFI_SSID=%s\n' "$(shell_quote "$wifi_ssid")"
+            printf 'UNLIM8TED_FIRSTBOOT_WIFI_PASSWORD=%s\n' "$(shell_quote "$wifi_password")"
+            if [ -n "$wifi_country" ]; then
+                printf 'WIFI_COUNTRY=%s\n' "$(shell_quote "$wifi_country")"
+            fi
+        fi
+    } | sudo tee "$root_mount/etc/default/unlim8ted-firstboot" >/dev/null
 }
 
 is_wsl() {
@@ -1530,16 +1652,14 @@ run_image_build() {
 
 run_deferred_cm4() {
     device=
-    boot_size_mib=$UNLIM8TED_CM4_BOOT_SIZE_MIB
     root_size_mib=$UNLIM8TED_CM4_ROOT_SIZE_MIB
+    wifi_ssid=
+    wifi_password=
+    wifi_country=${WIFI_COUNTRY:-US}
     while [ "$#" -gt 0 ]; do
         case "$1" in
             --device)
                 device=${2:-}
-                shift 2
-                ;;
-            --boot-size-mib)
-                boot_size_mib=${2:-}
                 shift 2
                 ;;
             --root-size-mib)
@@ -1557,6 +1677,18 @@ run_deferred_cm4() {
                 root_size_mib=$((root_size_gib * 1024))
                 shift 2
                 ;;
+            --wifi-ssid)
+                wifi_ssid=${2:-}
+                shift 2
+                ;;
+            --wifi-password)
+                wifi_password=${2:-}
+                shift 2
+                ;;
+            --wifi-country)
+                wifi_country=${2:-}
+                shift 2
+                ;;
             *)
                 usage
                 ;;
@@ -1565,60 +1697,55 @@ run_deferred_cm4() {
 
     [ -n "$device" ] || usage
     require_block_device "$device"
-    case "$boot_size_mib" in
-        *[!0-9]* | "")
-            echo "--boot-size-mib must be a positive integer." >&2
-            exit 1
-            ;;
-    esac
     case "$root_size_mib" in
         *[!0-9]* | "")
             echo "--root-size-mib must be a positive integer." >&2
             exit 1
             ;;
     esac
+    root_size_gib=$(((root_size_mib + 1023) / 1024))
 
-    confirm_token DEFERRED-FLASH "DANGER: $device will be completely reformatted. bootfs=${boot_size_mib}MiB, rootfs=${root_size_mib}MiB, storage=rest. Packages will install on first boot after network login."
+    confirm_token DEFERRED-FLASH "DANGER: $device will be flashed with the pinned Raspberry Pi OS Lite base image, rootfs will expand to ${root_size_gib}GiB, storage will use the remaining space, and packages will install on first boot after network login."
 
     sanitize_path
     ensure_prerequisites
 
+    if [ -z "$wifi_ssid" ] && [ -t 0 ]; then
+        wifi_ssid=$(prompt "Optional Wi-Fi SSID for first boot [leave blank to skip]: ")
+        if [ -n "$wifi_ssid" ]; then
+            wifi_password=$(prompt_secret "Optional Wi-Fi password [leave blank for open network]: ")
+            wifi_country_input=$(prompt "Wi-Fi country [$wifi_country]: ")
+            if [ -n "$wifi_country_input" ]; then
+                wifi_country=$wifi_country_input
+            fi
+        fi
+    fi
+
     source_image=$(get_base_image "cm4" "$UNLIM8TED_CM4_IMAGE_URL" "$UNLIM8TED_CM4_ARCHIVE_NAME")
     mount_root="$UNLIM8TED_BUILD_DIR/mount-cm4-deferred"
-    source_mount="$UNLIM8TED_BUILD_DIR/mount-cm4-source"
     root_mount=
     boot_mount=
-    source_root=
-    source_boot=
-    loop_device=
 
     cleanup_deferred() {
         set +e
-        if [ -n "$source_root" ]; then
-            unmount_image_partitions "$source_root" "$source_boot"
-        fi
-        if [ -n "$loop_device" ]; then
-            detach_loop_device "$loop_device"
-        fi
         if [ -n "$root_mount" ]; then
             unbind_mount_chroot_support "$root_mount"
             unmount_image_partitions "$root_mount" "$boot_mount"
         fi
         sudo rm -rf "$mount_root"
-        sudo rm -rf "$source_mount"
     }
     trap cleanup_deferred EXIT INT TERM
 
     unmount_block_device_tree "$device"
-    echo "Preparing base image source mounts..." >&2
-    sudo rm -rf "$source_mount"
-    loop_device=$(attach_loop_device "$source_image")
-    mounts=$(mount_image_partitions "$loop_device" "$source_mount")
-    source_root=$(printf '%s\n' "$mounts" | sed -n '1p')
-    source_boot=$(printf '%s\n' "$mounts" | sed -n '2p')
+    echo "Flashing base image to $device..." >&2
+    sudo dd if="$source_image" of="$device" bs=16M conv=fsync status=progress
+    sync
+    sudo partprobe "$device" 2>/dev/null || true
+    sleep 3
 
-    echo "Creating partition layout on $device..." >&2
-    create_partition_layout_on_device "$device" "$boot_size_mib" "$root_size_mib"
+    echo "Expanding stock partition layout on $device..." >&2
+    create_storage_partition_on_device "$device" "$root_size_gib"
+    unmount_block_device_tree "$device"
 
     sudo rm -rf "$mount_root"
     mounts=$(mount_image_partitions "$device" "$mount_root")
@@ -1629,27 +1756,22 @@ run_deferred_cm4() {
     df -h "$root_mount" >&2 || true
 
     if mountpoint -q "$root_mount/home/unlim8ted"; then
-        echo "Temporarily unmounting storage partition during base OS copy..." >&2
+        echo "Temporarily unmounting storage partition before overlay setup..." >&2
         sudo umount "$root_mount/home/unlim8ted"
     fi
 
-    echo "Copying base OS into new partitions..." >&2
-    sudo rsync -a --delete "$source_boot/" "$boot_mount/"
-    sudo rsync -aHAX --delete "$source_root/" "$root_mount/"
-
     apply_overlay "$root_mount" "$boot_mount"
+    configure_raspberry_pi_bootstrap "$root_mount" "$boot_mount" "arm64"
     configure_boot_splash "$boot_mount"
+    configure_tty1_firstboot_login "$root_mount"
     setup_storage_mount "$root_mount"
 
     sudo install -m 0755 "$UNLIM8TED_OVERLAY_DIR/opt/unlim8ted/bin/firstboot-install.sh" "$root_mount/opt/unlim8ted/bin/firstboot-install.sh"
-    sudo mkdir -p "$root_mount/etc/default"
-    cat <<EOF | sudo tee "$root_mount/etc/default/unlim8ted-firstboot" >/dev/null
-UNLIM8TED_FIRSTBOOT_PACKAGES="$UNLIM8TED_CM4_PACKAGES"
-EOF
+    write_firstboot_env "$root_mount" "$UNLIM8TED_CM4_PACKAGES" "$wifi_ssid" "$wifi_password" "$wifi_country"
 
     sudo mkdir -p "$root_mount/etc/systemd/system/multi-user.target.wants"
     sudo rm -f "$root_mount/etc/systemd/system/multi-user.target.wants/unlim8ted.service"
-    sudo ln -sf ../unlim8ted-firstboot-install.service "$root_mount/etc/systemd/system/multi-user.target.wants/unlim8ted-firstboot-install.service"
+    sudo rm -f "$root_mount/etc/systemd/system/multi-user.target.wants/unlim8ted-firstboot-install.service"
 
     unmount_image_partitions "$root_mount" "$boot_mount"
     root_mount=
@@ -1719,7 +1841,9 @@ run_overlay_reapply() {
     boot_mount=$(printf '%s\n' "$mounts" | sed -n '2p')
 
     apply_overlay "$root_mount" "$boot_mount"
+    configure_raspberry_pi_bootstrap "$root_mount" "$boot_mount" "arm64"
     configure_boot_splash "$boot_mount"
+    configure_tty1_firstboot_login "$root_mount"
     configure_plymouth "$root_mount" "arm64"
     setup_storage_mount "$root_mount"
     enable_services "$root_mount" "arm64"
@@ -1996,7 +2120,9 @@ run_repair() {
     install_target_packages "$root_mount" "arm64" "$UNLIM8TED_CM4_PACKAGES" "cm4"
     install_browser_compatibility "$root_mount" "arm64"
     apply_overlay "$root_mount" "$boot_mount"
+    configure_raspberry_pi_bootstrap "$root_mount" "$boot_mount" "arm64"
     configure_boot_splash "$boot_mount"
+    configure_tty1_firstboot_login "$root_mount"
     configure_plymouth "$root_mount" "arm64"
     setup_storage_mount "$root_mount"
     enable_services "$root_mount" "arm64"
@@ -2109,7 +2235,9 @@ run_continue() {
     install_target_packages "$root_mount" "arm64" "$UNLIM8TED_CM4_PACKAGES" "cm4"
     install_browser_compatibility "$root_mount" "arm64"
     apply_overlay "$root_mount" "$boot_mount"
+    configure_raspberry_pi_bootstrap "$root_mount" "$boot_mount" "arm64"
     configure_boot_splash "$boot_mount"
+    configure_tty1_firstboot_login "$root_mount"
     configure_plymouth "$root_mount" "arm64"
     setup_storage_mount "$root_mount"
     enable_services "$root_mount" "arm64"
@@ -2232,12 +2360,6 @@ main() {
             ;;
         continue)
             run_continue "$@"
-            ;;
-        list-devices | devices)
-            list_devices
-            ;;
-        -h | --help | help)
-            usage
             ;;
         *)
             usage
